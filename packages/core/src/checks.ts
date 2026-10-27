@@ -92,7 +92,7 @@ const time: Rule = (c) => {
     return r("block", "Too close to expiry", `${humanDuration(left)} left`, `Too close. Only ${humanDuration(left)} left, and a send on ${chain?.name ?? "this network"} can take about ${humanDuration(budget)}. Get a fresh quote.`, { expected, actual, action: { kind: "new-quote", label: "Get a fresh quote" } });
   }
   if (left < Math.max(2 * budget, c.rules.nearExpiryWarnSec)) {
-    return r("warn", "Close to expiry", `${humanDuration(left)} left`, `${capitalise(humanDuration(left))} left. If your send could take longer, get a fresh quote first.`, { expected, actual });
+    return r("warn", "Close to expiry", `${humanDuration(left)} left`, `${capitalise(humanDuration(left))} left. If your send could take longer, get a fresh quote first.`, { expected, actual, action: { kind: "new-quote", label: "Get a fresh quote" } });
   }
   const inactive = c.qr.quote.timeWhenInactive ? new Date(c.qr.quote.timeWhenInactive) : null;
   if (inactive && inactive.getTime() <= c.now.getTime()) {

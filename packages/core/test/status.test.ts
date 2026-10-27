@@ -12,7 +12,8 @@ describe("describeStatus", () => {
       expect(v.label.length).toBeGreaterThan(3);
       expect(v.message.length).toBeGreaterThan(10);
       expect(v.timeline.length).toBeGreaterThanOrEqual(4);
-      expect(v.timeline.filter((x) => x.state === "current")).toHaveLength(1);
+      if (v.terminal) expect(v.timeline.every((x) => x.state === "done")).toBe(true);
+      else expect(v.timeline.filter((x) => x.state === "current")).toHaveLength(1);
     }
   });
 

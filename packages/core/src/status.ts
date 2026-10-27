@@ -62,10 +62,10 @@ function steps(status: SwapStatus): TimelineStep[] {
     return [...base, { key: "outcome", title: "Refund after the deadline", state: "upcoming", tone: "check" }];
   }
   if (status === "REFUNDED" || status === "FAILED") {
-    return [...base.map((s) => ({ ...s, state: "done" as const })), { key: "outcome", title: COPY[status].label, state: "current", tone: COPY[status].tone }];
+    return [...base.map((s) => ({ ...s, state: "done" as const })), { key: "outcome", title: COPY[status].label, state: "done", tone: COPY[status].tone }];
   }
   if (status === "SUCCESS") {
-    return [...base.map((s) => ({ ...s, state: "done" as const })), { key: "outcome", title: "Delivered", state: "current", tone: "safe" }];
+    return [...base.map((s) => ({ ...s, state: "done" as const })), { key: "outcome", title: "Delivered", state: "done", tone: "safe" }];
   }
   return [...base, { key: "outcome", title: "Delivered", state: "upcoming", tone: "neutral" }];
 }
