@@ -99,3 +99,8 @@ function estimateText(sec: number | null | undefined): string {
   if (sec < 90) return `about ${Math.round(sec)} seconds`;
   return `about ${Math.round(sec / 60)} minutes`;
 }
+
+/** Label and tone for each 1Click status, for docs and guides (same copy the tracker shows). */
+export const STATUS_LABELS: Record<SwapStatus, { label: string; tone: StatusView["tone"]; terminal: boolean }> = Object.fromEntries(
+  (Object.keys(COPY) as SwapStatus[]).map((s) => [s, { label: COPY[s].label, tone: COPY[s].tone, terminal: isTerminal(s) }]),
+) as Record<SwapStatus, { label: string; tone: StatusView["tone"]; terminal: boolean }>;

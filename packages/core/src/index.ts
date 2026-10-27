@@ -1,4 +1,5 @@
 export * from "./address.js";
+export * from "./catalog.js";
 export * from "./chains.js";
 export * from "./checks.js";
 export { buildContext, findToken, isNative, resolveDeclaredToken, type Ctx } from "./context.js";
