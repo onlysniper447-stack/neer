@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Neer design tokens (spec section 6). Light first, dark recomputed, not inverted. */
+:root {
+  --bg: #ffffff;
+  --surface: #f5f8f8;
+  --ink: #0e1a24;
+  --muted: #4a5a66;
+  --line: #d7e0e3;
+  --brand: #0e7c7b;
+  --brand-ink: #ffffff;
+  --focus: #0e7c7b;
+  --safe: #176e41;
+  --safe-bg: #e8f5ee;
+  --check: #8a5a00;
+  --check-bg: #fff4de;
+  --stop: #b42318;
+  --stop-bg: #fdecea;
+  --radius: 12px;
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* shadcn/ui variable names mapped onto the Neer tokens */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --card: var(--bg);
+  --card-foreground: var(--ink);
+  --popover: var(--bg);
+  --popover-foreground: var(--ink);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-ink);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted-foreground: var(--muted);
+  --accent: var(--surface);
+  --accent-foreground: var(--ink);
+  --destructive: var(--stop);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--focus);
+}
+
+.dark {
+  --bg: #0b1218;
+  --surface: #121c24;
+  --ink: #e8eff2;
+  --muted: #9fb0ba;
+  --line: #23323c;
+  --brand: #3fb8b3;
+  --brand-ink: #0b1218;
+  --focus: #3fb8b3;
+  --safe: #5bd69a;
+  --safe-bg: #0f2a1e;
+  --check: #f2c46b;
+  --check-bg: #2e2410;
+  --stop: #ff8a80;
+  --stop-bg: #3a1514;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-ink: var(--brand-ink);
+  --color-safe: var(--safe);
+  --color-safe-bg: var(--safe-bg);
+  --color-check: var(--check);
+  --color-check-bg: var(--check-bg);
+  --color-stop: var(--stop);
+  --color-stop-bg: var(--stop-bg);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes neer-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.neer-reveal {
+  animation: neer-rise var(--motion-base) var(--ease) both;
+}
+
+@keyframes neer-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+.neer-pulse {
+  animation: neer-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
