@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "next build && playwright test --project=e2e --project=mobile",
-    "screenshots": "next build && playwright test --project=screenshots"
+    "screenshots": "next build && playwright test --project=screenshots",
+    "live": "tsx scripts/live-check.ts"
   },
   "dependencies": {
     "@neer/core": "workspace:*",

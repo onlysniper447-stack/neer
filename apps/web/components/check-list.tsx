@@ -39,6 +39,8 @@ const FACT_LABEL: Record<string, string> = {
   selector: "Function selector",
   refundFee: "Refund fee (base units)",
   reason: "Reason",
+  ageSec: "Read",
+  priceAgeSec: "Price age",
 };
 
 const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
@@ -47,6 +49,8 @@ function factValue(key: string, v: string | number | boolean | null): string {
   if (v === null) return "none";
   if (key === "chain" && typeof v === "string") return `${chainName(v)} (${v})`;
   if (key === "secondsLeft" && typeof v === "number") return v <= 0 ? "none" : humanDuration(v);
+  if (key === "ageSec" && typeof v === "number") return `${humanDuration(v)} ago`;
+  if (key === "priceAgeSec" && typeof v === "number") return humanDuration(v);
   if (typeof v === "string" && ISO.test(v)) return formatDateTime(v);
   return String(v);
 }
