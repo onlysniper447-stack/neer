@@ -29,12 +29,12 @@ pnpm dev              # http://localhost:3000 (talks to the real 1Click API)
 
 # Playwright e2e: builds the app, runs it against a local mock of 1Click
 pnpm e2e
-pnpm --filter @neer/web screenshots   # writes ./screenshots/*.png (light + dark, mobile)
+pnpm --filter @neer/web screenshots   # writes ./screenshots/v2/*.png (mobile + desktop, light + dark)
 
 # Live smoke test against the real 1Click API. Requests ONE fresh non-dry
 # quote for 5 USDC (Arbitrum -> Solana), verifies its signature, reads its
 # status and runs the engine on it. No funds are sent; the address expires.
-SMOKE_OUT=.smoke-address pnpm smoke
+SMOKE_OUT=$PWD/.smoke-address pnpm smoke   # absolute path: the script runs in packages/oneclick
 # Then drive the real app through that address and save live screenshots:
 pnpm --filter @neer/web build
 pnpm --filter @neer/web exec next start --port 3200 --hostname 127.0.0.1 &
@@ -44,6 +44,26 @@ NEER_URL=http://127.0.0.1:3200 LIVE_ADDRESS=$(cat .smoke-address) pnpm --filter 
 Playwright needs Chromium once: `pnpm --filter @neer/web exec playwright install chromium`.
 
 Environment variables are all optional; see `apps/web/.env.example`.
+
+## Web app
+
+Every page has the same header: a three-bar menu button top left, the Neer
+logo next to it and the theme toggle (system, light, dark) on the right. The
+menu is a left drawer on every screen size (Radix Dialog via the shadcn Sheet:
+focus trap, Esc closes, focus returns to the button) with four sections:
+
+| Section | Path | What's there |
+| --- | --- | --- |
+| Tools | `/tools` | The three working tools. Deposit preflight (`/` then `/check`), swap tracker (`/track`, paste an address, then `/track?address=…`), address checker (`/tools/address`: networks an address is valid on, checksum, canonical form, lookalike compare; runs in the browser with `@neer/core`). Unbuilt tools are listed as "Coming later" and aren't links. |
+| Analytics | `/analytics` | Live network and token counts from 1Click `/v0/tokens` (server cache, 5 min), every network with its token count, whether Neer validates its addresses, its minimum and confirm budget; the minimums Neer enforces with their sources; the rules catalog with severities. Optional local-only counts of this browser's checks (localStorage, verdicts and networks only, with a Clear button). No invented numbers: if 1Click doesn't answer, the page says so. |
+| API | `/developers` | Docs for `POST /api/v1/preflight` and `GET /api/v1/track` with real responses captured from the live API (`apps/web/lib/docs/examples`, kept in sync by a unit test), error codes, rate limits, CORS, `<NeerGuard/>`, copy buttons and a try-it form that calls this deployment. |
+| Resources | `/resources` | How Neer works, the three answers, every check and status in plain English, safety tips, FAQ, and links to the NEAR Intents docs, explorer, NEAR support and terms, and near/intents#382. |
+
+Layouts are mobile-first (checked at 360 px) and use two columns from 1024 px:
+on `/check` the verdict and checks sit beside the countdown, deposit address and
+quote details; the tracker does the same. Loading states are skeletons shaped
+like the page. Motion is limited to short fades and the drawer slide, and is
+switched off with `prefers-reduced-motion`.
 
 ## Layout
 
@@ -186,13 +206,13 @@ results, `check` and `block` keep it false.
 
 | Package | Runner | Count |
 | --- | --- | --- |
-| @neer/core | vitest | 119 |
+| @neer/core | vitest | 123 |
 | @neer/oneclick | vitest | 11 |
-| @neer/web (server code, inputs, rate limiter) | vitest | 32 |
+| @neer/web (server code, inputs, rate limiter, address checker, analytics, local stats, docs examples) | vitest | 49 |
 | @neer/react | vitest + Testing Library (jsdom) | 4 |
-| @neer/web e2e | Playwright, desktop Chrome | 24 |
-| @neer/web e2e | Playwright, Pixel 7 (paste flow) | 11 |
-| screenshots | Playwright | 12 |
+| @neer/web e2e | Playwright, desktop Chrome | 71 |
+| @neer/web e2e | Playwright, Pixel 7 (paste flow, menu, pages) | 58 |
+| screenshots | Playwright (56 images in `screenshots/v2`) | 16 |
 
 The e2e suite runs the production build against `apps/web/e2e/mock-1click.ts`,
 which serves the recorded token list and `/v0/status` bodies shaped like the
@@ -201,6 +221,13 @@ recorded live responses, signed with a test key. Scenarios: safe, #382 replay
 expiry, expired, used, not found, 1Click down, Stellar memo right / missing,
 bad input, tracker progression to delivered (and polling stops), API contract,
 CORS, security headers, and the landing page's curl example.
+
+The menu and page suites (`e2e/nav.spec.ts`, `e2e/pages.spec.ts`) open and
+close the menu by click, Esc and keyboard (focus trap and focus return), load
+every page with no console errors and a CSP nonce, check there's no horizontal
+scroll at 360 px, and run axe (`@axe-core/playwright`, WCAG 2.2 AA + best
+practice) in light and dark on every page, the three verdicts and the open
+menu; serious and critical violations fail the test.
 
 ## Limitations (honest list)
 
@@ -223,7 +250,7 @@ CORS, security headers, and the landing page's curl example.
   sets it (Vercel does).
 - `style-src` allows `'unsafe-inline'` for inline style attributes (countdown bar width, Radix). Scripts stay nonce-only.
 - Not built from the spec: attestations (signed Neer verdicts / JWS),
-  API keys and site keys, Telegram bot, refund helper, history, partner
+  API keys and site keys, refund helper, history, partner
   dashboard, AI explanations, confidential swaps.
 
 ## 1Click API notes found while building
