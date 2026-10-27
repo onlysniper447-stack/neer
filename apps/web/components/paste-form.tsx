@@ -8,7 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MemoSchema, PastedAddressSchema } from "@/lib/inputs";
 
-export function PasteForm({ initialAddress = "", initialMemo = "" }: { initialAddress?: string; initialMemo?: string }) {
+export function PasteForm({
+  initialAddress = "",
+  initialMemo = "",
+  target = "/check",
+  submitLabel = "Check address",
+  busyLabel = "Checking…",
+}: {
+  initialAddress?: string;
+  initialMemo?: string;
+  /** Page that receives ?address=&memo= */
+  target?: "/check" | "/track";
+  submitLabel?: string;
+  busyLabel?: string;
+}) {
   const router = useRouter();
   const [address, setAddress] = useState(initialAddress);
   const [memo, setMemo] = useState(initialMemo);
@@ -47,7 +60,7 @@ export function PasteForm({ initialAddress = "", initialMemo = "" }: { initialAd
     setBusy(true);
     const qs = new URLSearchParams({ address: a.data });
     if (m?.success && m.data) qs.set("memo", m.data);
-    router.push(`/check?${qs.toString()}`);
+    router.push(`${target}?${qs.toString()}`);
   }
 
   return (
@@ -71,12 +84,16 @@ export function PasteForm({ initialAddress = "", initialMemo = "" }: { initialAd
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? errId : undefined}
           />
-          <Button type="button" variant="outline" className="h-12" onClick={pasteFromClipboard}>
+          <Button type="button" variant="outline" className="h-12 shrink-0" onClick={pasteFromClipboard} aria-label="Paste from clipboard">
             <ClipboardPaste className="size-4" aria-hidden="true" />
-            Paste
+            <span className="hidden min-[380px]:inline">Paste</span>
           </Button>
         </div>
-        {pasteNote ? <p className="text-sm text-muted">{pasteNote}</p> : null}
+        {pasteNote ? (
+          <p className="text-sm text-muted" role="status">
+            {pasteNote}
+          </p>
+        ) : null}
       </div>
 
       {hasMemo ? (
@@ -96,19 +113,19 @@ export function PasteForm({ initialAddress = "", initialMemo = "" }: { initialAd
           <p className="text-sm text-muted">Some networks, like Stellar, need a memo with the address. Copy it exactly.</p>
         </div>
       ) : (
-        <button type="button" className="min-h-11 text-left font-medium text-brand underline-offset-4 hover:underline" onClick={() => setHasMemo(true)}>
+        <button type="button" className="-my-1 min-h-11 rounded-md text-left font-medium text-brand underline-offset-4 hover:underline" onClick={() => setHasMemo(true)}>
           + This swap has a memo
         </button>
       )}
 
       {error ? (
-        <p id={errId} role="alert" className="text-stop">
+        <p id={errId} role="alert" className="rounded-lg border border-stop/40 bg-stop-bg px-3 py-2 text-[15px] text-stop">
           {error}
         </p>
       ) : null}
 
       <Button type="submit" size="lg" className="w-full" disabled={busy}>
-        {busy ? "Checking…" : "Check address"}
+        {busy ? busyLabel : submitLabel}
       </Button>
     </form>
   );

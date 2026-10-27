@@ -1,13 +1,16 @@
 "use client";
 
 import { AmountError, parseAmount, type QuoteSummary } from "@neer/core";
-import { ArrowRight, ChevronDown } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import { ArrowRight, ChevronDown, Loader2 } from "lucide-react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { recordCheck } from "@/lib/local-stats";
 import { cn } from "@/lib/utils";
+import { AddressChip } from "./address-chip";
+import { QuoteDetails } from "./quote-details";
 import { ResultView, type ApiResult } from "./result-view";
 
 export interface ChainOption {
@@ -55,7 +58,6 @@ export function PreflightFlow({
   const [moreDetails, setMoreDetails] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [phase, setPhase] = useState<Phase>({ kind: "form" });
-  const topRef = useRef<HTMLDivElement>(null);
   const ids = { token: useId(), amount: useId(), memo: useId(), from: useId(), to: useId() };
 
   const popular = chains.filter((c) => POPULAR.includes(c.id)).sort((a, b) => POPULAR.indexOf(a.id) - POPULAR.indexOf(b.id));
@@ -109,6 +111,7 @@ export function PreflightFlow({
       const json = (await res.json()) as Partial<ApiResult> & { error?: { code: string; message: string; issues?: { path: string; message: string }[] } };
       if (json.verdict && json.checks) {
         setPhase({ kind: "result", result: json as ApiResult, sendSummary });
+        recordCheck({ verdict: json.verdict, network: chain });
       } else if (res.status === 429) {
         setPhase({ kind: "error", message: json.error?.message ?? "Too many checks. Try again in 30 seconds." });
       } else if (res.status === 400) {
@@ -123,32 +126,28 @@ export function PreflightFlow({
         message: typeof navigator !== "undefined" && !navigator.onLine ? "You're offline. Check again when you're back." : "We couldn't reach Neer. Wait a minute and try again before you send.",
       });
     }
-    topRef.current?.scrollIntoView({ block: "start" });
+    window.scrollTo({ top: 0 }); // the swap title sits right above the result or form
   }
 
   function edit(nextChain?: string) {
     if (nextChain) pickChain(nextChain);
     setPhase({ kind: "form" });
-    topRef.current?.scrollIntoView({ block: "start" });
+    window.scrollTo({ top: 0 }); // the swap title sits right above the result or form
   }
 
-  const route = `${quote.amountInFormatted} ${quote.originSymbol ?? "?"} on ${quote.originChainName ?? "?"} → ${quote.amountOutFormatted} ${quote.destinationSymbol ?? "?"}${quote.destinationChainName ? ` on ${quote.destinationChainName}` : ""}`;
-
   return (
-    <div ref={topRef} className="scroll-mt-20 space-y-5">
-      <div className="rounded-xl border border-line bg-surface p-4">
-        <p className="text-sm text-muted">This address expects a swap</p>
-        <p className="mt-1 font-medium" data-testid="route">
-          {route}
-        </p>
-      </div>
-
+    <div>
       {phase.kind === "result" ? (
         <ResultView result={phase.result} pastedAddress={address} pastedMemo={pastedMemo} onEdit={edit} sendSummary={phase.sendSummary} />
       ) : (
-        <form onSubmit={run} className="space-y-6" noValidate aria-busy={phase.kind === "loading"}>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:gap-x-8 xl:gap-x-10">
+        <form onSubmit={run} className="space-y-7 rounded-2xl border border-line p-5 sm:p-7" noValidate aria-busy={phase.kind === "loading"} aria-labelledby="send-form-title">
+          <div>
+            <h2 id="send-form-title" className="text-xl font-semibold tracking-tight">How will you send it?</h2>
+            <p className="mt-1 text-muted">Neer compares your answers with the signed quote. Nothing is sent or signed.</p>
+          </div>
           <fieldset className="space-y-2">
-            <legend className="text-base font-medium">Which network will you send on?</legend>
+            <legend className="text-base font-semibold">Which network will you send on?</legend>
             <p className="text-sm text-muted">Pick the one your wallet or exchange shows. We don&apos;t pre-select it on purpose.</p>
             <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Network">
               {[...popular, ...(showRest ? rest : [])].map((c) => (
@@ -170,11 +169,11 @@ export function PreflightFlow({
                 </button>
               ) : null}
             </div>
-            {errors.chain ? <p className="text-sm text-stop">{errors.chain}</p> : null}
+            {errors.chain ? <p className="text-sm font-medium text-stop" role="alert">{errors.chain}</p> : null}
           </fieldset>
 
           <div className="space-y-2">
-            <Label htmlFor={ids.token} className="text-base">
+            <Label htmlFor={ids.token} className="text-base font-semibold">
               Token
             </Label>
             <select
@@ -182,7 +181,7 @@ export function PreflightFlow({
               value={assetId}
               onChange={(e) => setAssetId(e.target.value)}
               disabled={!chain}
-              className="h-12 w-full rounded-md border border-input bg-bg px-3 text-base disabled:opacity-60"
+              className="h-12 w-full rounded-md border border-input bg-bg px-3 text-base text-ink focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:cursor-not-allowed disabled:bg-surface disabled:text-muted"
               aria-invalid={errors.token ? true : undefined}
             >
               <option value="">{chain ? "Choose a token" : "Pick a network first"}</option>
@@ -192,11 +191,11 @@ export function PreflightFlow({
                 </option>
               ))}
             </select>
-            {errors.token ? <p className="text-sm text-stop">{errors.token}</p> : null}
+            {errors.token ? <p className="text-sm font-medium text-stop" role="alert">{errors.token}</p> : null}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={ids.amount} className="text-base">
+            <Label htmlFor={ids.amount} className="text-base font-semibold">
               Amount you&apos;ll send
             </Label>
             <div className="flex items-center gap-2">
@@ -210,14 +209,14 @@ export function PreflightFlow({
                 className="tabular h-12 font-mono text-base"
                 aria-invalid={errors.amount ? true : undefined}
               />
-              <span className="min-w-14 text-muted">{token?.symbol ?? ""}</span>
+              <span className="min-w-14 font-medium text-muted">{token?.symbol ?? ""}</span>
             </div>
-            {errors.amount ? <p className="text-sm text-stop">{errors.amount}</p> : null}
+            {errors.amount ? <p className="text-sm font-medium text-stop" role="alert">{errors.amount}</p> : null}
           </div>
 
           {needsMemo ? (
             <div className="space-y-2">
-              <Label htmlFor={ids.memo} className="text-base">
+              <Label htmlFor={ids.memo} className="text-base font-semibold">
                 Memo you&apos;ll add
               </Label>
               <Input id={ids.memo} value={memo} onChange={(e) => setMemo(e.target.value)} autoComplete="off" spellCheck={false} className="h-12 font-mono text-base" />
@@ -226,7 +225,7 @@ export function PreflightFlow({
           ) : null}
 
           <fieldset className="space-y-2">
-            <legend className="text-base font-medium">Sending from</legend>
+            <legend className="text-base font-semibold">Sending from</legend>
             <div className="flex flex-wrap gap-2">
               {(
                 [
@@ -247,7 +246,7 @@ export function PreflightFlow({
                 </label>
               ))}
             </div>
-            {errors.source ? <p className="text-sm text-stop">{errors.source}</p> : null}
+            {errors.source ? <p className="text-sm font-medium text-stop" role="alert">{errors.source}</p> : null}
           </fieldset>
 
           <Collapsible open={moreDetails} onOpenChange={setMoreDetails}>
@@ -275,10 +274,22 @@ export function PreflightFlow({
           ) : null}
 
           <Button type="submit" size="lg" className="w-full" disabled={phase.kind === "loading"}>
+            {phase.kind === "loading" ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : null}
             {phase.kind === "loading" ? "Running checks…" : "Run checks"}
             {phase.kind === "loading" ? null : <ArrowRight className="size-4" aria-hidden="true" />}
           </Button>
         </form>
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start" aria-label="Deposit and quote">
+          <AddressChip address={quote.depositAddress ?? address} verified={quote.verified} label="Deposit address" />
+          {quote.depositMemo ? (
+            <div className="rounded-xl border border-line bg-surface p-4">
+              <p className="text-sm font-medium text-muted">Memo (required)</p>
+              <p className="font-mono text-lg break-all">{quote.depositMemo}</p>
+            </div>
+          ) : null}
+          <QuoteDetails quote={quote} />
+        </aside>
+        </div>
       )}
     </div>
   );

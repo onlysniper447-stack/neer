@@ -82,19 +82,23 @@ function CheckRow({ check }: { check: CheckResult }) {
   return (
     <li className="border-b border-line last:border-b-0" data-testid={`check-${check.id}`} data-severity={check.severity}>
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="flex min-h-11 w-full items-center gap-3 py-2 text-left">
+        <CollapsibleTrigger className="-mx-2 grid min-h-12 w-[calc(100%+1rem)] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring">
           <Icon className={cn("size-5 shrink-0", cls)} aria-hidden="true" />
-          <span className="sr-only">{word}:</span>
-          <span className="font-medium">{check.title}</span>
-          <span className="ml-auto truncate pl-2 text-right text-sm text-muted">{check.summary}</span>
+          <span className="flex min-w-0 flex-col gap-x-3 sm:flex-row sm:items-baseline sm:justify-between">
+            <span className="font-medium">
+              <span className="sr-only">{word}: </span>
+              {check.title}
+            </span>
+            <span className="text-sm text-muted sm:truncate sm:text-right">{check.summary}</span>
+          </span>
           <ChevronDown className={cn("size-4 shrink-0 text-muted transition-transform", open && "rotate-180")} aria-hidden="true" />
         </CollapsibleTrigger>
-        <CollapsibleContent className="space-y-3 pb-3 pl-8">
-          <p>{check.message}</p>
+        <CollapsibleContent className="space-y-3 pr-2 pb-4 pl-8">
+          <p className="max-w-prose">{check.message}</p>
           {mounted && (check.expected || check.actual) ? (
-            <details className="text-sm">
-              <summary className="cursor-pointer text-muted">Details</summary>
-              <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            <details className="group text-sm">
+              <summary className="inline-flex min-h-9 cursor-pointer items-center rounded-md text-muted underline-offset-4 hover:text-ink hover:underline">Details</summary>
+              <div className="mt-2 grid gap-4 rounded-lg bg-surface p-3 sm:grid-cols-2">
                 <Facts title="Quote expects" facts={check.expected} />
                 <Facts title="You" facts={check.actual} />
               </div>
@@ -106,29 +110,50 @@ function CheckRow({ check }: { check: CheckResult }) {
   );
 }
 
+function Count({ n, label, cls }: { n: number; label: string; cls: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-sm">
+      <span className={cn("size-2 rounded-full", cls)} aria-hidden="true" />
+      <span className="tabular font-semibold text-ink">{n}</span>
+      <span className="text-muted">{label}</span>
+    </span>
+  );
+}
+
 export function CheckList({ checks }: { checks: CheckResult[] }) {
   const problems = checks.filter((c) => c.severity === "block" || c.severity === "warn" || c.severity === "unknown").length;
   const passed = checks.filter((c) => c.severity === "pass").length;
   const notes = checks.filter((c) => c.severity === "info").length;
-  const [open, setOpen] = useState(problems > 0);
-  const summary = [
-    problems === 0 ? "No problems" : `${problems} ${problems === 1 ? "problem" : "problems"}`,
-    `${passed} passed`,
-    ...(notes ? [`${notes} ${notes === 1 ? "note" : "notes"}`] : []),
-  ].join(", ");
+  // Open by default: every check is visible without a click; it can be collapsed.
+  const [open, setOpen] = useState(true);
+  // Problems first, then notes, then passes; engine order within each group.
+  const RANK = { block: 0, warn: 1, unknown: 2, info: 3, pass: 4 } as const;
+  const ordered = [...checks].sort((a, b) => RANK[a.severity] - RANK[b.severity]);
   return (
-    <section aria-label="Checks" className="rounded-xl border border-line">
+    <section aria-labelledby="checks-heading" className="rounded-2xl border border-line">
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between px-4 py-2 text-left font-medium" data-testid="checks-toggle">
-          <span>{summary}</span>
-          <span className="flex items-center gap-1 text-sm text-muted">
-            {open ? "Hide" : "Show"}
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 pt-4 pb-3 sm:px-5">
+          <div className="space-y-1.5">
+            <h2 id="checks-heading" className="text-lg font-semibold">
+              {checks.length} {checks.length === 1 ? "check" : "checks"}
+            </h2>
+            <p className="flex flex-wrap gap-x-4 gap-y-1">
+              <Count n={problems} label={problems === 1 ? "problem" : "problems"} cls={problems ? "bg-stop" : "bg-line"} />
+              <Count n={passed} label="passed" cls="bg-safe" />
+              {notes ? <Count n={notes} label={notes === 1 ? "note" : "notes"} cls="bg-muted" /> : null}
+            </p>
+          </div>
+          <CollapsibleTrigger
+            className="inline-flex min-h-11 items-center gap-1 rounded-lg px-3 text-sm font-medium text-brand transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-ring"
+            data-testid="checks-toggle"
+          >
+            {open ? "Hide checks" : "Show all checks"}
             <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} aria-hidden="true" />
-          </span>
-        </CollapsibleTrigger>
+          </CollapsibleTrigger>
+        </div>
         <CollapsibleContent>
-          <ul className="px-4">
-            {checks.map((c) => (
+          <ul className="border-t border-line px-4 sm:px-5">
+            {ordered.map((c) => (
               <CheckRow key={c.id} check={c} />
             ))}
           </ul>

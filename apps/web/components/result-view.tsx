@@ -1,6 +1,7 @@
 "use client";
 
 import { SAFE_DEFINITION, getChain, type CheckResult, type PreflightResult } from "@neer/core";
+import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AddressChip } from "./address-chip";
@@ -8,6 +9,7 @@ import { CheckList } from "./check-list";
 import { Countdown } from "./countdown";
 import { CopyButton } from "./copy-button";
 import { ReceiptButton } from "./receipt-button";
+import { QuoteDetails } from "./quote-details";
 import { VerdictCard, toneForVerdict } from "./verdict-card";
 
 export type ApiResult = PreflightResult & { requestId?: string };
@@ -79,79 +81,94 @@ export function ResultView({
     );
   }
 
+  const facts = [
+    `Rules ${result.rulesVersion}`,
+    `checks ${result.checksHash.slice(0, 12)}`,
+    ...(result.requestId ? [result.requestId] : []),
+    ...(q?.correlationId ? [`1Click ${q.correlationId}`] : []),
+  ];
+
   return (
-    <div className="space-y-4" data-testid="result" data-verdict={result.verdict}>
-      <VerdictCard tone={tone} label={result.label} headline={result.headline} message={result.verdict === "safe" ? undefined : result.message}>
-        {result.verdict === "safe" && q ? (
-          <div className="space-y-1">
-            <p className="font-medium">Send exactly:</p>
-            <p className="font-mono text-lg tabular" data-testid="send-exactly">
-              {sendSummary ?? `${q.amountInFormatted} ${q.originSymbol ?? ""} on ${q.originChainName ?? ""}`}
-            </p>
+    <div
+      className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:grid-rows-[auto_1fr] lg:gap-x-8 xl:gap-x-10"
+      data-testid="result"
+      data-verdict={result.verdict}
+    >
+      <div className="space-y-4 lg:col-start-1 lg:row-start-1">
+        <VerdictCard tone={tone} label={result.label} headline={result.headline} message={result.verdict === "safe" ? undefined : result.message}>
+          {result.verdict === "safe" && q ? (
+            <div className="rounded-xl bg-bg/70 p-4">
+              <p className="text-sm font-medium text-muted">Send exactly</p>
+              <p className="mt-0.5 font-mono text-xl font-semibold tabular sm:text-2xl" data-testid="send-exactly">
+                {sendSummary ?? `${q.amountInFormatted} ${q.originSymbol ?? ""} on ${q.originChainName ?? ""}`}
+              </p>
+            </div>
+          ) : null}
+          {action?.kind === "new-quote" ? <p className="text-[15px]">Get a new quote from your swap app, then check the new address here.</p> : null}
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            {primary}
+            {result.verdict === "check" && pending ? (
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                <Link href={track}>Track this deposit</Link>
+              </Button>
+            ) : null}
+          </div>
+        </VerdictCard>
+        {result.verdict === "safe" ? <p className="text-sm text-muted">{SAFE_DEFINITION}</p> : null}
+      </div>
+
+      <aside className="space-y-4 lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start" aria-label="Deposit and quote">
+        {q?.sendBefore && pending ? (
+          <Countdown
+            key={result.serverTime}
+            sendBefore={q.sendBefore}
+            serverTime={result.serverTime}
+            startedAt={result.signedQuote?.timestamp}
+            budgetSec={q.originChain ? getChain(q.originChain).confirmBudgetSec : 600}
+          />
+        ) : null}
+
+        <AddressChip address={depositAddress} verified={Boolean(q?.verified && lookalike?.severity === "pass")} label="Deposit address" />
+
+        {memo ? (
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-line bg-surface p-4">
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-muted">Memo (required)</p>
+              <p className="font-mono text-lg break-all">{memo}</p>
+            </div>
+            <CopyButton value={memo} ariaLabel="Copy memo" />
           </div>
         ) : null}
-        {action?.kind === "new-quote" ? <p className="text-sm">Get a new quote from your swap app, then check the new address here.</p> : null}
-        <div className="flex flex-wrap gap-2">
-          {primary}
-          {result.verdict === "check" && pending ? (
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link href={track}>Track this deposit</Link>
+
+        {q ? <QuoteDetails quote={q} /> : null}
+
+        <div className="flex flex-wrap items-center gap-2">
+          <ReceiptButton
+            signedQuote={result.signedQuote}
+            record={{
+              requestId: result.requestId ?? null,
+              verdict: result.verdict,
+              label: result.label,
+              headline: result.headline,
+              rulesVersion: result.rulesVersion,
+              checksHash: result.checksHash,
+              checkedAt: result.serverTime,
+              checks: result.checks.map((c) => ({ id: c.id, severity: c.severity, message: c.message })),
+            }}
+          />
+          {onEdit ? (
+            <Button variant="ghost" onClick={() => onEdit()}>
+              <Pencil className="size-4" aria-hidden="true" />
+              Change how I&apos;ll send
             </Button>
           ) : null}
         </div>
-      </VerdictCard>
+        <p className="text-xs leading-5 break-all text-muted">{facts.join(" · ")}</p>
+      </aside>
 
-      {result.verdict === "safe" ? <p className="text-sm text-muted">{SAFE_DEFINITION}</p> : null}
-
-      <AddressChip address={depositAddress} verified={Boolean(q?.verified && lookalike?.severity === "pass")} label="Deposit address" />
-
-      {memo ? (
-        <div className="flex items-center justify-between gap-2 rounded-lg border border-line bg-surface p-3">
-          <div>
-            <p className="text-sm text-muted">Memo (required)</p>
-            <p className="font-mono text-lg">{memo}</p>
-          </div>
-          <CopyButton value={memo} />
-        </div>
-      ) : null}
-
-      {q?.sendBefore && pending ? (
-        <Countdown
-          key={result.serverTime}
-          sendBefore={q.sendBefore}
-          serverTime={result.serverTime}
-          startedAt={result.signedQuote?.timestamp}
-          budgetSec={q.originChain ? getChain(q.originChain).confirmBudgetSec : 600}
-        />
-      ) : null}
-
-      <CheckList checks={result.checks} />
-
-      <div className="flex flex-wrap items-center gap-2">
-        <ReceiptButton
-          signedQuote={result.signedQuote}
-          record={{
-            requestId: result.requestId ?? null,
-            verdict: result.verdict,
-            label: result.label,
-            headline: result.headline,
-            rulesVersion: result.rulesVersion,
-            checksHash: result.checksHash,
-            checkedAt: result.serverTime,
-            checks: result.checks.map((c) => ({ id: c.id, severity: c.severity, message: c.message })),
-          }}
-        />
-        {onEdit ? (
-          <Button variant="ghost" onClick={() => onEdit()}>
-            Change how I&apos;ll send
-          </Button>
-        ) : null}
+      <div className="lg:col-start-1 lg:row-start-2">
+        <CheckList checks={result.checks} />
       </div>
-      <p className="text-xs text-muted">
-        Rules {result.rulesVersion} · checks {result.checksHash.slice(0, 12)}
-        {result.requestId ? ` · ${result.requestId}` : ""}
-        {q?.correlationId ? ` · 1Click ${q.correlationId}` : ""}
-      </p>
     </div>
   );
 }

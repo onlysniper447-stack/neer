@@ -1,0 +1,17 @@
+{
+  "requestId": "req_528b716885bf40169451",
+  "error": {
+    "code": "NEER_INVALID_INPUT",
+    "message": "Pass ?address= (and &memo= if your swap has one).",
+    "issues": [
+      {
+        "path": "address",
+        "message": "Paste the full deposit address"
+      },
+      {
+        "path": "address",
+        "message": "This contains characters a deposit address never has. Copy it again from your swap app."
+      }
+    ]
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "requestId": "req_918fc85ea8f14298934c",
+  "outcome": "checked",
+  "verdict": "block",
+  "label": "Don't send",
+  "headline": "Wrong network",
+  "message": "Wrong network. This address is for Arbitrum. You chose Base. Funds sent on Base won't be swapped automatically.",
+  "checks": [
+    {
+      "id": "network",
+      "title": "Network",
+      "severity": "block",
+      "headline": "Wrong network",
+      "summary": "Base, not Arbitrum",
+      "message": "Wrong network. This address is for Arbitrum. You chose Base. Funds sent on Base won't be swapped automatically.",
+      "expected": {
+        "chain": "arb",
+        "chainId": 42161
+      },
+      "actual": {
+        "chain": "base",
+        "chainId": 8453
+      },
+      "action": {
+        "kind": "switch-network",
+        "chain": "arb",
+        "label": "Switch to Arbitrum"
+      }
+    },
+    {
+      "id": "token",
+      "title": "Token",
+      "severity": "block",
+      "headline": "Wrong token",
+      "summary": "ETH, not USDC",
+      "message": "Wrong token. The quote expects USDC. You're about to send ETH.",
+      "expected": {
+        "asset": "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near",
+        "symbol": "USDC",
+        "contract": "0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+      },
+      "actual": {
+        "asset": "nep141:base.omft.near",
+        "symbol": "ETH",
+        "contract": "native"
+      },
+      "action": {
+        "kind": "edit-send",
+        "label": "Change token"
+      }
+    },
+    {
+      "id": "amount",
+      "title": "Amount",
+      "severity": "unknown",
+      "headline": "Can't compare",
+      "summary": "Different token",
+      "message": "You're sending a different token than the quote, so we can't compare amounts.",
+      "expected": {
+        "swapType": "EXACT_INPUT",
+        "amountIn": "5000000",
+        "minAmountIn": "5000000"
+      },
+      "actual": {
+        "amount": "2000000000000000"
+      }
+    },
+    {
+      "id": "refund",
+      "title": "Refund to",
+      "severity": "info",
+      "headline": "Refund address",
+      "summary": "0x2527…f10D",
+      "message": "If anything goes wrong, refunds go to 0x2527…f10D. Make sure that's an address you control.",
+      "expected": {
+        "refundTo": "0x2527D02599Ba641c19FEa793cD0F167589a0f10D"
+      }
+    },
+    {
+      "id": "approval",
+      "title": "Transfer type",
+      "severity": "info",
+      "headline": "Plain transfer only",
+      "summary": "Never approve",
+      "message": "A deposit is a plain transfer. If your wallet asks you to approve spending or sign a message, stop."
+    },
+    {
+      "id": "incident",
+      "title": "Network incidents",
+      "severity": "info",
+      "headline": "Incidents not checked",
+      "summary": "Not checked",
+      "message": "We can't read NEAR Intents incident reports without a partner key, so network delays aren't checked."
+    },
+    {
+      "id": "signature",
+      "title": "Quote",
+      "severity": "pass",
+      "headline": "Quote confirmed",
+      "summary": "Signed by 1Click",
+      "message": "Quote confirmed by NEAR Intents."
+    },
+    {
+      "id": "used",
+      "title": "Address status",
+      "severity": "pass",
+      "headline": "Waiting for deposit",
+      "summary": "Waiting for you",
+      "message": "This address is waiting for your deposit.",
+      "actual": {
+        "status": "PENDING_DEPOSIT"
+      }
+    },
+    {
+      "id": "time",
+      "title": "Time left",
+      "severity": "pass",
+      "headline": "Time left",
+      "summary": "44 minutes left",
+      "message": "44 minutes left. Plenty of time.",
+      "expected": {
+        "sendBefore": "2026-10-27T13:33:02.878Z"
+      },
+      "actual": {
+        "secondsLeft": 2660
+      }
+    },
+    {
+      "id": "lookalike",
+      "title": "Address match",
+      "severity": "pass",
+      "headline": "Address matches",
+      "summary": "Matches the quote",
+      "message": "Address matches the quote, character for character.",
+      "expected": {
+        "address": "0x9AD7ce4f1e7BDB0371d480F7D424B9dee9b88d04"
+      }
+    },
+    {
+      "id": "format",
+      "title": "Address format",
+      "severity": "pass",
+      "headline": "Valid format",
+      "summary": "Valid",
+      "message": "Address format is valid for this network."
+    },
+    {
+      "id": "minimum",
+      "title": "Network minimum",
+      "severity": "pass",
+      "headline": "Above the minimum",
+      "summary": "Above minimum",
+      "message": "Above the minimum for this network.",
+      "actual": {
+        "usd": "$5.00"
+      }
+    },
+    {
+      "id": "exchange",
+      "title": "Sending from",
+      "severity": "pass",
+      "headline": "Own wallet",
+      "summary": "Your wallet",
+      "message": "Sending from your own wallet."
+    },
+    {
+      "id": "stale",
+      "title": "Freshness",
+      "severity": "pass",
+      "headline": "Fresh data",
+      "summary": "Just now",
+      "message": "Checked just now."
+    }
+  ],
+  "rulesVersion": "2026.10.0",
+  "checksHash": "0e45a2ecd2a3e4212e72a7661ab0c182b977a3f3533d582fcb8d3cf963b1fe27",
+  "serverTime": "2026-10-27T12:48:42.732Z",
+  "quote": {
+    "verified": true,
+    "correlationId": "17694dff-921a-48e7-a151-ef3607a2048e",
+    "status": "PENDING_DEPOSIT",
+    "swapType": "EXACT_INPUT",
+    "depositType": "ORIGIN_CHAIN",
+    "depositMode": "SIMPLE",
+    "depositAddress": "0x9AD7ce4f1e7BDB0371d480F7D424B9dee9b88d04",
+    "depositMemo": null,
+    "originAsset": "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near",
+    "originChain": "arb",
+    "originChainName": "Arbitrum",
+    "originSymbol": "USDC",
+    "originDecimals": 6,
+    "originNative": false,
+    "originContract": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+    "destinationAsset": "nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.omft.near",
+    "destinationChain": "sol",
+    "destinationChainName": "Solana",
+    "destinationSymbol": "USDC",
+    "amountIn": "5000000",
+    "amountInFormatted": "5",
+    "minAmountIn": "5000000",
+    "minAmountInFormatted": "5",
+    "amountInUsd": "4.996585000000",
+    "amountOutFormatted": "4.731729",
+    "refundTo": "0x2527D02599Ba641c19FEa793cD0F167589a0f10D",
+    "refundType": "ORIGIN_CHAIN",
+    "recipient": "13QkxhNMrTPxoCkRdYdJ65tFuwXPhL5gLS2Z5Nr6gjRK",
+    "sendBefore": "2026-10-27T13:33:02.878Z",
+    "timeWhenInactive": "2026-10-30T13:33:02.878Z",
+    "secondsLeft": 2660,
+    "timeEstimate": 22
+  },
+  "signedQuote": {
+    "timestamp": "2026-10-27T12:48:02.988Z",
+    "signature": "ed25519:2C6VUqC4pTvexiM2J2AbamLejpfTuZ9XUhNkvUjV4kUFaFPwuFpUJkBThBhX3scsjMqttnQczG4AZfUUPqVi2mxi",
+    "quoteRequest": {
+      "dry": false,
+      "depositMode": "SIMPLE",
+      "swapType": "EXACT_INPUT",
+      "slippageTolerance": 100,
+      "originAsset": "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near",
+      "depositType": "ORIGIN_CHAIN",
+      "destinationAsset": "nep141:sol-5ce3bf3a31af18be40ba30f721101b4341690186.omft.near",
+      "amount": "5000000",
+      "refundTo": "0x2527D02599Ba641c19FEa793cD0F167589a0f10D",
+      "refundType": "ORIGIN_CHAIN",
+      "recipient": "13QkxhNMrTPxoCkRdYdJ65tFuwXPhL5gLS2Z5Nr6gjRK",
+      "recipientType": "DESTINATION_CHAIN",
+      "deadline": "2026-10-27T13:33:02.878Z",
+      "confidentiality": "public",
+      "referral": null,
+      "virtualChainRecipient": null,
+      "virtualChainRefundRecipient": null
+    },
+    "quote": {
+      "depositAddress": "0x9AD7ce4f1e7BDB0371d480F7D424B9dee9b88d04",
+      "amountIn": "5000000",
+      "amountInFormatted": "5.0",
+      "amountInUsd": "4.996585000000",
+      "minAmountIn": "5000000",
+      "amountOut": "4731729",
+      "amountOutFormatted": "4.731729",
+      "amountOutUsd": "4.728497229093",
+      "minAmountOut": "4684411",
+      "deadline": "2026-10-30T13:33:02.878Z",
+      "timeWhenInactive": "2026-10-30T13:33:02.878Z",
+      "timeEstimate": 22,
+      "refundFee": "5300",
+      "withdrawFee": "267481"
+    }
+  }
+}

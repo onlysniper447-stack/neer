@@ -1,0 +1,7 @@
+{
+  "requestId": "req_d4f61cd2764641d0adcb",
+  "error": {
+    "code": "NEER_UNSUPPORTED_CHAIN",
+    "message": "Neer doesn't know the network \"notachain\"."
+  }
+}

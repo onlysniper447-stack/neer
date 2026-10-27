@@ -21,7 +21,7 @@ export function Countdown({ sendBefore, serverTime, startedAt, budgetSec }: { se
   }, []);
 
   if (!mounted) {
-    return <div className="h-[76px] animate-pulse rounded-lg bg-surface" aria-hidden="true" />;
+    return <div className="h-[104px] animate-pulse rounded-xl bg-surface" aria-hidden="true" />;
   }
 
   const end = new Date(sendBefore).getTime();
@@ -46,17 +46,16 @@ export function Countdown({ sendBefore, serverTime, startedAt, budgetSec }: { se
   const announcement = left === 0 ? "Quote expired" : min < 1 ? "1 minute left" : min < 5 ? "5 minutes left" : min < 15 ? "15 minutes left" : "";
 
   return (
-    <div className="rounded-lg border border-line p-3" data-testid="countdown" data-state={state}>
-      <p className="font-medium">
-        Send before <span className="tabular">{formatClock(sendBefore)}</span>
-      </p>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-surface" aria-hidden="true">
+    <div className="rounded-xl border border-line p-4 sm:p-5" data-testid="countdown" data-state={state}>
+      <p className="text-sm text-muted">Send before</p>
+      <p className="tabular text-2xl font-semibold tracking-tight">{formatClock(sendBefore)}</p>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface" aria-hidden="true">
         <div
           className={cn("h-full rounded-full", state === "ok" ? "bg-brand" : state === "check" ? "bg-check" : "bg-stop")}
           style={{ width: `${(fraction * 100).toFixed(1)}%` }}
         />
       </div>
-      <p className={cn("tabular mt-1 text-sm", state === "ok" ? "text-muted" : state === "check" ? "text-check" : "text-stop")}>{relative}</p>
+      <p className={cn("tabular mt-2 text-sm font-medium", state === "ok" ? "text-muted" : state === "check" ? "text-check" : "text-stop")}>{relative}</p>
       <span className="sr-only" aria-live="polite">
         {announcement}
       </span>

@@ -1,0 +1,17 @@
+{
+  "requestId": "req_a31791ca54344e308354",
+  "error": {
+    "code": "NEER_INVALID_INPUT",
+    "message": "The request body is not valid.",
+    "issues": [
+      {
+        "path": "deposit.address",
+        "message": "This contains characters a deposit address never has. Copy it again from your swap app."
+      },
+      {
+        "path": "transfer.amount",
+        "message": "expected an integer string in base units"
+      }
+    ]
+  }
+}

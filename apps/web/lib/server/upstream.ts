@@ -37,11 +37,12 @@ const TOKENS_MAX_STALE_MS = 60 * 60_000;
 let tokensCache: { tokens: Token[]; at: number } | null = null;
 let tokensInflight: Promise<Token[]> | null = null;
 
-export type TokensState = { tokens: Token[]; fresh: boolean };
+/** `fetchedAt` is when 1Click last returned the list (ms since epoch), null if never. */
+export type TokensState = { tokens: Token[]; fresh: boolean; fetchedAt: number | null };
 
 export async function getTokens(): Promise<TokensState> {
   const now = Date.now();
-  if (tokensCache && now - tokensCache.at < TOKENS_TTL_MS) return { tokens: tokensCache.tokens, fresh: true };
+  if (tokensCache && now - tokensCache.at < TOKENS_TTL_MS) return { tokens: tokensCache.tokens, fresh: true, fetchedAt: tokensCache.at };
   tokensInflight ??= (async () => {
     try {
       const res = await client.getTokens();
@@ -55,11 +56,12 @@ export async function getTokens(): Promise<TokensState> {
     }
   })();
   try {
-    return { tokens: await tokensInflight, fresh: true };
+    const tokens = await tokensInflight;
+    return { tokens, fresh: true, fetchedAt: tokensCache?.at ?? Date.now() };
   } catch {
-    if (tokensCache && now - tokensCache.at < TOKENS_MAX_STALE_MS) return { tokens: tokensCache.tokens, fresh: false };
+    if (tokensCache && now - tokensCache.at < TOKENS_MAX_STALE_MS) return { tokens: tokensCache.tokens, fresh: false, fetchedAt: tokensCache.at };
     // No token list: dependent checks report "unknown", so the verdict can't be Safe.
-    return { tokens: [], fresh: false };
+    return { tokens: [], fresh: false, fetchedAt: null };
   }
 }
 

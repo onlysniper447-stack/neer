@@ -1,0 +1,31 @@
+{
+  "requestId": "req_92242c942a10426f9ac2",
+  "outcome": "not_found",
+  "verdict": "block",
+  "label": "Don't send",
+  "headline": "We can't find this quote",
+  "message": "Don't send yet. Copy the address again, or ask your swap app for a new quote.",
+  "checks": [
+    {
+      "id": "quote",
+      "title": "Quote",
+      "severity": "block",
+      "headline": "We can't find this quote",
+      "summary": "Not found",
+      "message": "Don't send yet. Copy the address again, or ask your swap app for a new quote.",
+      "actual": {
+        "address": "0x0000000000000000000000000000000000000001",
+        "memo": null
+      }
+    }
+  ],
+  "rulesVersion": "2026.10.0",
+  "checksHash": "85088dc10d640e3a3579fbe4e885fe48e0b32cf7e7d595b5548c78da3a8cfa6e",
+  "serverTime": "2026-10-27T12:48:22.011Z",
+  "quote": null,
+  "signedQuote": null,
+  "error": {
+    "code": "NEER_QUOTE_NOT_FOUND",
+    "message": "1Click has no quote for this address and memo."
+  }
+}

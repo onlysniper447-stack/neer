@@ -25,13 +25,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="min-h-dvh font-sans">
+      <body className="flex min-h-dvh flex-col font-sans">
         <ThemeProvider nonce={nonce}>
-          <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-50 focus:rounded-md focus:bg-bg focus:px-3 focus:py-2">
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:rounded-lg focus:bg-bg focus:px-4 focus:py-3 focus:font-medium focus:text-ink focus:shadow-lg focus:outline-2 focus:outline-ring"
+          >
             Skip to content
           </a>
           <SiteHeader />
-          <main id="main" className="mx-auto max-w-2xl px-4 pt-6">
+          <main id="main" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 outline-none sm:px-6 lg:px-8 lg:pt-12">
             {children}
           </main>
           <SiteFooter />
