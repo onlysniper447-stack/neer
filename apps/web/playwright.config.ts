@@ -37,6 +37,7 @@ export default defineConfig({
         NEER_TEST_UPSTREAM: `http://127.0.0.1:${MOCK_PORT}`,
         NEER_TEST_QUOTE_PUBKEY: TEST_PUBLIC_KEY,
         NEER_DISABLE_RATE_LIMIT: "1",
+        NEER_CORS_ORIGINS: "https://wallet.example",
         UPSTASH_REDIS_REST_URL: "",
         UPSTASH_REDIS_REST_TOKEN: "",
       },

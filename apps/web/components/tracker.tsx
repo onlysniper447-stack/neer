@@ -150,7 +150,6 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
     outcome:
       data.terminal ? (
         <div className="space-y-1">
-          <p>{data.message}</p>
           <TxLinks txs={data.destinationTxs} />
           {data.refundedAmountFormatted ? (
             <p>
@@ -175,17 +174,17 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
         <VerdictCard tone="stop" label="Don't send" headline="Unconfirmed quote" message="We couldn't confirm this quote came from NEAR Intents. Don't send." />
       ) : null}
 
+      {data.terminal ? <VerdictCard tone={tone} label={data.label} headline={data.message} /> : null}
+
       <section className="rounded-xl border border-line p-4" aria-labelledby="status-label">
         <p id="status-label" className="text-lg font-semibold" aria-live="polite" data-testid="status-label">
-          {data.label}
+          {data.terminal ? "How it went" : data.label}
         </p>
         {data.status !== "PROCESSING" && !data.terminal ? <p className="mt-1 text-muted">{data.message}</p> : null}
         <div className="mt-4">
           <StatusTimeline steps={data.timeline} detail={detail} />
         </div>
       </section>
-
-      {data.terminal ? <VerdictCard tone={tone} label={data.label} headline={data.message} /> : null}
 
       {problem ? (
         <div role="alert" className="rounded-lg border border-check bg-check-bg p-3" data-testid="tracker-problem">

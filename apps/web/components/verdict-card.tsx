@@ -19,7 +19,7 @@ export function VerdictCard({ tone, label, headline, message, children }: { tone
   const s = STYLE[tone];
   const Icon = s.icon;
   return (
-    <section role="status" aria-live="polite" className={cn("neer-reveal rounded-xl border border-l-4 p-4 sm:p-5", s.box)} data-testid="verdict" data-tone={tone}>
+    <section role="status" aria-live="polite" className={cn("neer-reveal rounded-xl border border-l-4 p-4 [overflow-wrap:anywhere] sm:p-5", s.box)} data-testid="verdict" data-tone={tone}>
       <div className={cn("flex items-center gap-2", s.text)}>
         <Icon className="size-6 shrink-0" aria-hidden="true" />
         <h2 className="text-xl leading-7 font-semibold">{label}</h2>

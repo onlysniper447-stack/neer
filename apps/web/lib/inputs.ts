@@ -10,6 +10,7 @@ export const PastedAddressSchema = z
   .trim()
   .min(3, "Paste the full deposit address")
   .max(128, "That's longer than any deposit address")
+  .refine((v) => !v.includes("://"), "That's a link, not a deposit address. Copy the address itself from your swap app.")
   .regex(/^[A-Za-z0-9:_\-.+/=]+$/, "This contains characters a deposit address never has. Copy it again from your swap app.");
 
 export const MemoSchema = z

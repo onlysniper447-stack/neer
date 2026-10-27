@@ -28,7 +28,7 @@ export function StatusTimeline({ steps, detail }: { steps: TimelineStep[]; detai
             >
               <Icon className="size-4" />
             </span>
-            <div className="min-w-0 pt-0.5">
+            <div className="min-w-0 pt-0.5 [overflow-wrap:anywhere]">
               <p className={cn("font-medium", s.state === "upcoming" || s.state === "skipped" ? "text-muted" : "text-ink")}>
                 {s.title}
                 <span className="sr-only">

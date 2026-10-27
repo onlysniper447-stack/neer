@@ -79,3 +79,13 @@ test("the curl example on the landing page works as shown", async ({ request, pa
   expect(res.status()).toBe(200);
   expect((await res.json()).verdict).toBe("block");
 });
+
+test("CORS: only allow-listed origins get Access-Control-Allow-Origin", async ({ request }) => {
+  const ok = await request.fetch("/api/v1/preflight", { method: "OPTIONS", headers: { origin: "https://wallet.example", "access-control-request-method": "POST" } });
+  expect(ok.status()).toBe(204);
+  expect(ok.headers()["access-control-allow-origin"]).toBe("https://wallet.example");
+  const post = await request.post("/api/v1/preflight", { data: API_EXAMPLE_BODY, headers: { origin: "https://wallet.example" } });
+  expect(post.headers()["access-control-allow-origin"]).toBe("https://wallet.example");
+  const other = await request.post("/api/v1/preflight", { data: API_EXAMPLE_BODY, headers: { origin: "https://evil.example" } });
+  expect(other.headers()["access-control-allow-origin"]).toBeUndefined();
+});
