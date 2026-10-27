@@ -11,3 +11,4 @@ playwright-report
 next-env.d.ts
 .smoke-address
 smoke-address.txt
+.vercel
