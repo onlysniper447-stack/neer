@@ -7,7 +7,7 @@ let tokens = TOKENS;
 
 vi.mock("@/lib/server/upstream", () => ({
   quotePublicKeyOverride: TEST_PUBLIC_KEY,
-  getTokens: async () => ({ tokens: tokens.map((t) => ({ ...t, priceUpdatedAt: new Date().toISOString() })), fresh: true }),
+  getTokens: async () => ({ tokens: tokens.map((t) => ({ ...t, priceUpdatedAt: new Date().toISOString() })), fresh: true, fetchedAt: Date.now() }),
   getStatus: async (address: string) => (lookups.get(address.toLowerCase()) ?? (() => ({ kind: "not_found" }) as Lookup))(),
 }));
 
@@ -117,5 +117,41 @@ describe("trackService", () => {
   it("404 for unknown, 503 when 1Click is down", async () => {
     expect((await trackService(E2E_ADDRESSES.notFound, null, "r")).status).toBe(404);
     expect((await trackService(E2E_ADDRESSES.upstreamDown, null, "r")).status).toBe(503);
+  });
+});
+
+describe("API docs examples stay in sync with the implementation", async () => {
+  const { EXAMPLES } = await import("@/lib/docs/examples");
+  const { CHECK_IDS } = await import("@neer/core");
+
+  it("preflight 200 example has the same keys as a live service response", async () => {
+    const res = await preflightService(body(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000" }), "req_test");
+    expect(res.status).toBe(200);
+    expect(Object.keys(EXAMPLES.safe).sort()).toEqual(Object.keys(res.body).sort());
+    expect(EXAMPLES.safe.verdict).toBe("safe");
+    const ids = "checks" in res.body ? res.body.checks.map((c) => c.id).sort() : [];
+    expect(EXAMPLES.safe.checks.map((c) => c.id).sort()).toEqual(ids);
+    expect(ids.every((id) => (CHECK_IDS as readonly string[]).includes(id))).toBe(true);
+    expect(Object.keys(EXAMPLES.safe.quote ?? {}).sort()).toEqual(Object.keys(("quote" in res.body && res.body.quote) || {}).sort());
+  });
+
+  it("block, 404 and 400 examples match the service's verdicts and error codes", async () => {
+    expect(EXAMPLES.block.verdict).toBe("block");
+    expect(EXAMPLES.block.checks.find((c) => c.id === "network")?.severity).toBe("block");
+    const nf = await preflightService(body("0x0000000000000000000000000000000000000001", { chain: "eth", asset: "native", amount: "1" }), "req_test");
+    expect(nf.status).toBe(404);
+    expect(Object.keys(EXAMPLES.notFound).sort()).toEqual(Object.keys(nf.body).sort());
+    expect(EXAMPLES.notFound.error.code).toBe("NEER_QUOTE_NOT_FOUND");
+    const bad = await preflightService({ deposit: { address: "send me money" }, transfer: { chain: "eth", amount: "-1" } }, "req_test");
+    expect(bad.status).toBe(400);
+    expect("error" in bad.body && bad.body.error?.issues).toEqual(EXAMPLES.badRequest.error.issues);
+    expect(EXAMPLES.unsupported.error.code).toBe("NEER_UNSUPPORTED_CHAIN");
+  });
+
+  it("track example has the same keys as a live track response", async () => {
+    const res = await trackService(E2E_ADDRESSES.safe, null, "req_test");
+    expect(res.status).toBe(200);
+    expect(Object.keys(EXAMPLES.track).sort()).toEqual(Object.keys(res.body).sort());
+    expect(EXAMPLES.track.status).toBe("PENDING_DEPOSIT");
   });
 });

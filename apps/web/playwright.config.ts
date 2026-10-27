@@ -19,8 +19,8 @@ export default defineConfig({
   use: { baseURL: `http://127.0.0.1:${APP_PORT}`, trace: "retain-on-failure" },
   projects: [
     { name: "e2e", testIgnore: /screenshots\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", testMatch: /paste-flow\.spec\.ts/, use: { ...devices["Pixel 7"] } },
-    { name: "screenshots", testMatch: /screenshots\.spec\.ts/, use: { ...devices["Pixel 7"] } },
+    { name: "mobile", testMatch: /(paste-flow|nav|pages)\.spec\.ts/, use: { ...devices["Pixel 7"] } },
+    { name: "screenshots", testMatch: /screenshots\.spec\.ts/ },
   ],
   webServer: [
     {

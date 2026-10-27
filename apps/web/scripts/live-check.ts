@@ -12,12 +12,14 @@ import { chromium, devices } from "@playwright/test";
 const base = process.env.NEER_URL ?? "http://127.0.0.1:3200";
 const address = process.env.LIVE_ADDRESS;
 if (!address) throw new Error("Set LIVE_ADDRESS (run `pnpm smoke` first)");
-const out = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../screenshots");
+const out = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../screenshots/v2");
 const ARB_USDC = "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near";
 const BASE_ETH = "nep141:base.omft.near";
 
 const browser = await chromium.launch();
-const page = await browser.newPage({ ...devices["Pixel 7"] });
+const desktop = process.env.FORM === "desktop";
+const page = await browser.newPage(desktop ? { viewport: { width: 1440, height: 900 } } : { ...devices["Pixel 7"] });
+const prefix = desktop ? "live-desktop" : "live-mobile";
 
 async function run(network: string, asset: string, amount: string, file: string) {
   await page.goto(`${base}/check?address=${address}`);
@@ -31,18 +33,19 @@ async function run(network: string, asset: string, amount: string, file: string)
   await page.getByTestId("result").waitFor();
   const verdict = await page.getByTestId("result").getAttribute("data-verdict");
   console.log(`${network} ${amount}: verdict=${verdict} - ${await page.getByTestId("verdict-headline").textContent()}`);
+  await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
   await page.screenshot({ path: path.join(out, file), fullPage: true });
   return verdict;
 }
 
-const a = await run("Arbitrum", ARB_USDC, "5", "live-01-pass-real-1click.png");
-const b = await run("Base", BASE_ETH, "0.002", "live-02-block-wrong-network-real-1click.png");
+const a = await run("Arbitrum", ARB_USDC, "5", `${prefix}-01-pass-real-1click.png`);
+const b = await run("Base", BASE_ETH, "0.002", `${prefix}-02-block-wrong-network-real-1click.png`);
 await page.goto(`${base}/track?address=${address}`);
 await page.getByTestId("tracker").waitFor();
 await page.waitForTimeout(1500);
 console.log("tracker status:", await page.getByTestId("tracker").getAttribute("data-status"));
-await page.screenshot({ path: path.join(out, "live-03-tracker-real-1click.png"), fullPage: true });
+await page.screenshot({ path: path.join(out, `${prefix}-03-tracker-real-1click.png`), fullPage: true });
 await browser.close();
 if (a !== "safe" || b !== "block") {
   console.error("unexpected live verdicts");
