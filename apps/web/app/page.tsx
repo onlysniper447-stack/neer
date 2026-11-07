@@ -19,9 +19,8 @@ export default function Home() {
   return (
     <div className={styles.home}>
       <header className={styles.header}>
-        <Link href="/" aria-label="Neer home" className={styles.wordmark}>
-          <span>Neer</span>
-          <Image src="/neer-logo.png" alt="" width={52} height={51} priority />
+        <Link href="/" aria-label="Neer home" className={styles.brand}>
+          <Image src="/neer-logo.png" alt="Neer" width={80} height={78} priority />
         </Link>
       </header>
 
@@ -38,20 +37,7 @@ export default function Home() {
               Check a deposit
               <span className={styles.arrow} aria-hidden="true"><ArrowRight size={21} aria-hidden="true" /></span>
             </Link>
-            <a href="#how-it-works" className={styles.secondary}>How it works</a>
           </div>
-        </section>
-
-        <section className={styles.problems} aria-labelledby="problems-title">
-          <h2 id="problems-title">Neer flags mismatches that need your attention.</h2>
-          <dl className={styles.problemList}>
-            {PROBLEMS.map(([problem, solution]) => (
-              <div key={problem} className={styles.problemRow}>
-                <dt>{problem}</dt>
-                <dd>{solution}</dd>
-              </div>
-            ))}
-          </dl>
         </section>
 
         <section id="how-it-works" className={styles.how} aria-labelledby="how-title">
@@ -64,6 +50,18 @@ export default function Home() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className={styles.problems} aria-labelledby="problems-title">
+          <h2 id="problems-title">Neer flags mismatches that need your attention.</h2>
+          <dl className={styles.problemList}>
+            {PROBLEMS.map(([problem, solution]) => (
+              <div key={problem} className={styles.problemRow}>
+                <dt>{problem}</dt>
+                <dd>{solution}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <section className={styles.banner} aria-labelledby="control-title">

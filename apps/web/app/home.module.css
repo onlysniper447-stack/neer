@@ -15,31 +15,25 @@
   padding: 28px 48px;
 }
 
-.wordmark {
+.brand {
   display: inline-flex;
-  min-height: 48px;
+  min-height: 80px;
   align-items: center;
-  gap: 14px;
-  font-size: 29px;
-  font-weight: 700;
-  letter-spacing: -0.06em;
 }
 
-.wordmark img { width: 48px; height: auto; }
+.brand img { width: 80px; height: auto; }
 .main { max-width: 1184px; margin-inline: auto; padding: 0 48px; outline: none; }
-.hero { padding-top: 58px; padding-bottom: 84px; }
+.hero { padding-top: 58px; padding-bottom: 48px; }
 .eyebrow { color: var(--home-teal); font-size: 19px; font-weight: 600; margin-bottom: 24px; }
 .hero h1 { font-size: clamp(42px, 5.2vw, 76px); font-weight: 750; line-height: 1.08; letter-spacing: -0.06em; }
 .hero h1 > span { display: block; }
 .teal { color: var(--home-teal); }
 .description { max-width: 650px; margin-top: 24px; font-size: 20px; line-height: 1.5; letter-spacing: -0.025em; }
 .actions { display: flex; align-items: stretch; gap: 16px; margin-top: 32px; }
-.primary, .secondary { display: inline-flex; min-height: 58px; align-items: center; justify-content: center; font-size: 17px; font-weight: 550; }
+.primary { display: inline-flex; min-height: 58px; align-items: center; justify-content: center; font-size: 17px; font-weight: 550; }
 .primary { gap: 24px; padding: 10px 12px 10px 24px; background: var(--home-ink); color: #fff; }
 .primary:hover { background: #252b29; }
 .arrow { display: inline-flex; width: 35px; height: 35px; align-items: center; justify-content: center; background: #16878a; color: #fff; }
-.secondary { border: 1.5px solid var(--home-ink); padding: 12px 22px; }
-.secondary:hover { background: #efeee8; }
 .home h2 { font-size: clamp(27px, 3vw, 36px); line-height: 1.18; font-weight: 650; letter-spacing: -0.045em; }
 .problems { margin-bottom: 64px; }
 .problemList { margin-top: 16px; }
@@ -66,18 +60,17 @@
 
 @media (max-width: 600px) {
   .header { padding: 20px 24px; }
-  .wordmark { font-size: 25px; gap: 12px; }
-  .wordmark img { width: 43px; }
+  .brand { min-height: 68px; }
+  .brand img { width: 68px; }
   .main { padding-inline: 28px; }
-  .hero { padding-top: 30px; padding-bottom: 48px; }
+  .hero { padding-top: 24px; padding-bottom: 36px; }
   .eyebrow { font-size: 16px; margin-bottom: 18px; }
   .hero h1 { font-size: clamp(35px, 7.8vw, 46px); line-height: 1.1; letter-spacing: -0.055em; }
   .description { max-width: 290px; margin-top: 17px; font-size: 17px; line-height: 1.45; }
   .actions { align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 24px; }
-  .primary, .secondary { min-height: 48px; font-size: 16px; }
+  .primary { min-height: 48px; font-size: 16px; }
   .primary { gap: 20px; padding: 8px 9px 8px 18px; }
   .arrow { width: 30px; height: 30px; }
-  .secondary { padding: 10px 17px; }
   .home h2 { font-size: 26px; }
   .problems { margin-bottom: 36px; }
   .problemList { margin-top: 9px; }

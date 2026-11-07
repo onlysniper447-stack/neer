@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test";
 
 test("approved homepage has the supplied logo and no product menu or example check", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("link", { name: "Neer home" }).locator("img")).toHaveAttribute("src", /neer-logo/);
+  const brand = page.getByRole("link", { name: "Neer home" });
+  await expect(brand).toHaveText("");
+  await expect(brand.getByRole("img", { name: "Neer", exact: true })).toHaveAttribute("src", /neer-logo/);
+  await expect(brand.locator("img")).toHaveAttribute("width", "80");
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Check whether your deposit details");
   const depositCta = page.getByRole("main").getByRole("link", { name: "Check a deposit", exact: true });
   await expect(depositCta).toHaveAccessibleName("Check a deposit");
@@ -20,11 +23,14 @@ test("approved homepage has the supplied logo and no product menu or example che
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Resources", exact: true })).toHaveAttribute("href", "/resources");
 });
 
-test("homepage actions reach the instructions and working deposit entry", async ({ page }) => {
+test("homepage shows instructions inline and keeps deposit entry working", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "How it works", exact: true }).click();
-  await expect(page).toHaveURL(/#how-it-works$/);
-  await expect(page.getByRole("heading", { name: "Review the findings before deciding whether to send.", exact: true })).toBeInViewport();
+  await expect(page.getByRole("link", { name: "How it works", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "How it works", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Review the findings before deciding whether to send.", exact: true })).toHaveCount(1);
+  await expect(page.locator("main > section").nth(1)).toHaveAttribute("id", "how-it-works");
+  await expect(page.locator("main > section").nth(2)).toHaveAttribute("aria-labelledby", "problems-title");
+  await expect(page.locator("#how-it-works li")).toHaveCount(3);
   await page.getByRole("link", { name: "Check a deposit", exact: true }).click();
   await expect(page).toHaveURL(/\/check$/);
   await expect(page.getByLabel("Deposit address")).toBeVisible();

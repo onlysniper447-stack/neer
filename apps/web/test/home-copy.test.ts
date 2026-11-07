@@ -38,6 +38,18 @@ describe("published homepage and privacy copy", () => {
     expect(home).toContain("Independent project, not affiliated with NEAR Foundation.");
   });
 
+  it("uses a standalone accessible logo and inline instructions before details", () => {
+    const header = home.match(/<header\b[^>]*>([\s\S]*?)<\/header>/)?.[1] ?? "";
+    expect(header).toContain('aria-label="Neer home"');
+    expect(header).toContain('alt="Neer" width={80}');
+    expect(header).not.toContain("<span>Neer</span>");
+    expect(home).not.toContain('href="#how-it-works"');
+    expect(home.match(/id="how-it-works"/g)).toHaveLength(1);
+    expect(home.indexOf('className={styles.description}')).toBeLessThan(home.indexOf('id="how-it-works"'));
+    expect(home.indexOf('id="how-it-works"')).toBeLessThan(home.indexOf('id="problems-title"'));
+    expect(home).toContain('href="/check" aria-label="Check a deposit"');
+  });
+
   it("keeps new headings below 12 words and paragraphs below 30", () => {
     for (const source of [home, privacy]) {
       for (const match of source.matchAll(/<h[1-3]\b[^>]*>([\s\S]*?)<\/h[1-3]>/g)) {
