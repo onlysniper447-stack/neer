@@ -19,7 +19,7 @@ export const NAV: NavSection[] = [
     icon: Wrench,
     description: "Check, track and verify deposits",
     links: [
-      { title: "Deposit preflight", href: "/", description: "Check a deposit before you send" },
+      { title: "Deposit preflight", href: "/check", description: "Check a deposit before you send" },
       { title: "Swap tracker", href: "/track", description: "Follow a deposit until it lands" },
       { title: "Address checker", href: "/tools/address", description: "Validate an address and its checksum" },
     ],
@@ -47,8 +47,8 @@ export const NAV: NavSection[] = [
   },
 ];
 
-/** True when `href` is the current page or a parent of it ("/" only matches itself and /check). */
+/** True when `href` is the current page or a parent of it. */
 export function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/" || pathname === "/check";
+  if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }

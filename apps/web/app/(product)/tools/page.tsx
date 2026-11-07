@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Tools", description: "Neer's deposit
 
 const TOOLS = [
   {
-    href: "/",
+    href: "/check",
     Icon: ShieldCheck,
     title: "Deposit preflight",
     text: "Paste a 1Click deposit address and say how you'll send. Neer checks network, token, amount, memo, time left, minimums, refund address and lookalikes against the signed quote.",

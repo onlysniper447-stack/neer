@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
+import DepositStart from "@/components/deposit-start";
 import { AddressChip } from "@/components/address-chip";
 import { PreflightFlow, type ChainOption, type TokenOption } from "@/components/preflight-flow";
 import { ResultView } from "@/components/result-view";
@@ -17,6 +18,7 @@ export const dynamic = "force-dynamic";
 
 export default async function CheckPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
+  if (sp.address === undefined && sp.memo === undefined) return <DepositStart />;
   const addr = PastedAddressSchema.safeParse(first(sp.address) ?? "");
   const memoRaw = first(sp.memo);
   const memo = memoRaw ? MemoSchema.safeParse(memoRaw) : null;
@@ -28,7 +30,7 @@ export default async function CheckPage({ searchParams }: { searchParams: Search
         <h1 className="sr-only">Deposit preflight</h1>
         <VerdictCard tone="stop" label="Don't send" headline="This doesn't look like a deposit address" message={msg ?? "Copy it again from your swap app."}>
           <Button asChild size="lg" className="w-full sm:w-auto">
-            <Link href="/">Paste it again</Link>
+            <Link href="/check">Paste it again</Link>
           </Button>
         </VerdictCard>
       </div>
@@ -64,7 +66,7 @@ export default async function CheckPage({ searchParams }: { searchParams: Search
               <Link href={retryHref}>Try again</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/">Paste a different address</Link>
+              <Link href="/check">Paste a different address</Link>
             </Button>
           </div>
         </VerdictCard>

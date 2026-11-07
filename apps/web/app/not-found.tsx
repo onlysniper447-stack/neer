@@ -9,7 +9,7 @@ export default function NotFound() {
       <p className="mt-3 text-lg text-muted">There&apos;s nothing at this address. Paste a deposit address to run a check, or open the menu for tools and docs.</p>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
         <Button asChild size="lg">
-          <Link href="/">Check a deposit</Link>
+          <Link href="/check">Check a deposit</Link>
         </Button>
         <Button asChild size="lg" variant="outline">
           <Link href="/tools">See all tools</Link>

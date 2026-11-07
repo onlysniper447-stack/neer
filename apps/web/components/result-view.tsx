@@ -64,7 +64,7 @@ export function ResultView({
   } else if (action?.kind === "new-quote") {
     primary = (
       <Button asChild size="lg" className="w-full sm:w-auto">
-        <Link href="/">Check a new address</Link>
+        <Link href="/check">Check a new address</Link>
       </Button>
     );
   } else if (onEdit) {
@@ -76,7 +76,7 @@ export function ResultView({
   } else {
     primary = (
       <Button asChild size="lg" className="w-full sm:w-auto">
-        <Link href="/">Check another address</Link>
+        <Link href="/check">Check another address</Link>
       </Button>
     );
   }

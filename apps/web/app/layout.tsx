@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { headers } from "next/headers";
-import { SiteFooter, SiteHeader } from "@/components/site-header";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
@@ -33,11 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           >
             Skip to content
           </a>
-          <SiteHeader />
-          <main id="main" tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-4 pt-8 outline-none sm:px-6 lg:px-8 lg:pt-12">
-            {children}
-          </main>
-          <SiteFooter />
+          {children}
         </ThemeProvider>
       </body>
     </html>

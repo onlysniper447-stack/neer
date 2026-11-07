@@ -29,6 +29,7 @@ for (const form of ["mobile", "desktop"] as const) {
       test("landing and menu", async ({ page }) => {
         await page.goto("/");
         await shot(page, n("01-landing"));
+        await page.getByRole("link", { name: "Check a deposit", exact: true }).click();
         await page.getByRole("button", { name: "Open menu" }).click();
         await expect(page.getByRole("dialog", { name: "Neer menu" })).toBeVisible();
         await shot(page, n("02-landing-menu-open"), false);

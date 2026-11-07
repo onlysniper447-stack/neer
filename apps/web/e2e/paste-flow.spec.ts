@@ -96,9 +96,9 @@ test("memo deposits: right memo is Safe, missing memo is blocked", async ({ page
 });
 
 test("rejects input that isn't an address before calling anything", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/check");
   await page.getByLabel("Deposit address").fill("send 0.1 eth to my friend");
   await page.getByRole("button", { name: "Check address" }).click();
   await expect(page.getByText("This contains characters a deposit address never")).toBeVisible();
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/check$/);
 });

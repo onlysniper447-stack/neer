@@ -1,0 +1,95 @@
+.home {
+  --home-teal: #0c7477;
+  --home-ink: #101210;
+  --focus: #0c7477;
+  min-height: 100dvh;
+  background: #faf9f5;
+  color: var(--home-ink);
+  color-scheme: light;
+  letter-spacing: -0.025em;
+}
+
+.header {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 28px 48px;
+}
+
+.wordmark {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 14px;
+  font-size: 29px;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+}
+
+.wordmark img { width: 48px; height: auto; }
+.main { max-width: 1184px; margin-inline: auto; padding: 0 48px; outline: none; }
+.hero { padding-top: 58px; padding-bottom: 84px; }
+.eyebrow { color: var(--home-teal); font-size: 19px; font-weight: 600; margin-bottom: 24px; }
+.hero h1 { font-size: clamp(42px, 5.2vw, 76px); font-weight: 750; line-height: 1.08; letter-spacing: -0.06em; }
+.hero h1 > span { display: block; }
+.teal { color: var(--home-teal); }
+.description { max-width: 440px; margin-top: 24px; font-size: 20px; line-height: 1.5; letter-spacing: -0.025em; }
+.actions { display: flex; align-items: stretch; gap: 16px; margin-top: 32px; }
+.primary, .secondary { display: inline-flex; min-height: 58px; align-items: center; justify-content: center; font-size: 17px; font-weight: 550; }
+.primary { gap: 24px; padding: 10px 12px 10px 24px; background: var(--home-ink); color: #fff; }
+.primary:hover { background: #252b29; }
+.arrow { display: inline-flex; width: 35px; height: 35px; align-items: center; justify-content: center; background: #16878a; color: #fff; }
+.secondary { border: 1.5px solid var(--home-ink); padding: 12px 22px; }
+.secondary:hover { background: #efeee8; }
+.home h2 { font-size: clamp(27px, 3vw, 36px); line-height: 1.18; font-weight: 650; letter-spacing: -0.045em; }
+.problems { margin-bottom: 64px; }
+.problemList { margin-top: 16px; }
+.problemRow { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 28px; align-items: baseline; padding: 17px 0; }
+.problemRow + .problemRow { border-top: 1px solid #c5c8c2; }
+.problemRow dt { font-size: 21px; font-weight: 550; }
+.problemRow dd { font-size: 18px; line-height: 1.5; }
+.how { scroll-margin-top: 32px; margin-bottom: 40px; }
+.steps { list-style: none; display: grid; gap: 13px; margin-top: 22px; }
+.steps li { display: flex; gap: 24px; align-items: baseline; font-size: 19px; }
+.number { color: var(--home-teal); font-variant-numeric: tabular-nums; font-size: 19px; font-weight: 600; }
+.banner { padding: 30px 22px; text-align: center; background: #086c70; color: #fff; }
+.banner h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 600; }
+.banner p { margin-top: 7px; font-size: 18px; }
+.footer { padding: 22px 24px 30px; text-align: center; font-size: 14px; line-height: 1.7; }
+.footer nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 7px; }
+.footer a { display: inline-flex; align-items: center; min-height: 32px; text-underline-offset: 4px; }
+.footer a:hover { text-decoration: underline; }
+
+@media (min-width: 1000px) {
+  .how { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 28px; margin-bottom: 56px; }
+  .steps { margin-top: 0; }
+}
+
+@media (max-width: 600px) {
+  .header { padding: 20px 24px; }
+  .wordmark { font-size: 25px; gap: 12px; }
+  .wordmark img { width: 43px; }
+  .main { padding-inline: 28px; }
+  .hero { padding-top: 30px; padding-bottom: 48px; }
+  .eyebrow { font-size: 16px; margin-bottom: 18px; }
+  .hero h1 { font-size: clamp(35px, 7.8vw, 46px); line-height: 1.1; letter-spacing: -0.055em; }
+  .description { max-width: 290px; margin-top: 17px; font-size: 17px; line-height: 1.45; }
+  .actions { align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 24px; }
+  .primary, .secondary { min-height: 48px; font-size: 16px; }
+  .primary { gap: 20px; padding: 8px 9px 8px 18px; }
+  .arrow { width: 30px; height: 30px; }
+  .secondary { padding: 10px 17px; }
+  .home h2 { font-size: 26px; }
+  .problems { margin-bottom: 36px; }
+  .problemList { margin-top: 9px; }
+  .problemRow { grid-template-columns: 0.82fr 1.18fr; gap: 14px; padding: 12px 0; }
+  .problemRow dt { font-size: 17px; }
+  .problemRow dd { font-size: 15px; line-height: 1.4; }
+  .how { margin-bottom: 26px; }
+  .steps { margin-top: 16px; gap: 10px; }
+  .steps li { gap: 18px; font-size: 16px; }
+  .number { font-size: 17px; }
+  .banner { padding: 21px 14px; }
+  .banner h2 { font-size: 24px; }
+  .banner p { font-size: 15px; }
+  .footer { padding-top: 14px; font-size: 13px; }
+}

@@ -11,7 +11,7 @@ const menuButton = (page: Page) => page.getByRole("button", { name: "Open menu" 
 const menu = (page: Page) => page.getByRole("dialog", { name: "Neer menu" });
 
 test("the menu button sits top left, before the logo, with the theme toggle on the right", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/check");
   const btn = await menuButton(page).boundingBox();
   const logo = await page.getByRole("link", { name: "Neer home" }).boundingBox();
   const theme = await page.getByRole("button", { name: /theme/i }).boundingBox();
@@ -24,7 +24,7 @@ test("the menu button sits top left, before the logo, with the theme toggle on t
 });
 
 test("opens with a click and closes with the close button, returning focus", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/check");
   await expect(menuButton(page)).toHaveAttribute("aria-expanded", "false");
   await menuButton(page).click();
   await expect(menu(page)).toBeVisible();
@@ -75,7 +75,7 @@ test("the current page is marked in the menu", async ({ page }) => {
 
 for (const s of SECTIONS) {
   test(`menu → ${s.name} opens ${s.path} and closes the drawer`, async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/check");
     await menuButton(page).click();
     await menu(page).getByRole("navigation", { name: "Main" }).getByRole("link", { name: new RegExp(`^${s.name}\\b`) }).click();
     await page.waitForURL(`**${s.path}`);

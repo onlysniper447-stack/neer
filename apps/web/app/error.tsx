@@ -15,7 +15,7 @@ export default function ErrorPage({ reset }: { error: Error; reset: () => void }
             Try again
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/">Start over</Link>
+            <Link href="/check">Start over</Link>
           </Button>
         </div>
       </VerdictCard>

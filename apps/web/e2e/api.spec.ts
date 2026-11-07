@@ -71,8 +71,8 @@ test("pages send CSP with a nonce and the security headers", async ({ request })
   expect(h["referrer-policy"]).toBe("strict-origin");
 });
 
-test("the curl example on the landing page works as shown", async ({ request, page }) => {
-  await page.goto("/");
+test("the curl example on the deposit page works as shown", async ({ request, page }) => {
+  await page.goto("/check");
   await expect(page.locator("pre")).toContainText(`"address": "${API_EXAMPLE_BODY.deposit.address}"`);
   await expect(page.locator("pre")).toContainText("curl -X POST http://127.0.0.1:3100/api/v1/preflight");
   const res = await request.post("/api/v1/preflight", { data: API_EXAMPLE_BODY });

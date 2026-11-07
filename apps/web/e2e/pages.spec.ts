@@ -5,7 +5,8 @@ import { describeSend, pasteAddress } from "./helpers";
 
 /** Every page in the menu plus the core flows. */
 const PAGES = [
-  { path: "/", h1: "Check before you send." },
+  { path: "/", h1: "Check the deposit.Then make your move." },
+  { path: "/check", h1: "Check before you send." },
   { path: "/tools", h1: "Everything you can check with Neer" },
   { path: "/tools/address", h1: "Address checker" },
   { path: "/track", h1: "Swap tracker" },
@@ -155,7 +156,7 @@ test("tools: coming-later items aren't links", async ({ page }) => {
   await page.goto("/tools");
   await expect(page.getByText("Refund helper")).toBeVisible();
   await expect(page.getByRole("link", { name: /Refund helper/ })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /Deposit preflight/ }).first()).toHaveAttribute("href", "/");
+  await expect(page.getByRole("link", { name: /Deposit preflight/ }).first()).toHaveAttribute("href", "/check");
 });
 
 test("swap tracker page: paste an address and track it", async ({ page, request }) => {

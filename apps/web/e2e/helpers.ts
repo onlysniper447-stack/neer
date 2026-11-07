@@ -3,7 +3,7 @@ import { expect, type Page } from "@playwright/test";
 export const MOCK = "http://127.0.0.1:4010";
 
 export async function pasteAddress(page: Page, address: string, memo?: string) {
-  await page.goto("/");
+  await page.goto("/check");
   await page.getByLabel("Deposit address").fill(address);
   if (memo !== undefined) {
     await page.getByRole("button", { name: "+ This swap has a memo" }).click();
