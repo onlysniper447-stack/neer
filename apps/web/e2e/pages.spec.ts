@@ -11,7 +11,7 @@ const PAGES = [
   { path: "/tools", h1: "Everything you can check with Neer" },
   { path: "/tools/address", h1: "Address checker" },
   { path: "/track", h1: "Swap tracker" },
-  { path: "/analytics", h1: "Live numbers, no estimates" },
+  { path: "/analytics", h1: "Network counts and published checks" },
   { path: "/developers", h1: "Neer API" },
   { path: "/resources", h1: "How Neer keeps a deposit safe" },
 ] as const;

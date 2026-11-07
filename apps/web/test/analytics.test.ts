@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { TokenSchema } from "@neer/core";
-import { minimumFor, minimumsExpireAt, overviewFromTokens } from "../lib/analytics";
+import { DEFAULT_RULES, TokenSchema } from "@neer/core";
+import { minimumsAreCurrent, minimumFor, minimumsExpireAt, overviewFromTokens } from "../lib/analytics";
 
 const live = TokenSchema.array().parse(JSON.parse(readFileSync(new URL("../../../fixtures/recorded/tokens_live.json", import.meta.url), "utf8")));
 
@@ -25,6 +25,9 @@ describe("minimums", () => {
     expect(minimumFor("bsc")).toBe("$1,000 (from or to)");
     expect(minimumFor("tron")).toBe("$100 (from Tron)");
     expect(minimumFor("arb")).toBeNull();
-    expect(minimumsExpireAt()).toBe("2026-11-10T10:30:00.000Z");
+    const expires = Date.parse(minimumsExpireAt());
+    expect(minimumsAreCurrent(DEFAULT_RULES, expires - 1)).toBe(true);
+    expect(minimumsAreCurrent(DEFAULT_RULES, expires)).toBe(false);
+    expect(minimumsExpireAt()).toBe(new Date(Date.parse(DEFAULT_RULES.minimums.checkedAt) + DEFAULT_RULES.minimumsMaxAgeDays * 86_400_000).toISOString());
   });
 });

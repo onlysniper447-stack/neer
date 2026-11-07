@@ -20,9 +20,9 @@ const TOC = [
 
 const HOW = [
   ["You paste the deposit address", "Your swap app got it from NEAR Intents' 1Click API when it asked for a quote. Neer looks up that quote with the public status endpoint."],
-  ["Neer verifies the quote", "1Click signs every quote. Neer checks the signature, so a changed deposit address, amount, deadline or refund address can't slip through."],
+  ["Neer verifies the quote", "Neer checks the SDK-defined signature fields against the NEAR Intents public key. It uses the pinned status response, not partner-supplied metadata."],
   ["You say how you'll send", "Network, token, amount, memo, and whether it's your wallet or an exchange. Nothing is pre-selected, so a default can't be wrong for you."],
-  ["Neer runs every check that applies", "Network, token, amount, memo, time left, minimums, refund address, lookalikes and more, read fresh from 1Click each time."],
+  ["Neer runs every check that applies", "Neer reads current deposit status and compares your declared details. Token metadata is cached; published network minimums have a review deadline."],
   ["You get one answer", "Any problem means Don't send. Anything Neer can't confirm means Check this. Safe to send needs every required check to pass."],
 ] as const;
 
@@ -45,12 +45,12 @@ const VERDICTS = [
 ] as const;
 
 const STATUS_TEXT: Record<keyof typeof STATUS_LABELS, string> = {
-  PENDING_DEPOSIT: "The quote is live and nothing has arrived yet. Send before the deadline.",
+  PENDING_DEPOSIT: "NEAR Intents reports no deposit. Check the deadline and run preflight; this status can persist after expiry.",
   KNOWN_DEPOSIT_TX: "Your transaction was seen on the origin network. Nothing to do.",
-  PROCESSING: "NEAR Intents is swapping and delivering. Usually a few minutes.",
-  SUCCESS: "Delivered to the recipient address. The tracker links the destination transaction.",
-  INCOMPLETE_DEPOSIT: "Less arrived than the swap needs. It's refunded to your refund address after the deadline.",
-  REFUNDED: "The deposit went back to the refund address. A small refund fee may apply.",
+  PROCESSING: "NEAR Intents reports processing. A quote estimate is not a completion guarantee.",
+  SUCCESS: "NEAR Intents reports delivery. Use the destination explorer link to review the transaction; Neer does not independently verify finality.",
+  INCOMPLETE_DEPOSIT: "NEAR Intents reports an incomplete deposit. Do not top up; check refund status with your swap app.",
+  REFUNDED: "NEAR Intents reports a refund. Review its transaction details; a refund fee may apply.",
   FAILED: "The swap didn't complete. Contact your swap app's support with the correlation ID.",
 };
 

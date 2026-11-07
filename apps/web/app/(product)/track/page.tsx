@@ -33,7 +33,7 @@ function TrackForm({ initialAddress, initialMemo }: { initialAddress?: string; i
           ))}
         </ul>
         <p className="mt-4 border-t border-line pt-3 text-sm text-muted">
-          Updates every 5 seconds while the tab is open and stops at a final status. Read-only: it never touches your wallet.
+          Checks about every 5 seconds when visible, less often when hidden or unavailable. Stops at a reported final status. Never connects a wallet.
         </p>
       </section>
     </div>

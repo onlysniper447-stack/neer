@@ -40,9 +40,9 @@ const RESPONSE_FIELDS: [string, string][] = [
   ["verdict", '"safe" | "check" | "block"'],
   ["label", "Safe to send, Check this, or Don't send"],
   ["headline, message", "Plain-English reason and what to do"],
-  ["checks[]", "Every check that applied: id, title, severity (pass, info, warn, unknown, block), headline, summary, message, expected, actual, action"],
-  ["quote", "Summary of the signed quote (networks, symbols, amounts, deadline, refund address), or null"],
-  ["signedQuote", "The 1Click quote exactly as signed. Keep it to resolve disputes"],
+  ["checks[]", "Applicable checks and findings. The time check includes expected.safeUntil: recheck before this boundary; never cache a Safe indefinitely."],
+  ["quote", "Quote metadata (networks, symbols, amounts, deadline, refund address), or null. Not every metadata field is signed"],
+  ["signedQuote", "Original verified quote response. Preserve it as a record, not proof of delivery"],
   ["rulesVersion, checksHash", "Which rules ran, and a hash of the check results"],
   ["serverTime, requestId", "When it ran, and an id for support (also in X-Request-Id)"],
   ["outcome", '"checked", "not_found" or "unavailable"'],
@@ -180,7 +180,7 @@ export default async function DevelopersPage() {
             <Endpoint method="GET" path="/api/v1/track?address=…&memo=…" />
             <p className="mt-4 text-muted">
               The swap status in plain English: label, message, timeline steps, deposited and refunded amounts, explorer links (https only), the quote summary and the signed quote.
-              Reads are shared per address for 5 seconds, so polling every 5 seconds is fine.
+              Reads are shared per exact address and memo for 5 seconds, so polling every 5 seconds is fine.
             </p>
             <div className="mt-4 space-y-3">
               <CodeBlock code={`curl '${origin}/api/v1/track?address=${EXAMPLE_ADDRESS}'`} title="curl" />
@@ -237,7 +237,7 @@ export default async function DevelopersPage() {
 
           <Section id="widget" title="<NeerGuard/> React widget">
             <p className="text-muted">
-              Keeps your Send button disabled until Neer says Safe to send for exactly the current inputs, less than 60 seconds ago. Loading, errors, non-2xx responses, malformed bodies,
+              Keeps your Send button disabled until Neer says Safe to send for exactly the current inputs, less than 60 seconds ago and within the time check’s safety window. Rechecking disables it immediately. Loading, errors, non-2xx responses, malformed bodies,
               stale results, Check this and Don&apos;t send all keep it disabled. It never touches a wallet. It lives in this repo as{" "}
               <code className="font-mono text-sm text-ink">packages/react</code> (<code className="font-mono text-sm text-ink">@neer/react</code>); it isn&apos;t on npm yet. Add your
               site to <code className="font-mono text-sm text-ink">NEER_CORS_ORIGINS</code>.

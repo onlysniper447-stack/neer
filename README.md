@@ -141,13 +141,13 @@ Rules config (minimums, budgets) is versioned in `packages/core/src/rules-config
 {
   "deposit":  { "address": "0xDF7A93d400159d0f8f40AAe42576d01285EA9e39", "memo": null },
   "transfer": { "chain": "base", "asset": "native", "amount": "170000000000000000", "source": "wallet",
-                "chainId": 8453, "from": "0x…", "to": "0x…", "memo": null,
-                "tx": { "to": "0x…", "data": "0x…", "value": "0x…" } }
+                "chainId": 8453, "to": "0xDF7A93d400159d0f8f40AAe42576d01285EA9e39",
+                "tx": { "to": "0xDF7A93d400159d0f8f40AAe42576d01285EA9e39", "data": "0x", "value": "170000000000000000", "chainId": 8453 } }
 }
 ```
 
 `amount` is in base units. `asset` is `native`, a token contract or a 1Click
-`assetId`. Only `chain`, `asset` and `amount` are required.
+`assetId`. Missing declared details remain unknown, never Safe. Set `source: "wallet"` for a wallet send. Amount and draft `value` use decimal integer strings, not hexadecimal; integer strings are limited to 256 digits.
 
 Responses: `200` with `{ verdict, label, headline, message, checks[], quote,
 signedQuote, rulesVersion, checksHash, serverTime, requestId }`; `404` (quote not
@@ -159,7 +159,10 @@ network, or quote signature didn't verify); `400` (invalid body, with
 `GET /api/v1/track?address=…[&memo=…]` returns the status with plain-English
 label and message, timeline steps, deposited / refunded amounts, origin and
 destination transactions (only `https:` explorer links), the quote summary and
-the signed quote.
+the quote response. Status, amounts received and transaction links are reports from
+NEAR Intents, not independent on-chain confirmations. An expired pending quote
+remains trackable but never invites a new deposit. Unverified or mismatched quotes
+return `422` without a positive status view.
 
 Every API response is `Cache-Control: no-store` with an `X-Request-Id`.
 Browser calls from other sites are allowed only for origins in
@@ -181,8 +184,14 @@ import { NeerGuard, NeerStatus } from "@neer/react";
 ```
 
 `canSend` is true only for a `safe` verdict on exactly the current inputs, less
-than `maxAgeMs` (60 s) old. Loading, errors, non-2xx, malformed bodies, stale
-results, `check` and `block` keep it false.
+than `maxAgeMs` (default and maximum 60 s) old, before both the deposit deadline
+and `checks[time].expected.safeUntil`. The latter includes the chain timing buffer
+and inactivity boundary. Loading, rechecking, errors, non-2xx, malformed bodies,
+stale results, `check` and `block` keep it false. The server timestamp must agree
+with the device clock; a clock disagreement fails closed. Requests time out after
+10 seconds. Use `canSend`, not the historical `verdict`, to gate a Send button.
+The widget trusts the configured Neer HTTPS endpoint; it does not independently
+verify quote signatures or inspect the eventual wallet transaction.
 
 ## Security
 
@@ -193,26 +202,30 @@ results, `check` and `block` keep it false.
   Permissions-Policy, COOP.
 - All input is parsed with zod; pasted addresses with spaces, zero-width or
   look-alike Unicode characters, or links are refused, not "cleaned".
-- Server-side only calls to 1Click with an 8 s timeout. The upstream host is
+- API request bodies are streamed with a 64 KiB byte limit before JSON parsing.
+- Server-side only calls to 1Click with an 8 s timeout, a 2 MiB response limit and redirects refused. The upstream host is
   fixed; the test override only accepts loopback URLs, and disabling rate
   limits only works together with it.
 - Rate limits: preflight 30/min, track 60/min, check page 30/min per IP
   (Upstash when configured, otherwise in-memory).
-- The tracker shares one 1Click status read per address per 5 s; preflight
-  always reads fresh.
+- The tracker shares one status read per exact address and memo per 5 s, with
+  a 5,000-entry per-instance cap. Case-sensitive network addresses stay distinct.
+  Preflight always requests fresh status. Web Safe displays expire after 60 seconds
+  or the timing safety boundary, whichever comes first.
 - ESLint forbids wallet signing / sending RPC method names anywhere in the code.
 
 ## Tests
 
-| Package | Runner | Count |
-| --- | --- | --- |
-| @neer/core | vitest | 123 |
-| @neer/oneclick | vitest | 11 |
-| @neer/web (server code, inputs, rate limiter, address checker, analytics, local stats, docs examples) | vitest | 49 |
-| @neer/react | vitest + Testing Library (jsdom) | 4 |
-| @neer/web e2e | Playwright, desktop Chrome | 71 |
-| @neer/web e2e | Playwright, Pixel 7 (paste flow, menu, pages) | 58 |
-| screenshots | Playwright (56 images in `screenshots/v2`) | 16 |
+| Package | Runner and coverage |
+| --- | --- |
+| @neer/core | Vitest: signature, rules, address formats, amount parsing, status, regression cases |
+| @neer/oneclick | Vitest: response parsing, errors, timeout, redirect policy, response size |
+| @neer/web | Vitest: service contracts, streamed bodies, cache keys/cap, freshness, inputs, rate limits, copy |
+| @neer/react | Vitest + Testing Library (jsdom): fail-closed gating, rechecks, invalid results, expiry |
+| @neer/web e2e | Playwright: browser workflows, mobile navigation, pages, accessibility |
+
+`pnpm test` does not run browser tests. Run `pnpm e2e` separately after a production
+build; unit and HTTP checks do not prove browser accessibility or rendering.
 
 The e2e suite runs the production build against `apps/web/e2e/mock-1click.ts`,
 which serves the recorded token list and `/v0/status` bodies shaped like the
@@ -220,7 +233,7 @@ recorded live responses, signed with a test key. Scenarios: safe, #382 replay
 (ETH on Base to an Ethereum quote) and its fix, too little, exchange, near
 expiry, expired, used, not found, 1Click down, Stellar memo right / missing,
 bad input, tracker progression to delivered (and polling stops), API contract,
-CORS, security headers, and the landing page's curl example.
+CORS, security headers, and API examples.
 
 The menu and page suites (`e2e/nav.spec.ts`, `e2e/pages.spec.ts`) open and
 close the menu by click, Esc and keyboard (focus trap and focus return), load
@@ -239,13 +252,22 @@ menu; serious and critical violations fail the test.
   the OpenAPI shape. The mock assumes a MEMO quote is only found with its memo.
 - **No on-chain reads.** Neer doesn't read balances, contract code or wallet
   history, so it can't detect address-poisoning entries in your history or
-  that a token contract is fake beyond the 1Click token list.
+  that a token contract is fake beyond the 1Click token list. Tracker completion
+  and refund statuses are upstream reports; Neer does not verify chain finality,
+  counterparty identity or fund recovery.
 - **Network incidents aren't checked** (needs a 1Click partner key).
 - **Approval checks** need a draft `tx` (API / widget). The web form can't see
   what your wallet will really send, so it says so.
-- **Network minimums** come from 1Click's announced limits, hard-coded with a
-  date. They are treated as unknown once older than 14 days.
-- **Rate limiting** without Upstash is per server instance. The client IP is
+- **Network minimums** come from dated 1Click announcements, not a live limits API.
+  The two published announcements in `rules-config.ts` were reviewed on November 7,
+  2026. Their thresholds are treated as unknown after 14 days, including amounts
+  below a previously announced threshold. Review the sources before refreshing
+  the timestamp; do not extend it automatically.
+- **Signature scope** follows the official SDK's selected fields, not every field
+  in a quote or status response. A saved response is not a signed Neer verdict or
+  an independent delivery attestation. When status lookup succeeds, preflight uses
+  that pinned upstream response rather than partner-supplied metadata.
+- **Rate limiting** without Upstash, or while Redis is unavailable, is per server instance. The client IP is
   read from `X-Forwarded-For`, which is only trustworthy behind a proxy that
   sets it (Vercel does).
 - `style-src` allows `'unsafe-inline'` for inline style attributes (countdown bar width, Radix). Scripts stay nonce-only.
@@ -262,7 +284,7 @@ menu; serious and critical violations fail the test.
 - `/v0/tokens` includes chains not in the OpenAPI enum (`abs`, `qtc`). The
   Arbitrum USDT symbol is `USDT0`.
 - A quote has two deadlines: `quoteRequest.deadline` (~30 min, refunds start)
-  and `quote.deadline` (~3 days). Neer uses the earlier one for "Send before".
+  and `quote.deadline` (~3 days). Neer uses the earlier one for the deposit deadline.
 - `POST /v0/quote` works without a JWT. 1Click enforces the $1,000 minimum
   at quote time ("Temporary swap limits: minimum swap amount is $1,000") also
   when BSC is the **destination**. A dry quote with `depositMode: MEMO` on a

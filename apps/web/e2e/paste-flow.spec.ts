@@ -36,7 +36,7 @@ test("sending too little is blocked with the amount it needs", async ({ page }) 
   await pasteAddress(page, E2E_ADDRESSES.safe);
   await describeSend(page, { network: "Arbitrum", asset: ASSETS.arbUsdc, amount: "4.5" });
   await expect(page.getByTestId("result")).toHaveAttribute("data-verdict", "block");
-  await expect(page.getByTestId("check-amount")).toContainText("Too little. This swap needs 5 USDC.");
+  await expect(page.getByTestId("check-amount")).toContainText("This quote needs 5 USDC.");
 });
 
 test("sending from an exchange is a Check first, not Safe", async ({ page }) => {

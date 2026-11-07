@@ -6,7 +6,7 @@ import { LocalStatsPanel } from "@/components/local-stats";
 import { LocalTime } from "@/components/local-time";
 import { ExternalLink, PageHeader, Section } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { minimumsExpireAt, overviewFromTokens } from "@/lib/analytics";
+import { minimumsAreCurrent, minimumsExpireAt, overviewFromTokens } from "@/lib/analytics";
 import { getTokens } from "@/lib/server/upstream";
 import { cn } from "@/lib/utils";
 
@@ -36,21 +36,22 @@ export default async function AnalyticsPage() {
   const o = overviewFromTokens(state.tokens);
   const live = o.tokens > 0;
   const m = DEFAULT_RULES.minimums;
+  const minimumsCurrent = minimumsAreCurrent();
 
   return (
     <>
-      <PageHeader eyebrow="Analytics" title="Live numbers, no estimates">
-        Counts come from the NEAR Intents 1Click token list, read by Neer&apos;s server and cached for 5 minutes. The rest is the exact rules this deployment runs.
+      <PageHeader eyebrow="Analytics" title="Network counts and published checks">
+        Counts use the latest token list Neer could retrieve. Cached lists, published minimums and confirmation budgets do not guarantee a quote or transfer.
       </PageHeader>
 
       <div className="space-y-16">
-        <Section id="live" title="Supported by NEAR Intents right now">
+        <Section id="live" title={state.fresh ? "The latest token list supplies these counts." : "The cached token list supplies these counts."}>
           {live ? (
             <>
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <Stat label="Networks" value={String(o.networks)} note="Distinct networks in /v0/tokens" testId="stat-networks" />
-                <Stat label="Tokens" value={String(o.tokens)} note="Assets you can swap through 1Click" testId="stat-tokens" />
-                <Stat label="Address formats Neer validates" value={`${o.validatedNetworks} of ${o.networks}`} note="Networks where Neer checks format and checksum" />
+                <Stat label="Tokens" value={String(o.tokens)} note="Assets listed by 1Click, not guaranteed quote availability" testId="stat-tokens" />
+                <Stat label="Address formats Neer validates" value={`${o.validatedNetworks} of ${o.networks}`} note="Format checks, including checksums where available" />
                 <Stat label="Checks in the rules engine" value={String(RULE_CATALOG.length)} note={`Each runs when it applies; ${REQUIRED_CHECKS.length} must pass for Safe`} />
               </div>
               <p className="mt-4 text-sm text-muted">
@@ -80,7 +81,7 @@ export default async function AnalyticsPage() {
         </Section>
 
         {live ? (
-          <Section id="networks" title="Networks" lede="Every network in the live token list, with the minimum Neer enforces and the time it budgets for a deposit to confirm.">
+          <Section id="networks" title="Networks" lede="Networks in the retrieved token list, with published minimum rules and estimated confirmation budgets. Token listings do not prove current quote availability.">
             <div className="overflow-hidden rounded-2xl border border-line">
               <table className="w-full text-left text-[15px]">
                 <caption className="sr-only">Networks in the 1Click token list</caption>
@@ -96,7 +97,7 @@ export default async function AnalyticsPage() {
                       Address check
                     </th>
                     <th scope="col" className="hidden px-4 py-3 font-medium md:table-cell">
-                      Minimum
+                      Listed minimum
                     </th>
                     <th scope="col" className="hidden px-4 py-3 font-medium lg:table-cell">
                       Confirm budget
@@ -110,7 +111,7 @@ export default async function AnalyticsPage() {
                         <span className="font-medium">{r.name}</span> <span className="font-mono text-sm text-muted">{r.id}</span>
                         <span className="mt-0.5 block text-sm text-muted sm:hidden">
                           {r.validated ? "Address validated" : "Address not validated"}
-                          {r.minimum ? ` · Min ${r.minimum}` : ""}
+                          {r.minimum ? ` · Listed min ${r.minimum}${minimumsCurrent ? "" : " (out of date)"}` : ""}
                         </span>
                       </td>
                       <td className="tabular px-4 py-3 text-right">{r.tokens}</td>
@@ -125,7 +126,7 @@ export default async function AnalyticsPage() {
                           </span>
                         )}
                       </td>
-                      <td className="hidden px-4 py-3 md:table-cell">{r.minimum ?? <span className="text-muted">None</span>}</td>
+                      <td className="hidden px-4 py-3 md:table-cell">{r.minimum ? `${r.minimum}${minimumsCurrent ? "" : " (out of date)"}` : <span className="text-muted">No listed rule</span>}</td>
                       <td className="tabular hidden px-4 py-3 lg:table-cell">{humanDuration(r.confirmBudgetSec)}</td>
                     </tr>
                   ))}
@@ -137,8 +138,8 @@ export default async function AnalyticsPage() {
 
         <Section
           id="minimums"
-          title="Network minimums Neer enforces"
-          lede="Temporary limits announced by NEAR Intents. Swaps under them don't fill, so Neer says Don't send."
+          title="Published minimum rules have a review deadline."
+          lede={minimumsCurrent ? "Neer applies these dated announcements to origin-to-destination chain swaps. Other routes or limits may differ." : "These announcements have not been rechecked in time. Neer reports the minimum check as unknown, not a current threshold."}
         >
           <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-line p-5 sm:p-6">
@@ -153,7 +154,7 @@ export default async function AnalyticsPage() {
             </div>
           </div>
           <p className="mt-4 text-sm text-muted">
-            Last confirmed against the NEAR Intents changelog on <LocalTime iso={m.checkedAt} className="text-ink" />. After{" "}
+            Published sources last reviewed on <LocalTime iso={m.checkedAt} className="text-ink" />. After{" "}
             <LocalTime iso={minimumsExpireAt()} className="text-ink" /> the minimum check reports Not confirmed until someone re-checks. Sources:{" "}
             {m.sources.map((s, i) => (
               <span key={s}>

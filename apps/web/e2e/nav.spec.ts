@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const SECTIONS = [
   { name: "Tools", path: "/tools", h1: "Everything you can check with Neer" },
-  { name: "Analytics", path: "/analytics", h1: "Live numbers, no estimates" },
+  { name: "Analytics", path: "/analytics", h1: "Network counts and published checks" },
   { name: "API", path: "/developers", h1: "Neer API" },
   { name: "Resources", path: "/resources", h1: "How Neer keeps a deposit safe" },
 ] as const;

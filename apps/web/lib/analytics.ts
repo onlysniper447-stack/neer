@@ -62,3 +62,9 @@ export function overviewFromTokens(tokens: Token[], rules: RulesConfig = DEFAULT
 export function minimumsExpireAt(rules: RulesConfig = DEFAULT_RULES): string {
   return new Date(Date.parse(rules.minimums.checkedAt) + rules.minimumsMaxAgeDays * 86_400_000).toISOString();
 }
+
+/** Whether a published minimum snapshot is still inside its review window. */
+export function minimumsAreCurrent(rules: RulesConfig = DEFAULT_RULES, now = Date.now()): boolean {
+  const reviewed = Date.parse(rules.minimums.checkedAt);
+  return Number.isFinite(reviewed) && now < Date.parse(minimumsExpireAt(rules));
+}
