@@ -10,28 +10,23 @@ const TOOLS = [
     href: "/check",
     Icon: ShieldCheck,
     title: "Deposit preflight",
-    text: "Paste a 1Click deposit address and say how you'll send. Neer checks network, token, amount, memo, time left, minimums, refund address and lookalikes against the signed quote.",
+    text: "Compare declared network, token, amount and memo with quote details. Review deadline, published minimum and refund-address findings before deciding whether to send.",
     cta: "Check a deposit",
   },
   {
     href: "/track",
     Icon: Radar,
     title: "Swap tracker",
-    text: "Follow a deposit after you send: seen, swapping, delivered or refunded, with explorer links and the signed quote to keep.",
+    text: "Review status reported by NEAR Intents, with available explorer links and a quote record. Neer does not independently confirm delivery or refunds.",
     cta: "Track a deposit",
   },
   {
     href: "/tools/address",
     Icon: Fingerprint,
     title: "Address checker",
-    text: "Paste any address to see which networks it's valid on, whether its checksum is right and its canonical form. Compare two addresses to catch lookalikes.",
+    text: "Check supported address formats and available checksums, or compare two addresses. A format match does not prove the network, ownership or account existence.",
     cta: "Check an address",
   },
-] as const;
-
-const LATER = [
-  { title: "Refund helper", text: "Find out where a refund went and when to expect it." },
-  { title: "Signed verdicts", text: "A Neer verdict your app can verify and keep with the quote." },
 ] as const;
 
 export default function ToolsPage() {
@@ -60,24 +55,6 @@ export default function ToolsPage() {
           </li>
         ))}
       </ul>
-
-      <section aria-labelledby="later-title" className="mt-14">
-        <h2 id="later-title" className="text-lg font-semibold">
-          Coming later
-        </h2>
-        <p className="mt-1 text-muted">Not built yet, so not clickable.</p>
-        <ul className="mt-4 grid gap-4 md:grid-cols-2">
-          {LATER.map((t) => (
-            <li key={t.title} className="rounded-2xl border border-dashed border-line p-5">
-              <p className="flex flex-wrap items-center gap-2 font-semibold text-ink">
-                {t.title}
-                <span className="rounded-full border border-line bg-surface px-2 py-0.5 text-xs font-medium text-muted">Coming later</span>
-              </p>
-              <p className="mt-1 text-[15px] text-muted">{t.text}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
     </>
   );
 }
