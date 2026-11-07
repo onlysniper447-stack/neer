@@ -1,3 +1,7 @@
+import { VerifyInputError } from "@neer/verify";
+import { DeepLinkCheck } from "@/components/deep-link-check";
+import { parseCheckQuery, verificationDraft } from "@/lib/deep-links";
+import { verifyPageService } from "@/lib/server/verify-service";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
@@ -18,7 +22,21 @@ export const dynamic = "force-dynamic";
 
 export default async function CheckPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
-  if (sp.address === undefined && sp.memo === undefined) return <DepositStart />;
+  const link = parseCheckQuery(sp);
+  if (link.kind === "empty") return <DepositStart />;
+  if (link.kind === "invalid") return <DeepLinkCheck key={JSON.stringify(link.draft)} draft={link.draft} error={link.message} />;
+  if (link.kind === "verify") {
+    const draft = verificationDraft(link.input);
+    const limit = await rateLimit("check-page", clientIp(await headers()));
+    if (!limit.ok) return <DeepLinkCheck key={JSON.stringify(draft)} draft={draft} error={`Too many checks. Try again in ${limit.retryAfterSec} seconds.`} />;
+    let result;
+    let error;
+    try { result = await verifyPageService(link.input); }
+    catch (err) { error = err instanceof VerifyInputError ? "The amount or optional fields could not be checked. Review these details." : "We could not finish this check. Review the details and retry before sending."; }
+    return result
+      ? <DeepLinkCheck key={JSON.stringify([draft, result.serverTime])} draft={draft} input={link.input} result={result} />
+      : <DeepLinkCheck key={JSON.stringify(draft)} draft={draft} error={error} />;
+  }
   const addr = PastedAddressSchema.safeParse(first(sp.address) ?? "");
   const memoRaw = first(sp.memo);
   const memo = memoRaw ? MemoSchema.safeParse(memoRaw) : null;

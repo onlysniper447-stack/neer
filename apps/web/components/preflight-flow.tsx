@@ -1,5 +1,6 @@
 "use client";
 
+import type { VerifyInput } from "@neer/verify";
 import { AmountError, parseAmount, type QuoteSummary } from "@neer/core";
 import { ArrowRight, ChevronDown, Loader2 } from "lucide-react";
 import { useId, useState } from "react";
@@ -27,7 +28,7 @@ export interface TokenOption {
 /** Common networks first; the rest sit behind "More networks". */
 const POPULAR = ["eth", "base", "arb", "bsc", "pol", "op", "avax", "sol", "tron", "ton", "stellar", "xrp", "btc", "near"];
 
-type Phase = { kind: "form" } | { kind: "loading" } | { kind: "result"; result: ApiResult; sendSummary: string } | { kind: "error"; message: string };
+type Phase = { kind: "form" } | { kind: "loading" } | { kind: "result"; result: ApiResult; sendSummary: string; shareInput: VerifyInput } | { kind: "error"; message: string };
 
 function shortContract(c: string) {
   return c.length > 14 ? `${c.slice(0, 6)}…${c.slice(-4)}` : c;
@@ -110,7 +111,7 @@ export function PreflightFlow({
       const res = await fetch("/api/v1/preflight", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const json = (await res.json()) as Partial<ApiResult> & { error?: { code: string; message: string; issues?: { path: string; message: string }[] } };
       if (json.verdict && json.checks) {
-        setPhase({ kind: "result", result: json as ApiResult, sendSummary });
+        setPhase({ kind: "result", result: json as ApiResult, sendSummary, shareInput: { depositAddress: address, network: chain, token: token.assetId, amount: amount.trim(), source, lookupMemo: pastedMemo, ...(needsMemo ? { memo: memo.trim() || null } : {}), transfer: { ...(from.trim() ? { from: from.trim() } : {}), ...(to.trim() ? { to: to.trim() } : {}) } } });
         recordCheck({ verdict: json.verdict, network: chain });
       } else if (res.status === 429) {
         setPhase({ kind: "error", message: json.error?.message ?? "Too many checks. Try again in 30 seconds." });
@@ -138,7 +139,7 @@ export function PreflightFlow({
   return (
     <div>
       {phase.kind === "result" ? (
-        <ResultView result={phase.result} pastedAddress={address} pastedMemo={pastedMemo} onEdit={edit} sendSummary={phase.sendSummary} />
+        <ResultView result={phase.result} pastedAddress={address} pastedMemo={pastedMemo} onEdit={edit} sendSummary={phase.sendSummary} verificationInput={phase.shareInput} />
       ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:gap-x-8 xl:gap-x-10">
         <form onSubmit={run} className="space-y-7 rounded-2xl border border-line p-5 sm:p-7" noValidate aria-busy={phase.kind === "loading"} aria-labelledby="send-form-title">

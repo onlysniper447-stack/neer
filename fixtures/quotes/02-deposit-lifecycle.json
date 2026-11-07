@@ -1,0 +1,594 @@
+{
+  "fixtureKind": "FAKE_LOCAL_ONLY_DO_NOT_SEND",
+  "schemaVersion": 1,
+  "verifierVersion": "1.0.0",
+  "id": "02-deposit-lifecycle",
+  "metadata": {
+    "clock": "2026-11-07T15:30:00.000Z",
+    "clockDisplay": "2026-11-07 16:30 WAT (Africa/Lagos)",
+    "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
+    "signing": "Test-only deterministic derivation in packages/verify/test/fixtures.ts; no private seed/key serialized. Never trust this public key outside tests.",
+    "source": "Synthetic locally generated quote; not an upstream response or user transfer.",
+    "units": "Legacy transfer/quote amounts are base-unit strings; publicReplay.input.amount is human-readable.",
+    "overlayFormat": "Object-only JSON-pointer add/remove/replace; arrays replaced as whole values. Dates serialized then hydrated by harness."
+  },
+  "base": {
+    "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+    "depositMemo": null,
+    "lookup": {
+      "kind": "found",
+      "status": {
+        "quoteResponse": {
+          "timestamp": "2026-11-07T15:30:00.000Z",
+          "signature": "ed25519:3vZi8ZaHgvTxFRDbGWu5jHEw1xwMGEsRkCTmJqKHhkUy6SZkEPZ4mg4k9Bi2C2KHivs8HpCbeQ8ZM4UcBBnurpNX",
+          "correlationId": "FAKE_QUOTE_ID",
+          "quoteRequest": {
+            "dry": false,
+            "swapType": "EXACT_INPUT",
+            "slippageTolerance": 100,
+            "originAsset": "nep141:fake-usdc.omft.near",
+            "depositType": "ORIGIN_CHAIN",
+            "destinationAsset": "nep141:fake-near.omft.near",
+            "amount": "5000000",
+            "refundTo": "0xBAbAbabAbabaBABaBAbABabaBAbAbaBaBAbABaBa",
+            "refundType": "ORIGIN_CHAIN",
+            "recipient": "fake-recipient.near",
+            "recipientType": "DESTINATION_CHAIN",
+            "deadline": "2026-11-07T16:30:00.000Z"
+          },
+          "quote": {
+            "amountIn": "5000000",
+            "amountInFormatted": "5",
+            "amountInUsd": "5",
+            "minAmountIn": "5000000",
+            "amountOut": "1000000",
+            "amountOutFormatted": "1",
+            "amountOutUsd": "5",
+            "minAmountOut": "1000000",
+            "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+            "deadline": "2026-11-07T17:30:00.000Z",
+            "timeWhenInactive": "2026-11-07T17:30:00.000Z",
+            "refundFee": "1000"
+          }
+        },
+        "status": "PENDING_DEPOSIT",
+        "updatedAt": "2026-11-07T15:30:00.000Z"
+      },
+      "fetchedAt": "2026-11-07T15:30:00.000Z"
+    },
+    "tokens": [
+      {
+        "assetId": "nep141:fake-usdc.omft.near",
+        "blockchain": "eth",
+        "symbol": "FAKE",
+        "decimals": 6,
+        "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+        "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+      },
+      {
+        "assetId": "nep141:fake-near.omft.near",
+        "blockchain": "near",
+        "symbol": "FAKE_NEAR",
+        "decimals": 24,
+        "contractAddress": null,
+        "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+      }
+    ],
+    "transfer": {
+      "chain": "eth",
+      "asset": "nep141:fake-usdc.omft.near",
+      "amount": "5000000",
+      "source": "wallet"
+    },
+    "now": "2026-11-07T15:30:00.000Z",
+    "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
+    "rules": {
+      "version": "2026.11.1",
+      "minimums": {
+        "checkedAt": "2026-11-07T15:30:00.000Z",
+        "sources": [
+          "https://docs.near-intents.org/changelog/entries/2026-09-09-temporary-1000-minimum",
+          "https://docs.near-intents.org/changelog/entries/2026-09-14-temporary-tron-100-minimum"
+        ],
+        "usd1000Chains": [
+          "bsc",
+          "pol",
+          "ton",
+          "op",
+          "avax",
+          "stellar",
+          "monad",
+          "xlayer",
+          "adi"
+        ],
+        "usd1000": "1000",
+        "tronOriginUsd": "100"
+      },
+      "minimumsMaxAgeDays": 14,
+      "statusMaxAgeSec": 60,
+      "priceMaxAgeSec": 900,
+      "nearExpiryWarnSec": 600
+    }
+  },
+  "scenarios": [
+    {
+      "id": "DEPOSIT_IN_USE",
+      "targetCode": "DEPOSIT_IN_USE",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/status",
+          "value": "PROCESSING"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "DEPOSIT_IN_USE",
+        "severity": "block",
+        "message": "A deposit to this address is already on its way. Each deposit address works once. Don't send again; track it instead.",
+        "fix": "Track it; do not send again."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "DEPOSIT_IN_USE",
+              "severity": "block",
+              "message": "A deposit to this address is already on its way. Each deposit address works once. Don't send again; track it instead.",
+              "fix": "Track it; do not send again."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "DEPOSIT_INCOMPLETE",
+      "targetCode": "DEPOSIT_INCOMPLETE",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/status",
+          "value": "INCOMPLETE_DEPOSIT"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "DEPOSIT_INCOMPLETE",
+        "severity": "block",
+        "message": "NEAR Intents reports an incomplete deposit. Don't send more here; check refund status with your swap app.",
+        "fix": "Check refund status with the swap app; do not top up."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "DEPOSIT_INCOMPLETE",
+              "severity": "block",
+              "message": "NEAR Intents reports an incomplete deposit. Don't send more here; check refund status with your swap app.",
+              "fix": "Check refund status with the swap app; do not top up."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "DEPOSIT_ALREADY_USED",
+      "targetCode": "DEPOSIT_ALREADY_USED",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/status",
+          "value": "SUCCESS"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "DEPOSIT_ALREADY_USED",
+        "severity": "block",
+        "message": "This address was already used. Each deposit address works once. Get a new quote.",
+        "fix": "Get a new quote."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "DEPOSIT_ALREADY_USED",
+              "severity": "block",
+              "message": "This address was already used. Each deposit address works once. Get a new quote.",
+              "fix": "Get a new quote."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "QUOTE_DEADLINE_MISSING",
+      "targetCode": "QUOTE_DEADLINE_MISSING",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:4dgrrK2ywAYDkQdpbtDLB83XLcbmCiEqoMK4jEeLCYRK96HxM638KacrA7Dm552oGqQeVkSEMbhuQvi46TGeYyos"
+        },
+        {
+          "op": "remove",
+          "path": "/lookup/status/quoteResponse/quoteRequest/deadline"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quote/deadline",
+          "value": null
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "QUOTE_DEADLINE_MISSING",
+        "severity": "warn",
+        "message": "This quote has no deadline, so we can't tell how long it's valid. Get a fresh quote.",
+        "fix": "Get a fresh quote."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "QUOTE_UNAVAILABLE",
+              "severity": "block",
+              "message": "NEAR Intents didn't answer. Wait a minute and try again before you send.",
+              "fix": "Wait and retry before sending."
+            }
+          ],
+          "quote": null,
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": false
+      }
+    },
+    {
+      "id": "QUOTE_EXPIRED",
+      "targetCode": "QUOTE_EXPIRED",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/deadline",
+          "value": "2026-11-07T15:30:00.000Z"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "QUOTE_EXPIRED",
+        "severity": "block",
+        "message": "This quote has expired. Don't send to this address. Get a new quote from your app.",
+        "fix": "Get a new quote."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "QUOTE_EXPIRED",
+              "severity": "block",
+              "message": "This quote has expired. Don't send to this address. Get a new quote from your app.",
+              "fix": "Get a new quote."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T15:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "QUOTE_TOO_CLOSE_TO_EXPIRY",
+      "targetCode": "QUOTE_TOO_CLOSE_TO_EXPIRY",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/deadline",
+          "value": "2026-11-07T15:30:01.000Z"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "QUOTE_TOO_CLOSE_TO_EXPIRY",
+        "severity": "block",
+        "message": "Too close. Only under a minute left, and a send on Ethereum can take about 5 minutes. Get a fresh quote.",
+        "fix": "Get a fresh quote."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "QUOTE_TOO_CLOSE_TO_EXPIRY",
+              "severity": "block",
+              "message": "Too close. Only under a minute left, and a send on Ethereum can take about 5 minutes. Get a fresh quote.",
+              "fix": "Get a fresh quote."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T15:30:01.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "QUOTE_NEAR_EXPIRY",
+      "targetCode": "QUOTE_NEAR_EXPIRY",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/deadline",
+          "value": "2026-11-07T15:37:30.000Z"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "QUOTE_NEAR_EXPIRY",
+        "severity": "warn",
+        "message": "7 minutes left. If your send could take longer, get a fresh quote first.",
+        "fix": "Get a fresh quote if sending could take longer."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "QUOTE_NEAR_EXPIRY",
+              "severity": "warn",
+              "message": "7 minutes left. If your send could take longer, get a fresh quote first.",
+              "fix": "Get a fresh quote if sending could take longer."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T15:37:30.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "DEPOSIT_ADDRESS_INACTIVE",
+      "targetCode": "DEPOSIT_ADDRESS_INACTIVE",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:47DQXQUSZxDHfiwSWFmQkJxED3sDF9ZUNsCd11ZQKUqGFF8fjfQAgQmMahc9ha44ykcuNdmTBugrmFvwcKqsFu7H"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quote/timeWhenInactive",
+          "value": "2026-11-07T15:30:00.000Z"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "DEPOSIT_ADDRESS_INACTIVE",
+        "severity": "warn",
+        "message": "This deposit address has gone quiet, so the swap may take longer than usual.",
+        "fix": "Review slower-processing risk."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "DEPOSIT_ADDRESS_INACTIVE",
+              "severity": "warn",
+              "message": "This deposit address has gone quiet, so the swap may take longer than usual.",
+              "fix": "Review slower-processing risk."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "QUOTE_DEPOSIT_ADDRESS_MISSING",
+      "targetCode": "QUOTE_DEPOSIT_ADDRESS_MISSING",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:8YqUzbdL2pbAmd6xGLzQkCzCyE1pZchJgcmXTb94Lh8AhaGNCUYwYyVRKxUUhC1n1ZKUcVWP6BUPUqmHFXNrSnT"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quote/depositAddress",
+          "value": null
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "QUOTE_DEPOSIT_ADDRESS_MISSING",
+        "severity": "warn",
+        "message": "This quote has no deposit address to compare with.",
+        "fix": "Obtain a real deposit quote/address."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "QUOTE_DEPOSIT_ADDRESS_MISSING",
+              "severity": "warn",
+              "message": "This quote has no deposit address to compare with.",
+              "fix": "Obtain a real deposit quote/address."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    }
+  ]
+}

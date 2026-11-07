@@ -1,5 +1,6 @@
 import "server-only";
-import { DeclaredTransferSchema, getChain, isKnownChain, preflight, type Lookup, type PreflightResult, type Token } from "@neer/core";
+import { DeclaredTransferSchema, getChain, isKnownChain, type Lookup, type PreflightResult, type Token } from "@neer/core";
+import { verifyLegacyPreflight } from "@neer/verify";
 import type { z } from "zod";
 import { PreflightRequestSchema } from "./request-schemas";
 import { getStatus, getTokens, quotePublicKeyOverride } from "./upstream";
@@ -51,7 +52,7 @@ export async function preflightService(raw: unknown, requestId: string): Promise
     };
   }
 
-  const result = preflight({
+  const result = await verifyLegacyPreflight({
     depositAddress: deposit.address,
     depositMemo: deposit.memo ?? null,
     lookup,
@@ -91,7 +92,7 @@ function errorFor(result: PreflightResult, lookup: Lookup): { error?: ApiErrorBo
 /** Data for the /check page: the quote for this address plus transfer-independent checks. */
 export async function loadCheckPage(address: string, memo: string | null) {
   const [lookup, tokenState] = await Promise.all([getStatus(address, memo, { dedupe: false }), getTokens()]);
-  const result = preflight({
+  const result = await verifyLegacyPreflight({
     depositAddress: address,
     depositMemo: memo,
     lookup,

@@ -5,6 +5,13 @@
     "test": { "dependsOn": ["^build"], "outputs": [] },
     "lint": { "dependsOn": ["^build"], "outputs": [] },
     "typecheck": { "dependsOn": ["^build"], "outputs": [] },
-    "dev": { "dependsOn": ["^build"], "cache": false, "persistent": true }
+    "dev": { "dependsOn": ["^build"], "cache": false, "persistent": true },
+    "@neer/web#test": {
+      "dependsOn": ["^build"], "outputs": [],
+      "inputs": [
+        "$TURBO_DEFAULT$", "$TURBO_ROOT$/openapi.yaml", "$TURBO_ROOT$/docs/api.md",
+        "$TURBO_ROOT$/redocly.yaml", "$TURBO_ROOT$/.redocly.lint-ignore.yaml"
+      ]
+    }
   }
 }

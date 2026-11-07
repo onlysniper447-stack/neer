@@ -3,7 +3,7 @@ const MAX_BODY_BYTES = 64 * 1024;
 type BodyResult = { ok: true; value: unknown } | { ok: false; message: string };
 
 /** Count streamed bytes before decoding, including when Content-Length is absent or false. */
-export async function readJsonBody(request: Request): Promise<BodyResult> {
+export async function readJsonBody(request: Pick<Request, "body">): Promise<BodyResult> {
   if (!request.body) return { ok: false, message: "Request body must be JSON." };
   const reader = request.body.getReader();
   const decoder = new TextDecoder("utf-8", { fatal: true });

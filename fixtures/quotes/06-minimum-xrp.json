@@ -1,0 +1,781 @@
+{
+  "fixtureKind": "FAKE_LOCAL_ONLY_DO_NOT_SEND",
+  "schemaVersion": 1,
+  "verifierVersion": "1.0.0",
+  "id": "06-minimum-xrp",
+  "metadata": {
+    "clock": "2026-11-07T15:30:00.000Z",
+    "clockDisplay": "2026-11-07 16:30 WAT (Africa/Lagos)",
+    "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
+    "signing": "Test-only deterministic derivation in packages/verify/test/fixtures.ts; no private seed/key serialized. Never trust this public key outside tests.",
+    "source": "Synthetic locally generated quote; not an upstream response or user transfer.",
+    "units": "Legacy transfer/quote amounts are base-unit strings; publicReplay.input.amount is human-readable.",
+    "overlayFormat": "Object-only JSON-pointer add/remove/replace; arrays replaced as whole values. Dates serialized then hydrated by harness."
+  },
+  "base": {
+    "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+    "depositMemo": null,
+    "lookup": {
+      "kind": "found",
+      "status": {
+        "quoteResponse": {
+          "timestamp": "2026-11-07T15:30:00.000Z",
+          "signature": "ed25519:3vZi8ZaHgvTxFRDbGWu5jHEw1xwMGEsRkCTmJqKHhkUy6SZkEPZ4mg4k9Bi2C2KHivs8HpCbeQ8ZM4UcBBnurpNX",
+          "correlationId": "FAKE_QUOTE_ID",
+          "quoteRequest": {
+            "dry": false,
+            "swapType": "EXACT_INPUT",
+            "slippageTolerance": 100,
+            "originAsset": "nep141:fake-usdc.omft.near",
+            "depositType": "ORIGIN_CHAIN",
+            "destinationAsset": "nep141:fake-near.omft.near",
+            "amount": "5000000",
+            "refundTo": "0xBAbAbabAbabaBABaBAbABabaBAbAbaBaBAbABaBa",
+            "refundType": "ORIGIN_CHAIN",
+            "recipient": "fake-recipient.near",
+            "recipientType": "DESTINATION_CHAIN",
+            "deadline": "2026-11-07T16:30:00.000Z"
+          },
+          "quote": {
+            "amountIn": "5000000",
+            "amountInFormatted": "5",
+            "amountInUsd": "5",
+            "minAmountIn": "5000000",
+            "amountOut": "1000000",
+            "amountOutFormatted": "1",
+            "amountOutUsd": "5",
+            "minAmountOut": "1000000",
+            "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+            "deadline": "2026-11-07T17:30:00.000Z",
+            "timeWhenInactive": "2026-11-07T17:30:00.000Z",
+            "refundFee": "1000"
+          }
+        },
+        "status": "PENDING_DEPOSIT",
+        "updatedAt": "2026-11-07T15:30:00.000Z"
+      },
+      "fetchedAt": "2026-11-07T15:30:00.000Z"
+    },
+    "tokens": [
+      {
+        "assetId": "nep141:fake-usdc.omft.near",
+        "blockchain": "eth",
+        "symbol": "FAKE",
+        "decimals": 6,
+        "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+        "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+      },
+      {
+        "assetId": "nep141:fake-near.omft.near",
+        "blockchain": "near",
+        "symbol": "FAKE_NEAR",
+        "decimals": 24,
+        "contractAddress": null,
+        "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+      }
+    ],
+    "transfer": {
+      "chain": "eth",
+      "asset": "nep141:fake-usdc.omft.near",
+      "amount": "5000000",
+      "source": "wallet"
+    },
+    "now": "2026-11-07T15:30:00.000Z",
+    "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
+    "rules": {
+      "version": "2026.11.1",
+      "minimums": {
+        "checkedAt": "2026-11-07T15:30:00.000Z",
+        "sources": [
+          "https://docs.near-intents.org/changelog/entries/2026-09-09-temporary-1000-minimum",
+          "https://docs.near-intents.org/changelog/entries/2026-09-14-temporary-tron-100-minimum"
+        ],
+        "usd1000Chains": [
+          "bsc",
+          "pol",
+          "ton",
+          "op",
+          "avax",
+          "stellar",
+          "monad",
+          "xlayer",
+          "adi"
+        ],
+        "usd1000": "1000",
+        "tronOriginUsd": "100"
+      },
+      "minimumsMaxAgeDays": 14,
+      "statusMaxAgeSec": 60,
+      "priceMaxAgeSec": 900,
+      "nearExpiryWarnSec": 600
+    }
+  },
+  "scenarios": [
+    {
+      "id": "MINIMUM_USD_UNKNOWN",
+      "targetCode": "MINIMUM_USD_UNKNOWN",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:4iJnFLZ7v26uP8kDaGmifou3PGnxjce8qE7sBXn46R5NLA8w5vtzEjjodGbr4WFnMuchDpknHRLFx7n3RKBVRj9A"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quote/amountInUsd",
+          "value": "FAKE_NOT_USD"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "MINIMUM_USD_UNKNOWN",
+        "severity": "warn",
+        "message": "We couldn't read the dollar value of this swap, so we can't check network minimums.",
+        "fix": "Review unknown network minimum."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "MINIMUM_USD_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't read the dollar value of this swap, so we can't check network minimums.",
+              "fix": "Review unknown network minimum."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "MINIMUM_NETWORK_UNKNOWN",
+      "targetCode": "MINIMUM_NETWORK_UNKNOWN",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "MINIMUM_NETWORK_UNKNOWN",
+        "severity": "warn",
+        "message": "We couldn't look up the networks for this swap, so we can't check network minimums.",
+        "fix": "Retry metadata lookup."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "MINIMUM_NETWORK_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't look up the networks for this swap, so we can't check network minimums.",
+              "fix": "Retry metadata lookup."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "MINIMUM_RULES_STALE",
+      "targetCode": "MINIMUM_RULES_STALE",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/rules/minimums/checkedAt",
+          "value": "2026-10-23T15:30:00.000Z"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "MINIMUM_RULES_STALE",
+        "severity": "warn",
+        "message": "Network minimums change. The rules last checked on 2026-10-23 are no longer treated as current.",
+        "fix": "Recheck official published rules."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "MINIMUM_RULES_STALE",
+              "severity": "warn",
+              "message": "Network minimums change. The rules last checked on 2026-10-23 are no longer treated as current.",
+              "fix": "Recheck official published rules."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "MINIMUM_NETWORK_1000",
+      "targetCode": "MINIMUM_NETWORK_1000",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "bsc",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/chain",
+          "value": "bsc"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "MINIMUM_NETWORK_1000",
+        "severity": "block",
+        "message": "Below the minimum. Swaps on BNB Chain under $1,000 are paused right now. Yours is $5.00. Try a larger amount or another network.",
+        "fix": "Increase amount or choose another network."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "bsc",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "MINIMUM_NETWORK_1000",
+              "severity": "block",
+              "message": "Below the minimum. Swaps on BNB Chain under $1,000 are paused right now. Yours is $5.00. Try a larger amount or another network.",
+              "fix": "Increase amount or choose another network."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "bsc",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "MINIMUM_TRON_100",
+      "targetCode": "MINIMUM_TRON_100",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/depositAddress",
+          "value": "TBXSw8fM4jpQkGc6zZjsVABFpVN7UvXPdV"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:58RMGkYfXf1eyAK2Rx6Cd6Ywh8KbZeRFqNw7GLwuoAfKgiFSozqsrjwx8A16atcQ11knQyVZsubkNfFBaSfniUGP"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/refundTo",
+          "value": "TD5gsCwxykWsLN9aPrq2TAfNjByuZKYp4E"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quote/depositAddress",
+          "value": "TBXSw8fM4jpQkGc6zZjsVABFpVN7UvXPdV"
+        },
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "tron",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/chain",
+          "value": "tron"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "MINIMUM_TRON_100",
+        "severity": "block",
+        "message": "Below the minimum. Swaps from Tron under $100 are paused right now. Yours is $5.00. Try a larger amount or another network.",
+        "fix": "Increase amount or choose another network."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "TBXSw8fM4jpQkGc6zZjsVABFpVN7UvXPdV",
+          "network": "tron",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "MINIMUM_TRON_100",
+              "severity": "block",
+              "message": "Below the minimum. Swaps from Tron under $100 are paused right now. Yours is $5.00. Try a larger amount or another network.",
+              "fix": "Increase amount or choose another network."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "tron",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "XRP_DESTINATION_TAG_UNSUPPORTED",
+      "targetCode": "XRP_DESTINATION_TAG_UNSUPPORTED",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:4PjL2Roq2wgQTLwkfETEyQ3QsZ68qtHTwg9Rf6oztCdbRr6HiJqi48RMnwKw3htxcebEcPmT8gmh8zZNe3RZdxtR"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/recipient",
+          "value": "rpZNAnHcvr6TbaY7QJa9yrVfu6coDz9pPH:123"
+        },
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "xrp",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "XRP_DESTINATION_TAG_UNSUPPORTED",
+        "severity": "block",
+        "message": "XRP destination tags aren't supported for this swap. Use an XRP address of your own wallet, without a tag.",
+        "fix": "Use an owned XRP address without a tag."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "XRP_DESTINATION_TAG_UNSUPPORTED",
+              "severity": "block",
+              "message": "XRP destination tags aren't supported for this swap. Use an XRP address of your own wallet, without a tag.",
+              "fix": "Use an owned XRP address without a tag."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "XRP_XADDRESS_WARNING",
+      "targetCode": "XRP_XADDRESS_WARNING",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:2u74kfCiNMewVJiVNB7ZSXVNjY9xnJELLf5nQeLDDg3RZFuPh93sk1LHmVCqbBKfNfZDjrYbMEBnbPFq28Zsaoqb"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/recipient",
+          "value": "X7Yc1SDQFsyqmsVuBYLdNEUNTMSqrmbTw2sA8xrw16qX2RU"
+        },
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "xrp",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "XRP_XADDRESS_WARNING",
+        "severity": "warn",
+        "message": "This XRP X-address includes a destination tag, which may not be supported. Use a classic r… address of your own wallet.",
+        "fix": "Use a classic owned r… address."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "XRP_XADDRESS_WARNING",
+              "severity": "warn",
+              "message": "This XRP X-address includes a destination tag, which may not be supported. Use a classic r… address of your own wallet.",
+              "fix": "Use a classic owned r… address."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "XRP_ADDRESS_INVALID",
+      "targetCode": "XRP_ADDRESS_INVALID",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/signature",
+          "value": "ed25519:2RT3wv64EDuoZTEbw5cyYsmUhKkEE2PZQ425aQomk2rjwaBAdscr6mHHbsDNynvddiJJwePFX1grL3hmVf33qH7E"
+        },
+        {
+          "op": "replace",
+          "path": "/lookup/status/quoteResponse/quoteRequest/recipient",
+          "value": "FAKE_INVALID_XRP"
+        },
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "xrp",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "XRP_ADDRESS_INVALID",
+        "severity": "block",
+        "message": "This isn't a valid XRP address. Use an XRP address of your own wallet, without a tag.",
+        "fix": "Use a valid owned XRP address without a tag."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "XRP_ADDRESS_INVALID",
+              "severity": "block",
+              "message": "This isn't a valid XRP address. Use an XRP address of your own wallet, without a tag.",
+              "fix": "Use a valid owned XRP address without a tag."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "REFUND_NETWORK_UNKNOWN",
+      "targetCode": "REFUND_NETWORK_UNKNOWN",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "REFUND_NETWORK_UNKNOWN",
+        "severity": "warn",
+        "message": "We couldn't check the refund address because we don't know the network.",
+        "fix": "Retry metadata lookup."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-usdc.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "ORIGIN_NETWORK_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't look up which network this quote expects. Try again in a minute.",
+              "fix": "Retry token metadata lookup."
+            },
+            {
+              "code": "FORMAT_NETWORK_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't check the address format because we don't know the network.",
+              "fix": "Retry metadata lookup."
+            },
+            {
+              "code": "ORIGIN_TOKEN_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't look up the token this quote expects. Try again in a minute.",
+              "fix": "Retry token metadata lookup."
+            },
+            {
+              "code": "AMOUNT_MISSING",
+              "severity": "warn",
+              "message": "Enter the amount you'll send so we can compare it with the quote.",
+              "fix": "Enter amount."
+            },
+            {
+              "code": "MINIMUM_NETWORK_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't look up the networks for this swap, so we can't check network minimums.",
+              "fix": "Retry metadata lookup."
+            },
+            {
+              "code": "REFUND_NETWORK_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't check the refund address because we don't know the network.",
+              "fix": "Retry metadata lookup."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": null,
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": null,
+            "minimumAmount": null,
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    }
+  ]
+}

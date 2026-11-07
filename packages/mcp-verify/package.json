@@ -1,0 +1,35 @@
+{
+  "name": "@neer/mcp-verify",
+  "version": "1.0.0",
+  "description": "Read-only stdio adapter for the Neer deposit verification API",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "neer-mcp-verify": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "build": "tsup src/cli.ts --format esm --clean --target node22",
+    "test": "pnpm build && vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@neer/verify": "workspace:*",
+    "@types/node": "22.20.5",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.12"
+  }
+}

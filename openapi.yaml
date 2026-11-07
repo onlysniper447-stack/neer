@@ -1,0 +1,601 @@
+openapi: 3.1.0
+info:
+  title: Neer verification API
+  version: 1.0.0
+  description: >-
+    Local, unpublished API contract. Checks declared deposit details before sending. No wallet access,
+    signing, submission, delivery guarantee or fund recovery.
+    A scoped Node API adapter rejects unsupported routed methods, including TRACE, before Fetch request
+    construction. Protocol-parser failures and connection-level events before application routing are
+    infrastructure behavior, not controlled verification responses; no universal wire-level guarantee is made.
+  contact:
+    url: https://github.com/onlysniper447-stack/neer
+servers:
+  - url: /
+    description: Relative to the local/test origin; this endpoint has not been deployed.
+security: []
+tags:
+  - name: verification
+    description: Public pre-send deposit verification.
+paths:
+  /api/v1/verify:
+    post:
+      tags:
+        - verification
+      summary: Compare declared deposit details with a signed quote
+      operationId: verifyDeposit
+      description: >-
+        Strict JSON input; unknown source warns. Public wildcard CORS has no credentials. Only POST counts
+        against the independent 60/minute IP bucket, including invalid POSTs. Reuses existing shared Redis
+        rate limiting when configured, otherwise bounded instance memory. Logs contain only timestamp, HTTP
+        status, finding codes and version; infrastructure/provider access logging is outside this application
+        contract.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyInput"
+      responses:
+        "200":
+          description: >-
+            Verification completed. Business pass, warn and block all use 200. Quote fetch failure also uses
+            200 with status block, QUOTE_UNAVAILABLE and quote null; never pass.
+          headers:
+            X-Neer-Verify-Version:
+              $ref: "#/components/headers/X-Neer-Verify-Version"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+            Access-Control-Allow-Methods:
+              $ref: "#/components/headers/Access-Control-Allow-Methods"
+            Access-Control-Allow-Headers:
+              $ref: "#/components/headers/Access-Control-Allow-Headers"
+            Access-Control-Expose-Headers:
+              $ref: "#/components/headers/Access-Control-Expose-Headers"
+            Cache-Control:
+              $ref: "#/components/headers/Cache-Control"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VerifyResult"
+        "400":
+          description: >-
+            Malformed/oversized/non-JSON body, strict schema failure or token precision failure. No submitted
+            values are echoed.
+          headers:
+            X-Neer-Verify-Version:
+              $ref: "#/components/headers/X-Neer-Verify-Version"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+            Access-Control-Allow-Methods:
+              $ref: "#/components/headers/Access-Control-Allow-Methods"
+            Access-Control-Allow-Headers:
+              $ref: "#/components/headers/Access-Control-Allow-Headers"
+            Access-Control-Expose-Headers:
+              $ref: "#/components/headers/Access-Control-Expose-Headers"
+            Cache-Control:
+              $ref: "#/components/headers/Cache-Control"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidInput"
+        "405":
+          description: Method is not POST or OPTIONS. HEAD has no body.
+          headers:
+            X-Neer-Verify-Version:
+              $ref: "#/components/headers/X-Neer-Verify-Version"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+            Access-Control-Allow-Methods:
+              $ref: "#/components/headers/Access-Control-Allow-Methods"
+            Access-Control-Allow-Headers:
+              $ref: "#/components/headers/Access-Control-Allow-Headers"
+            Access-Control-Expose-Headers:
+              $ref: "#/components/headers/Access-Control-Expose-Headers"
+            Cache-Control:
+              $ref: "#/components/headers/Cache-Control"
+            Allow:
+              $ref: "#/components/headers/Allow"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MethodNotAllowed"
+        "429":
+          description: >-
+            POST limit exceeded: 60 requests per rolling 60 seconds per proxy-derived IP in the distinct
+            verify bucket.
+          headers:
+            X-Neer-Verify-Version:
+              $ref: "#/components/headers/X-Neer-Verify-Version"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+            Access-Control-Allow-Methods:
+              $ref: "#/components/headers/Access-Control-Allow-Methods"
+            Access-Control-Allow-Headers:
+              $ref: "#/components/headers/Access-Control-Allow-Headers"
+            Access-Control-Expose-Headers:
+              $ref: "#/components/headers/Access-Control-Expose-Headers"
+            Cache-Control:
+              $ref: "#/components/headers/Cache-Control"
+            Retry-After:
+              $ref: "#/components/headers/Retry-After"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimited"
+        "500":
+          description: Unexpected application error; no raw exception details are returned or logged.
+          headers:
+            X-Neer-Verify-Version:
+              $ref: "#/components/headers/X-Neer-Verify-Version"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+            Access-Control-Allow-Methods:
+              $ref: "#/components/headers/Access-Control-Allow-Methods"
+            Access-Control-Allow-Headers:
+              $ref: "#/components/headers/Access-Control-Allow-Headers"
+            Access-Control-Expose-Headers:
+              $ref: "#/components/headers/Access-Control-Expose-Headers"
+            Cache-Control:
+              $ref: "#/components/headers/Cache-Control"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalError"
+    options:
+      tags:
+        - verification
+      summary: Answer a public CORS preflight
+      operationId: verifyCorsPreflight
+      description: Approved exception to the non-POST 405 rule; no body, upstream lookup or rate-limit consumption.
+      responses:
+        "204":
+          description: CORS preflight accepted; response body is empty.
+          headers:
+            X-Neer-Verify-Version:
+              $ref: "#/components/headers/X-Neer-Verify-Version"
+            Access-Control-Allow-Origin:
+              $ref: "#/components/headers/Access-Control-Allow-Origin"
+            Access-Control-Allow-Methods:
+              $ref: "#/components/headers/Access-Control-Allow-Methods"
+            Access-Control-Allow-Headers:
+              $ref: "#/components/headers/Access-Control-Allow-Headers"
+            Access-Control-Expose-Headers:
+              $ref: "#/components/headers/Access-Control-Expose-Headers"
+            Cache-Control:
+              $ref: "#/components/headers/Cache-Control"
+components:
+  schemas:
+    VerifyInput:
+      type: object
+      additionalProperties: false
+      required:
+        - depositAddress
+        - network
+        - token
+        - amount
+      description: >-
+        Strict input. Unknown fields, including deferred quoteId, raw quote, rules, keys and tx, are rejected.
+        Maximum streamed JSON body is 64 KiB.
+      properties:
+        depositAddress:
+          type: string
+          description: >-
+            Deposit address. Surrounding whitespace is trimmed; normalized length is 3–128 characters. Not a
+            URL.
+          pattern: ^\s*(?!\S*://)[A-Za-z0-9:_\-.+/=]{3,128}\s*$
+        network:
+          type: string
+          description: Canonical selected sending network ID, such as eth. No inferred wallet/network selection.
+          pattern: ^[a-z][a-z0-9_-]{0,31}$
+        token:
+          type: string
+          description: Canonical selected assetId from the token catalog, not a symbol or contract shorthand.
+          maxLength: 256
+          pattern: ^(nep141|nep245|1cs_v1):[^\s]+$
+        amount:
+          type: string
+          description: >-
+            Human-readable decimal string, not base units. Surrounding whitespace is trimmed; normalized
+            length is 1–256. Existing grouped commas are accepted. Token decimals and base-unit size are
+            validated after metadata lookup; precision is never guessed.
+          pattern: ^\s*(?=\S{1,256}\s*$)(?=[\s\S]*\d)(?:\d{1,3}(?:,\d{3})+|\d*)(?:\.\d*)?\s*$
+        memo:
+          type:
+            - string
+            - "null"
+          description: Declared memo that will be sent. Omission inherits lookupMemo; null explicitly means no send memo.
+          maxLength: 128
+          pattern: ^[\x21-\x7e]*$
+        lookupMemo:
+          type:
+            - string
+            - "null"
+          description: >-
+            Separate memo used to look up the signed quote. Defaults to memo or null. Never a wallet
+            operation.
+          maxLength: 128
+          pattern: ^[\x21-\x7e]*$
+        source:
+          type: string
+          description: Declared sending source. Omission stays unknown and produces a warning, never an assumed pass.
+          enum:
+            - wallet
+            - exchange
+            - unknown
+          default: unknown
+        transfer:
+          type: object
+          description: >-
+            Optional supplemental declared context, not proof of a wallet action or ownership. Raw tx is
+            legacy-only.
+          additionalProperties: false
+          properties:
+            chainId:
+              type: integer
+              minimum: 1
+              maximum: 9007199254740991
+              description: Declared positive safe-integer EVM chain ID, checked against the selected and quoted network.
+            from:
+              type: string
+              description: Declared sender address for refund-address comparison; not proof of control.
+              minLength: 1
+              maxLength: 128
+            to:
+              type: string
+              description: Declared destination shown in the send screen, for comparison with the deposit address.
+              minLength: 1
+              maxLength: 128
+    VerifyResult:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - findings
+        - quote
+        - checkedAt
+        - version
+      properties:
+        status:
+          type: string
+          description: Any block finding wins; otherwise any warn wins; otherwise pass. A warning is not a pass.
+          enum:
+            - pass
+            - warn
+            - block
+        findings:
+          type: array
+          description: Adverse checks only; legacy unknown checks project to warn, never pass.
+          items:
+            $ref: "#/components/schemas/Finding"
+        quote:
+          description: Allowlisted signed quote summary, or null when no verified quote is available.
+          oneOf:
+            - $ref: "#/components/schemas/QuoteSummary"
+            - type: "null"
+        checkedAt:
+          type: string
+          description: Server verification time, not a promise about a later send.
+          format: date-time
+        version:
+          type: string
+          description: Public verifier semantic version.
+          const: 1.0.0
+    Finding:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - severity
+        - message
+        - fix
+      properties:
+        code:
+          $ref: "#/components/schemas/FindingCode"
+        severity:
+          type: string
+          description: Public adverse severity; a legacy unknown becomes warn, except quote unavailable blocks.
+          enum:
+            - block
+            - warn
+        message:
+          type: string
+          description: Exact existing finding text. May itself contain a quoted memo or shortened address; do not log it.
+        fix:
+          type: string
+          description: Suggested review or corrective action, not a delivery guarantee.
+    FindingCode:
+      type: string
+      description: >-
+        All 69 stable actionable branch identities. Some defensive/legacy-context branches are not reachable
+        through the strict declarative public input. Positive/info diagnostics are not public findings.
+      enum:
+        - QUOTE_PREVIEW
+        - QUOTE_UNVERIFIED
+        - PARTNER_QUOTE_MISMATCH
+        - DEPOSIT_STATUS_UNKNOWN
+        - DEPOSIT_IN_USE
+        - DEPOSIT_INCOMPLETE
+        - DEPOSIT_ALREADY_USED
+        - QUOTE_DEADLINE_MISSING
+        - QUOTE_EXPIRED
+        - QUOTE_TOO_CLOSE_TO_EXPIRY
+        - QUOTE_NEAR_EXPIRY
+        - DEPOSIT_ADDRESS_INACTIVE
+        - QUOTE_DEPOSIT_ADDRESS_MISSING
+        - ADDRESS_LOOKALIKE
+        - ADDRESS_MISMATCH
+        - SEND_ADDRESS_INVALID
+        - INTENTS_DEPOSIT_UNSUPPORTED
+        - CONFIDENTIAL_DEPOSIT_UNSUPPORTED
+        - ORIGIN_NETWORK_UNKNOWN
+        - CHAIN_ID_UNKNOWN
+        - NETWORK_NOT_SELECTED
+        - CHAIN_ID_CONFLICT
+        - NETWORK_MISMATCH
+        - FORMAT_NETWORK_UNKNOWN
+        - ADDRESS_FORMAT_UNSUPPORTED
+        - DEPOSIT_ADDRESS_INVALID
+        - ADDRESS_NO_CHECKSUM
+        - ORIGIN_TOKEN_UNKNOWN
+        - TOKEN_NOT_SELECTED
+        - TOKEN_UNACCEPTED_CONTRACT
+        - TOKEN_UNRECOGNISED
+        - TOKEN_SYMBOL_MISMATCH
+        - TOKEN_NETWORK_MISMATCH
+        - TOKEN_CONTRACT_MISMATCH
+        - QUOTE_MEMO_MISSING
+        - MEMO_MISSING
+        - MEMO_MISMATCH
+        - MEMO_EXCHANGE_WARNING
+        - SWAP_TYPE_UNSUPPORTED
+        - AMOUNT_MISSING
+        - AMOUNT_TOKEN_PRECISION_MISMATCH
+        - AMOUNT_BELOW_QUOTE
+        - AMOUNT_ABOVE_QUOTE
+        - MINIMUM_USD_UNKNOWN
+        - MINIMUM_NETWORK_UNKNOWN
+        - MINIMUM_RULES_STALE
+        - MINIMUM_NETWORK_1000
+        - MINIMUM_TRON_100
+        - XRP_DESTINATION_TAG_UNSUPPORTED
+        - XRP_XADDRESS_WARNING
+        - XRP_ADDRESS_INVALID
+        - REFUND_NETWORK_UNKNOWN
+        - REFUND_ADDRESS_INVALID
+        - REFUND_TO_DEPOSIT_ADDRESS
+        - REFUND_FORMAT_UNSUPPORTED
+        - REFUND_DIFFERS_FROM_SENDER
+        - DRAFT_NETWORK_UNSUPPORTED
+        - DRAFT_APPROVAL
+        - DRAFT_NOT_PLAIN_TRANSFER
+        - AMOUNT_AT_OR_BELOW_REFUND_FEE
+        - CONFIDENTIAL_SWAP_UNSUPPORTED
+        - SOURCE_EXCHANGE
+        - SOURCE_UNKNOWN
+        - STATUS_STALE
+        - TOKEN_PRICE_STALE
+        - RULE_EXECUTION_FAILED
+        - REQUIRED_CHECK_MISSING
+        - QUOTE_NOT_FOUND
+        - QUOTE_UNAVAILABLE
+      x-finding-triggers:
+        QUOTE_PREVIEW: quoteRequest.dry is true
+        QUOTE_UNVERIFIED: Non-dry quote signature verification fails
+        PARTNER_QUOTE_MISMATCH: Verified partner quote differs in signature from the fetched verified quote
+        DEPOSIT_STATUS_UNKNOWN: No status response, e.g. partner quote supplied despite lookup failure
+        DEPOSIT_IN_USE: Status KNOWN_DEPOSIT_TX or PROCESSING
+        DEPOSIT_INCOMPLETE: Status INCOMPLETE_DEPOSIT
+        DEPOSIT_ALREADY_USED: Status SUCCESS, REFUNDED or FAILED
+        QUOTE_DEADLINE_MISSING: Neither request nor quote has a deadline (defensive; request schema requires one)
+        QUOTE_EXPIRED: floor((earlier deadline - now)/1000) <= 0
+        QUOTE_TOO_CLOSE_TO_EXPIRY: Positive seconds left < origin confirmation budget
+        QUOTE_NEAR_EXPIRY: Seconds left >= confirmation budget but < max(2×budget, nearExpiryWarnSec)
+        DEPOSIT_ADDRESS_INACTIVE: Enough deadline time, but timeWhenInactive <= now
+        QUOTE_DEPOSIT_ADDRESS_MISSING: Quote has no depositAddress
+        ADDRESS_LOOKALIKE: >-
+          Pasted address or declared/decoded send recipient differs, but first/last four characters match
+          canonically
+        ADDRESS_MISMATCH: Pasted address or declared/decoded send recipient differs and is not lookalike
+        SEND_ADDRESS_INVALID: Send recipient canonically matches but fails format/checksum validation
+        INTENTS_DEPOSIT_UNSUPPORTED: depositType INTENTS
+        CONFIDENTIAL_DEPOSIT_UNSUPPORTED: depositType CONFIDENTIAL_INTENTS
+        ORIGIN_NETWORK_UNKNOWN: Origin token lookup did not yield a blockchain
+        CHAIN_ID_UNKNOWN: An explicit transfer or draft chainId cannot be resolved
+        NETWORK_NOT_SELECTED: No declared/resolved transfer chain
+        CHAIN_ID_CONFLICT: Declared chain conflicts with resolved wallet/draft chainId
+        NETWORK_MISMATCH: Declared chain differs from origin chain
+        FORMAT_NETWORK_UNKNOWN: ORIGIN_CHAIN deposit but origin chain unavailable
+        ADDRESS_FORMAT_UNSUPPORTED: Origin-chain format validator returns unsupported
+        DEPOSIT_ADDRESS_INVALID: Origin-chain format validator returns invalid
+        ADDRESS_NO_CHECKSUM: Pasted EVM address has no checksum and previous signed-checksum exception does not apply
+        ORIGIN_TOKEN_UNKNOWN: Quote origin asset absent from token catalog
+        TOKEN_NOT_SELECTED: No declared or decoded asset
+        TOKEN_UNACCEPTED_CONTRACT: Asset cannot resolve on matching chain; asset is neither native nor a prefixed asset ID
+        TOKEN_UNRECOGNISED: Asset cannot resolve and preceding explicit-contract block does not apply
+        TOKEN_SYMBOL_MISMATCH: Different resolved assetId and different symbol
+        TOKEN_NETWORK_MISMATCH: Same-symbol asset from another chain while selected chain matches quote
+        TOKEN_CONTRACT_MISMATCH: >-
+          Same-symbol asset on matching blockchain but different assetId; decoded native/ERC20 draft makes
+          this block, otherwise warn
+        QUOTE_MEMO_MISSING: Quote depositMode MEMO but quote has no depositMemo
+        MEMO_MISSING: Quote requires a memo but declared/effective memo is null
+        MEMO_MISMATCH: Declared/effective memo differs from required quote memo
+        MEMO_EXCHANGE_WARNING: Memo matches, source exchange
+        SWAP_TYPE_UNSUPPORTED: swapType ANY_INPUT
+        AMOUNT_MISSING: No declared or decoded base-unit amount
+        AMOUNT_TOKEN_PRECISION_MISMATCH: Resolved selected token decimals differ from origin token decimals
+        AMOUNT_BELOW_QUOTE: Amount < amountIn for EXACT_INPUT, otherwise < minAmountIn
+        AMOUNT_ABOVE_QUOTE: Non-FLEX_INPUT amount > amountIn, after below-minimum guard
+        MINIMUM_USD_UNKNOWN: Applicable origin-to-destination-chain swap has unparseable amountInUsd
+        MINIMUM_NETWORK_UNKNOWN: Applicable swap lacks origin or destination chain
+        MINIMUM_RULES_STALE: "Applicable swap: minimum snapshot age invalid or >= maximum age"
+        MINIMUM_NETWORK_1000: Fresh rules, either chain in usd1000Chains, USD amount < configured1000
+        MINIMUM_TRON_100: Fresh rules, Tron origin, USD amount < configured100 and prior1000 check not selected
+        XRP_DESTINATION_TAG_UNSUPPORTED: Eligible XRP recipient/refund target includes a separate destination tag
+        XRP_XADDRESS_WARNING: Eligible XRP target is a valid X-address
+        XRP_ADDRESS_INVALID: Eligible XRP target fails validation
+        REFUND_NETWORK_UNKNOWN: Origin-chain refund, but origin chain unknown
+        REFUND_ADDRESS_INVALID: Refund address invalid on origin chain
+        REFUND_TO_DEPOSIT_ADDRESS: Refund address canonically equals deposit address
+        REFUND_FORMAT_UNSUPPORTED: Refund address validator returns unsupported
+        REFUND_DIFFERS_FROM_SENDER: Valid refund address differs from declared sender
+        DRAFT_NETWORK_UNSUPPORTED: Decoded draft exists but origin is unknown or non-EVM
+        DRAFT_APPROVAL: EVM draft decodes as an approval
+        DRAFT_NOT_PLAIN_TRANSFER: EVM draft decodes as an unrecognised contract call
+        AMOUNT_AT_OR_BELOW_REFUND_FEE: Positive declared/decoded amount <= quoted refund fee, after draft guards
+        CONFIDENTIAL_SWAP_UNSUPPORTED: Confidentiality non-public or any deposit/refund/recipient type CONFIDENTIAL_INTENTS
+        SOURCE_EXCHANGE: Declared source exchange
+        SOURCE_UNKNOWN: Declared/default source unknown
+        STATUS_STALE: fetchedAt present and status age > statusMaxAgeSec
+        TOKEN_PRICE_STALE: Status not stale; origin priceUpdatedAt age > priceMaxAgeSec
+        RULE_EXECUTION_FAILED: >-
+          An existing verification rule throws. This becomes an adverse public finding; raw exception details
+          are not included in the public result.
+        REQUIRED_CHECK_MISSING: No output for one of8 required IDs; defensive fallback.
+        QUOTE_NOT_FOUND: Lookup not_found and no supplied partner quote.
+        QUOTE_UNAVAILABLE: Quote status lookup failed. Public response is HTTP200 with block, QUOTE_UNAVAILABLE and null quote.
+    QuoteSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - verified
+        - network
+        - token
+        - amount
+        - minimumAmount
+        - expiresAt
+        - swapType
+      properties:
+        verified:
+          type: boolean
+          const: true
+          description: >-
+            Existing signature check succeeded. Does not independently authenticate metadata, status finality
+            or ownership.
+        network:
+          type:
+            - string
+            - "null"
+          description: Quoted origin network, null if token metadata is unknown.
+        token:
+          type: string
+          description: Quoted origin asset ID.
+        amount:
+          type:
+            - string
+            - "null"
+          description: Quoted amount in human token units; null when decimals are unknown.
+        minimumAmount:
+          type:
+            - string
+            - "null"
+          description: Quoted minimum input in human units; null when decimals are unknown.
+        expiresAt:
+          type:
+            - string
+            - "null"
+          description: Conservative send-before deadline, null if unavailable.
+          format: date-time
+        swapType:
+          type: string
+          description: Swap type in the verified quote; unsupported types still produce adverse findings.
+          enum:
+            - EXACT_INPUT
+            - EXACT_OUTPUT
+            - FLEX_INPUT
+            - ANY_INPUT
+    InvalidInput:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+        - details
+      properties:
+        error:
+          type: string
+          const: invalid_input
+        details:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - path
+              - message
+            properties:
+              path:
+                type: string
+                description: Known field path or empty for body/top-level errors; arbitrary unknown keys are not echoed.
+              message:
+                type: string
+                description: Controlled validation explanation, never the submitted value.
+    RateLimited:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          const: rate_limited
+    MethodNotAllowed:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          const: method_not_allowed
+    InternalError:
+      type: object
+      additionalProperties: false
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          const: internal_error
+  headers:
+    X-Neer-Verify-Version:
+      description: Verifier version on every application-controlled response.
+      schema:
+        type: string
+        const: 1.0.0
+    Access-Control-Allow-Origin:
+      description: This public endpoint allows any origin; credentials are never enabled.
+      schema:
+        type: string
+        const: "*"
+    Access-Control-Allow-Methods:
+      description: Only POST and the approved OPTIONS preflight are allowed.
+      schema:
+        type: string
+        const: POST, OPTIONS
+    Access-Control-Allow-Headers:
+      description: Allowed request header for cross-origin JSON.
+      schema:
+        type: string
+        const: Content-Type
+    Access-Control-Expose-Headers:
+      description: Browser-readable version and retry headers.
+      schema:
+        type: string
+        const: X-Neer-Verify-Version, Retry-After
+    Cache-Control:
+      description: Verdicts and errors are not cacheable.
+      schema:
+        type: string
+        const: no-store
+    Retry-After:
+      description: Positive integer seconds until a retry is allowed.
+      schema:
+        type: integer
+        minimum: 1
+    Allow:
+      description: Methods accepted by this endpoint.
+      schema:
+        type: string
+        const: POST, OPTIONS

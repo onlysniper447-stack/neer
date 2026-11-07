@@ -1,0 +1,569 @@
+{
+  "fixtureKind": "FAKE_LOCAL_ONLY_DO_NOT_SEND",
+  "schemaVersion": 1,
+  "verifierVersion": "1.0.0",
+  "id": "04-token-selection",
+  "metadata": {
+    "clock": "2026-11-07T15:30:00.000Z",
+    "clockDisplay": "2026-11-07 16:30 WAT (Africa/Lagos)",
+    "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
+    "signing": "Test-only deterministic derivation in packages/verify/test/fixtures.ts; no private seed/key serialized. Never trust this public key outside tests.",
+    "source": "Synthetic locally generated quote; not an upstream response or user transfer.",
+    "units": "Legacy transfer/quote amounts are base-unit strings; publicReplay.input.amount is human-readable.",
+    "overlayFormat": "Object-only JSON-pointer add/remove/replace; arrays replaced as whole values. Dates serialized then hydrated by harness."
+  },
+  "base": {
+    "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+    "depositMemo": null,
+    "lookup": {
+      "kind": "found",
+      "status": {
+        "quoteResponse": {
+          "timestamp": "2026-11-07T15:30:00.000Z",
+          "signature": "ed25519:3vZi8ZaHgvTxFRDbGWu5jHEw1xwMGEsRkCTmJqKHhkUy6SZkEPZ4mg4k9Bi2C2KHivs8HpCbeQ8ZM4UcBBnurpNX",
+          "correlationId": "FAKE_QUOTE_ID",
+          "quoteRequest": {
+            "dry": false,
+            "swapType": "EXACT_INPUT",
+            "slippageTolerance": 100,
+            "originAsset": "nep141:fake-usdc.omft.near",
+            "depositType": "ORIGIN_CHAIN",
+            "destinationAsset": "nep141:fake-near.omft.near",
+            "amount": "5000000",
+            "refundTo": "0xBAbAbabAbabaBABaBAbABabaBAbAbaBaBAbABaBa",
+            "refundType": "ORIGIN_CHAIN",
+            "recipient": "fake-recipient.near",
+            "recipientType": "DESTINATION_CHAIN",
+            "deadline": "2026-11-07T16:30:00.000Z"
+          },
+          "quote": {
+            "amountIn": "5000000",
+            "amountInFormatted": "5",
+            "amountInUsd": "5",
+            "minAmountIn": "5000000",
+            "amountOut": "1000000",
+            "amountOutFormatted": "1",
+            "amountOutUsd": "5",
+            "minAmountOut": "1000000",
+            "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+            "deadline": "2026-11-07T17:30:00.000Z",
+            "timeWhenInactive": "2026-11-07T17:30:00.000Z",
+            "refundFee": "1000"
+          }
+        },
+        "status": "PENDING_DEPOSIT",
+        "updatedAt": "2026-11-07T15:30:00.000Z"
+      },
+      "fetchedAt": "2026-11-07T15:30:00.000Z"
+    },
+    "tokens": [
+      {
+        "assetId": "nep141:fake-usdc.omft.near",
+        "blockchain": "eth",
+        "symbol": "FAKE",
+        "decimals": 6,
+        "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+        "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+      },
+      {
+        "assetId": "nep141:fake-near.omft.near",
+        "blockchain": "near",
+        "symbol": "FAKE_NEAR",
+        "decimals": 24,
+        "contractAddress": null,
+        "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+      }
+    ],
+    "transfer": {
+      "chain": "eth",
+      "asset": "nep141:fake-usdc.omft.near",
+      "amount": "5000000",
+      "source": "wallet"
+    },
+    "now": "2026-11-07T15:30:00.000Z",
+    "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
+    "rules": {
+      "version": "2026.11.1",
+      "minimums": {
+        "checkedAt": "2026-11-07T15:30:00.000Z",
+        "sources": [
+          "https://docs.near-intents.org/changelog/entries/2026-09-09-temporary-1000-minimum",
+          "https://docs.near-intents.org/changelog/entries/2026-09-14-temporary-tron-100-minimum"
+        ],
+        "usd1000Chains": [
+          "bsc",
+          "pol",
+          "ton",
+          "op",
+          "avax",
+          "stellar",
+          "monad",
+          "xlayer",
+          "adi"
+        ],
+        "usd1000": "1000",
+        "tronOriginUsd": "100"
+      },
+      "minimumsMaxAgeDays": 14,
+      "statusMaxAgeSec": 60,
+      "priceMaxAgeSec": 900,
+      "nearExpiryWarnSec": 600
+    }
+  },
+  "scenarios": [
+    {
+      "id": "TOKEN_NOT_SELECTED",
+      "targetCode": "TOKEN_NOT_SELECTED",
+      "patches": [
+        {
+          "op": "remove",
+          "path": "/transfer/asset"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_NOT_SELECTED",
+        "severity": "warn",
+        "message": "Tell us which token you're sending so we can compare it with the quote.",
+        "fix": "Choose the token."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "validationError": true,
+        "targetProduced": false
+      }
+    },
+    {
+      "id": "TOKEN_UNACCEPTED_CONTRACT",
+      "targetCode": "TOKEN_UNACCEPTED_CONTRACT",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/transfer/asset",
+          "value": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_UNACCEPTED_CONTRACT",
+        "severity": "block",
+        "message": "Wrong token. This token isn't one NEAR Intents accepts on Ethereum. The quote expects FAKE at 0xcAca…cAcA.",
+        "fix": "Change token."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "validationError": true,
+        "targetProduced": false
+      }
+    },
+    {
+      "id": "TOKEN_UNRECOGNISED",
+      "targetCode": "TOKEN_UNRECOGNISED",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/transfer/asset",
+          "value": "nep141:fake-unknown.omft.near"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_UNRECOGNISED",
+        "severity": "warn",
+        "message": "We don't recognise this token on Ethereum, so we can't compare it with the quote.",
+        "fix": "Check token/network selection."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-unknown.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "TOKEN_UNRECOGNISED",
+              "severity": "warn",
+              "message": "We don't recognise this token on Ethereum, so we can't compare it with the quote.",
+              "fix": "Check token/network selection."
+            },
+            {
+              "code": "AMOUNT_MISSING",
+              "severity": "warn",
+              "message": "Enter the amount you'll send so we can compare it with the quote.",
+              "fix": "Enter amount."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "TOKEN_SYMBOL_MISMATCH",
+      "targetCode": "TOKEN_SYMBOL_MISMATCH",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-alternative.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE_OTHER",
+              "decimals": 6,
+              "contractAddress": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/asset",
+          "value": "nep141:fake-alternative.omft.near"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_SYMBOL_MISMATCH",
+        "severity": "block",
+        "message": "Wrong token. The quote expects FAKE. You're about to send FAKE_OTHER.",
+        "fix": "Change token."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-alternative.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "TOKEN_SYMBOL_MISMATCH",
+              "severity": "block",
+              "message": "Wrong token. The quote expects FAKE. You're about to send FAKE_OTHER.",
+              "fix": "Change token."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "TOKEN_NETWORK_MISMATCH",
+      "targetCode": "TOKEN_NETWORK_MISMATCH",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-alternative.omft.near",
+              "blockchain": "base",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/asset",
+          "value": "nep141:fake-alternative.omft.near"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_NETWORK_MISMATCH",
+        "severity": "block",
+        "message": "The selected asset ID belongs to another network. Choose the token on the quote's origin network.",
+        "fix": "Change token to quote origin network."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-alternative.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "block",
+          "findings": [
+            {
+              "code": "TOKEN_NETWORK_MISMATCH",
+              "severity": "block",
+              "message": "The selected asset ID belongs to another network. Choose the token on the quote's origin network.",
+              "fix": "Change token to quote origin network."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "TOKEN_CONTRACT_MISMATCH",
+      "targetCode": "TOKEN_CONTRACT_MISMATCH",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-alternative.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/asset",
+          "value": "nep141:fake-alternative.omft.near"
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_CONTRACT_MISMATCH",
+        "severity": "warn",
+        "message": "Same name, different token. The quote wants FAKE 0xcAca…cAcA, but you picked FAKE 0xDada…DADA. Check the token in your wallet.",
+        "fix": "Change token."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-alternative.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "TOKEN_CONTRACT_MISMATCH",
+              "severity": "warn",
+              "message": "Same name, different token. The quote wants FAKE 0xcAca…cAcA, but you picked FAKE 0xDada…DADA. Check the token in your wallet.",
+              "fix": "Change token."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    },
+    {
+      "id": "TOKEN_CONTRACT_MISMATCH_DRAFT_BLOCK",
+      "targetCode": "TOKEN_CONTRACT_MISMATCH",
+      "patches": [
+        {
+          "op": "replace",
+          "path": "/tokens",
+          "value": [
+            {
+              "assetId": "nep141:fake-usdc.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xcAcacaCacacACaCACaCaCACAcacAcaCACacAcAcA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-near.omft.near",
+              "blockchain": "near",
+              "symbol": "FAKE_NEAR",
+              "decimals": 24,
+              "contractAddress": null,
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            },
+            {
+              "assetId": "nep141:fake-alternative.omft.near",
+              "blockchain": "eth",
+              "symbol": "FAKE",
+              "decimals": 6,
+              "contractAddress": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA",
+              "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
+            }
+          ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/asset",
+          "value": "nep141:fake-alternative.omft.near"
+        },
+        {
+          "op": "add",
+          "path": "/transfer/tx",
+          "value": {
+            "to": "0xDadaDadadadadadaDaDadAdaDADAdadAdADaDADA",
+            "data": "0xa9059cbb000000000000000000000000fafafafafafafafafafafafafafafafafafafafa00000000000000000000000000000000000000000000000000000000004c4b40"
+          }
+        }
+      ],
+      "fault": null,
+      "expected": {
+        "code": "TOKEN_CONTRACT_MISMATCH",
+        "severity": "block",
+        "message": "Same name, different token. The quote wants FAKE 0xcAca…cAcA, but you picked FAKE 0xDada…DADA. Check the token in your wallet.",
+        "fix": "Change token."
+      },
+      "publicReplay": {
+        "input": {
+          "depositAddress": "0xFafafAfafAFaFAFaFafafafAfaFaFAfAfAfAFaFA",
+          "network": "eth",
+          "token": "nep141:fake-alternative.omft.near",
+          "amount": "5",
+          "source": "wallet",
+          "lookupMemo": null,
+          "transfer": {}
+        },
+        "expected": {
+          "status": "warn",
+          "findings": [
+            {
+              "code": "TOKEN_CONTRACT_MISMATCH",
+              "severity": "warn",
+              "message": "Same name, different token. The quote wants FAKE 0xcAca…cAcA, but you picked FAKE 0xDada…DADA. Check the token in your wallet.",
+              "fix": "Change token."
+            }
+          ],
+          "quote": {
+            "verified": true,
+            "network": "eth",
+            "token": "nep141:fake-usdc.omft.near",
+            "amount": "5",
+            "minimumAmount": "5",
+            "expiresAt": "2026-11-07T16:30:00.000Z",
+            "swapType": "EXACT_INPUT"
+          },
+          "checkedAt": "2026-11-07T15:30:00.000Z",
+          "version": "1.0.0"
+        },
+        "targetProduced": true
+      }
+    }
+  ]
+}

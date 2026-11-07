@@ -1,6 +1,9 @@
 "use client";
 
 import { SAFE_DEFINITION, getChain, type CheckResult, type PreflightResult } from "@neer/core";
+import type { VerifyInput } from "@neer/verify";
+import { copyContext } from "@/lib/deep-links";
+import { CopyCheckLink } from "./copy-check-link";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 import { useServerNow } from "@/hooks/use-server-now";
@@ -32,6 +35,7 @@ export function ResultView({
   pastedMemo,
   onEdit,
   sendSummary,
+  verificationInput,
 }: {
   result: ApiResult;
   pastedAddress: string;
@@ -40,6 +44,7 @@ export function ResultView({
   onEdit?: (chain?: string) => void;
   /** What the user said they'd send, e.g. "5 USDC on Arbitrum". */
   sendSummary?: string;
+  verificationInput?: VerifyInput;
 }) {
   const q = result.quote;
   const now = useServerNow(result.serverTime);
@@ -170,6 +175,7 @@ export function ResultView({
             </Button>
           ) : null}
         </div>
+        <CopyCheckLink key={copyContext(verificationInput ?? { address: pastedAddress, memo: pastedMemo }, result)} input={verificationInput ?? { address: pastedAddress, memo: pastedMemo }} />
         <p className="text-xs leading-5 break-all text-muted">{facts.join(" · ")}</p>
       </aside>
 

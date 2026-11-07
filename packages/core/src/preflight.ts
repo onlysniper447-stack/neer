@@ -1,5 +1,6 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
+import { identifyCheck, type CheckCode } from "./codes.js";
 import { chainName } from "./chains.js";
 import { REQUIRED_CHECKS, RULES, sendBefore } from "./checks.js";
 import { buildContext, findToken, isNative, type Ctx } from "./context.js";
@@ -51,12 +52,13 @@ export function checksHash(rulesVersion: string, checks: CheckResult[]): string 
 function runRules(ctx: Ctx): CheckResult[] {
   const out: CheckResult[] = [];
   for (const rule of RULES) {
-    let res: Omit<CheckResult, "id" | "title"> | null;
+    let res: (Omit<CheckResult, "id" | "title"> & { code: CheckCode }) | null;
     try {
       res = rule.run(ctx);
     } catch (err) {
       // A rule that crashes never passes.
       res = {
+        code: "RULE_EXECUTION_FAILED",
         severity: "unknown",
         headline: "Check failed",
         summary: "Couldn't run",
@@ -64,11 +66,14 @@ function runRules(ctx: Ctx): CheckResult[] {
         actual: { error: err instanceof Error ? err.message.slice(0, 200) : "error" },
       };
     }
-    if (res) out.push({ id: rule.id, title: rule.title, ...res });
+    if (res) {
+      const { code, ...fields } = res;
+      out.push(identifyCheck({ id: rule.id, title: rule.title, ...fields }, code));
+    }
   }
   for (const id of REQUIRED_CHECKS) {
     if (!out.some((c) => c.id === id)) {
-      out.push({ id, title: id, severity: "unknown", headline: "Check missing", summary: "Didn't run", message: "A required check didn't run, so we can't call this safe." });
+      out.push(identifyCheck({ id, title: id, severity: "unknown", headline: "Check missing", summary: "Didn't run", message: "A required check didn't run, so we can't call this safe." }, "REQUIRED_CHECK_MISSING"));
     }
   }
   return out;
@@ -173,7 +178,7 @@ export function preflight(input: PreflightInput): PreflightResult {
       message: "Don't send yet. Copy the address again, or ask your swap app for a new quote.",
       actual: { address: input.depositAddress, memo: input.depositMemo ?? null },
     };
-    return finish("not_found", [check], rules.version, now, null, null);
+    return finish("not_found", [identifyCheck(check, "QUOTE_NOT_FOUND")], rules.version, now, null, null);
   }
   if (lookup.kind === "error" && !partnerQuote) {
     const check: CheckResult = {
@@ -185,7 +190,7 @@ export function preflight(input: PreflightInput): PreflightResult {
       message: "NEAR Intents didn't answer. Wait a minute and try again before you send.",
       actual: { reason: lookup.reason },
     };
-    return finish("unavailable", [check], rules.version, now, null, null);
+    return finish("unavailable", [identifyCheck(check, "QUOTE_UNAVAILABLE")], rules.version, now, null, null);
   }
 
   const status = lookup.kind === "found" ? lookup.status : null;

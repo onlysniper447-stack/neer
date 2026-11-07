@@ -1,0 +1,139 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`every public FindingCode has an exercised fixture > ADDRESS_FORMAT_UNSUPPORTED > ADDRESS_FORMAT_UNSUPPORTED 1`] = `"We don't check FAKECHAIN address formats yet, so look at it carefully."`;
+
+exports[`every public FindingCode has an exercised fixture > ADDRESS_LOOKALIKE > ADDRESS_LOOKALIKE 1`] = `"This isn't the quote's address. It looks similar, but the middle is different. Copy it again from your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > ADDRESS_MISMATCH > ADDRESS_MISMATCH 1`] = `"This isn't the quote's address. Copy it again from your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > ADDRESS_NO_CHECKSUM > ADDRESS_NO_CHECKSUM 1`] = `"This address is all lowercase, so we can't use its checksum. We compared it character by character instead."`;
+
+exports[`every public FindingCode has an exercised fixture > AMOUNT_ABOVE_QUOTE > AMOUNT_ABOVE_QUOTE 1`] = `"The entered amount exceeds the quote by 1 FAKE. Reduce it; any excess refund depends on provider processing and fees."`;
+
+exports[`every public FindingCode has an exercised fixture > AMOUNT_AT_OR_BELOW_REFUND_FEE > AMOUNT_AT_OR_BELOW_REFUND_FEE 1`] = `"This amount is tiny. If it's refunded, fees could take most of it."`;
+
+exports[`every public FindingCode has an exercised fixture > AMOUNT_BELOW_QUOTE > AMOUNT_BELOW_QUOTE 1`] = `"This quote needs 5 FAKE. You entered 4 FAKE. Do not send; refund handling depends on NEAR Intents and may include fees."`;
+
+exports[`every public FindingCode has an exercised fixture > AMOUNT_MISSING > AMOUNT_MISSING 1`] = `"Enter the amount you'll send so we can compare it with the quote."`;
+
+exports[`every public FindingCode has an exercised fixture > AMOUNT_TOKEN_PRECISION_MISMATCH > AMOUNT_TOKEN_PRECISION_MISMATCH 1`] = `"You're sending a different token than the quote, so we can't compare amounts."`;
+
+exports[`every public FindingCode has an exercised fixture > CHAIN_ID_CONFLICT > CHAIN_ID_CONFLICT 1`] = `"Your wallet is on chain ID 8453, which isn't Ethereum. This address is for Ethereum."`;
+
+exports[`every public FindingCode has an exercised fixture > CHAIN_ID_UNKNOWN > CHAIN_ID_UNKNOWN 1`] = `"We don't recognise chain ID 99999999. This quote expects Ethereum."`;
+
+exports[`every public FindingCode has an exercised fixture > CONFIDENTIAL_DEPOSIT_UNSUPPORTED > CONFIDENTIAL_DEPOSIT_UNSUPPORTED 1`] = `"This quote is funded from Confidential Intents. Neer doesn't check those yet."`;
+
+exports[`every public FindingCode has an exercised fixture > CONFIDENTIAL_SWAP_UNSUPPORTED > CONFIDENTIAL_SWAP_UNSUPPORTED 1`] = `"Neer doesn't check confidential swaps yet, so we can't tell you if this one is right."`;
+
+exports[`every public FindingCode has an exercised fixture > DEPOSIT_ADDRESS_INACTIVE > DEPOSIT_ADDRESS_INACTIVE 1`] = `"This deposit address has gone quiet, so the swap may take longer than usual."`;
+
+exports[`every public FindingCode has an exercised fixture > DEPOSIT_ADDRESS_INVALID > DEPOSIT_ADDRESS_INVALID 1`] = `"This doesn't look like a Ethereum address. Copy it again from your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > DEPOSIT_ALREADY_USED > DEPOSIT_ALREADY_USED 1`] = `"This address was already used. Each deposit address works once. Get a new quote."`;
+
+exports[`every public FindingCode has an exercised fixture > DEPOSIT_IN_USE > DEPOSIT_IN_USE 1`] = `"A deposit to this address is already on its way. Each deposit address works once. Don't send again; track it instead."`;
+
+exports[`every public FindingCode has an exercised fixture > DEPOSIT_INCOMPLETE > DEPOSIT_INCOMPLETE 1`] = `"NEAR Intents reports an incomplete deposit. Don't send more here; check refund status with your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > DEPOSIT_STATUS_UNKNOWN > DEPOSIT_STATUS_UNKNOWN 1`] = `"We couldn't see whether this address is still waiting for a deposit. Check again before you send."`;
+
+exports[`every public FindingCode has an exercised fixture > DRAFT_APPROVAL > DRAFT_APPROVAL 1`] = `"This isn't a deposit. Your wallet is asking to approve spending, not to send. A NEAR Intents deposit never needs an approval."`;
+
+exports[`every public FindingCode has an exercised fixture > DRAFT_NETWORK_UNSUPPORTED > DRAFT_NETWORK_UNSUPPORTED 1`] = `"Draft transaction decoding only covers EVM networks. Do not treat an EVM draft as proof of a transfer on another network."`;
+
+exports[`every public FindingCode has an exercised fixture > DRAFT_NOT_PLAIN_TRANSFER > DRAFT_NOT_PLAIN_TRANSFER 1`] = `"This isn't a plain transfer. A NEAR Intents deposit is a simple send of the token to the deposit address."`;
+
+exports[`every public FindingCode has an exercised fixture > FORMAT_NETWORK_UNKNOWN > FORMAT_NETWORK_UNKNOWN 1`] = `"We couldn't check the address format because we don't know the network."`;
+
+exports[`every public FindingCode has an exercised fixture > INTENTS_DEPOSIT_UNSUPPORTED > INTENTS_DEPOSIT_UNSUPPORTED 1`] = `"This quote expects a transfer inside NEAR Intents, not a send on a network. Neer doesn't check those yet."`;
+
+exports[`every public FindingCode has an exercised fixture > MEMO_EXCHANGE_WARNING > MEMO_EXCHANGE_WARNING 1`] = `"Memo matches. Some exchanges have no memo field. If you can't add the memo, don't send from there."`;
+
+exports[`every public FindingCode has an exercised fixture > MEMO_MISMATCH > MEMO_MISMATCH 1`] = `"Wrong memo. Use exactly FAKE_MEMO_A. Without the right memo, your funds can't be matched to your swap."`;
+
+exports[`every public FindingCode has an exercised fixture > MEMO_MISSING > MEMO_MISSING 1`] = `"Memo missing. This deposit needs the memo shown above. Without it, your funds can't be matched to your swap."`;
+
+exports[`every public FindingCode has an exercised fixture > MINIMUM_NETWORK_1000 > MINIMUM_NETWORK_1000 1`] = `"Below the minimum. Swaps on BNB Chain under $1,000 are paused right now. Yours is $5.00. Try a larger amount or another network."`;
+
+exports[`every public FindingCode has an exercised fixture > MINIMUM_NETWORK_UNKNOWN > MINIMUM_NETWORK_UNKNOWN 1`] = `"We couldn't look up the networks for this swap, so we can't check network minimums."`;
+
+exports[`every public FindingCode has an exercised fixture > MINIMUM_RULES_STALE > MINIMUM_RULES_STALE 1`] = `"Network minimums change. The rules last checked on 2026-10-23 are no longer treated as current."`;
+
+exports[`every public FindingCode has an exercised fixture > MINIMUM_TRON_100 > MINIMUM_TRON_100 1`] = `"Below the minimum. Swaps from Tron under $100 are paused right now. Yours is $5.00. Try a larger amount or another network."`;
+
+exports[`every public FindingCode has an exercised fixture > MINIMUM_USD_UNKNOWN > MINIMUM_USD_UNKNOWN 1`] = `"We couldn't read the dollar value of this swap, so we can't check network minimums."`;
+
+exports[`every public FindingCode has an exercised fixture > NETWORK_MISMATCH > NETWORK_MISMATCH 1`] = `"Wrong network. This address is for Ethereum. You chose Base. Funds sent on Base won't be swapped automatically."`;
+
+exports[`every public FindingCode has an exercised fixture > NETWORK_NOT_SELECTED > NETWORK_NOT_SELECTED 1`] = `"We can't see your network. Pick the one your wallet or exchange shows before you send."`;
+
+exports[`every public FindingCode has an exercised fixture > ORIGIN_NETWORK_UNKNOWN > ORIGIN_NETWORK_UNKNOWN 1`] = `"We couldn't look up which network this quote expects. Try again in a minute."`;
+
+exports[`every public FindingCode has an exercised fixture > ORIGIN_TOKEN_UNKNOWN > ORIGIN_TOKEN_UNKNOWN 1`] = `"We couldn't look up the token this quote expects. Try again in a minute."`;
+
+exports[`every public FindingCode has an exercised fixture > PARTNER_QUOTE_MISMATCH > PARTNER_QUOTE_MISMATCH 1`] = `"The quote your app passed isn't the one NEAR Intents has for this address. Don't send. Get a new quote."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_DEADLINE_MISSING > QUOTE_DEADLINE_MISSING 1`] = `"This quote has no deadline, so we can't tell how long it's valid. Get a fresh quote."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_DEPOSIT_ADDRESS_MISSING > QUOTE_DEPOSIT_ADDRESS_MISSING 1`] = `"This quote has no deposit address to compare with."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_EXPIRED > QUOTE_EXPIRED 1`] = `"This quote has expired. Don't send to this address. Get a new quote from your app."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_MEMO_MISSING > QUOTE_MEMO_MISSING 1`] = `"This quote is in memo mode but didn't include a memo. Don't send until your app shows one."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_NEAR_EXPIRY > QUOTE_NEAR_EXPIRY 1`] = `"7 minutes left. If your send could take longer, get a fresh quote first."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_NOT_FOUND > QUOTE_NOT_FOUND 1`] = `"Don't send yet. Copy the address again, or ask your swap app for a new quote."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_PREVIEW > QUOTE_PREVIEW 1`] = `"This is a preview quote with no deposit address. Don't send to it. Get a real quote from your app."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_TOO_CLOSE_TO_EXPIRY > QUOTE_TOO_CLOSE_TO_EXPIRY 1`] = `"Too close. Only under a minute left, and a send on Ethereum can take about 5 minutes. Get a fresh quote."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_UNAVAILABLE > QUOTE_UNAVAILABLE 1`] = `"NEAR Intents didn't answer. Wait a minute and try again before you send."`;
+
+exports[`every public FindingCode has an exercised fixture > QUOTE_UNVERIFIED > QUOTE_UNVERIFIED 1`] = `"We couldn't confirm this quote came from NEAR Intents. Don't send."`;
+
+exports[`every public FindingCode has an exercised fixture > REFUND_ADDRESS_INVALID > REFUND_ADDRESS_INVALID 1`] = `"This refund address won't work on Ethereum. If the swap fails, your refund can't reach you."`;
+
+exports[`every public FindingCode has an exercised fixture > REFUND_DIFFERS_FROM_SENDER > REFUND_DIFFERS_FROM_SENDER 1`] = `"The quoted refund address differs from your declared sender. Make sure you control 0xBAbA…BaBa; Neer cannot verify ownership."`;
+
+exports[`every public FindingCode has an exercised fixture > REFUND_FORMAT_UNSUPPORTED > REFUND_FORMAT_UNSUPPORTED 1`] = `"We don't check FAKECHAIN addresses yet. Make sure you control 0xBAbA…BaBa."`;
+
+exports[`every public FindingCode has an exercised fixture > REFUND_NETWORK_UNKNOWN > REFUND_NETWORK_UNKNOWN 1`] = `"We couldn't check the refund address because we don't know the network."`;
+
+exports[`every public FindingCode has an exercised fixture > REFUND_TO_DEPOSIT_ADDRESS > REFUND_TO_DEPOSIT_ADDRESS 1`] = `"The quote sends refunds back to its deposit address. Request a new quote with a separate address you control."`;
+
+exports[`every public FindingCode has an exercised fixture > REQUIRED_CHECK_MISSING > REQUIRED_CHECK_MISSING 1`] = `"A required check didn't run, so we can't call this safe."`;
+
+exports[`every public FindingCode has an exercised fixture > RULE_EXECUTION_FAILED > RULE_EXECUTION_FAILED 1`] = `"This check couldn't run, so we can't call this safe."`;
+
+exports[`every public FindingCode has an exercised fixture > SEND_ADDRESS_INVALID > SEND_ADDRESS_INVALID 1`] = `"The address on your send screen has an invalid format or checksum. Copy it again from your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > SOURCE_EXCHANGE > SOURCE_EXCHANGE 1`] = `"Sending from an exchange? They often take a fee from the amount and can be slow. Make sure at least 5 FAKE arrives, and that refunds go to a wallet you control."`;
+
+exports[`every public FindingCode has an exercised fixture > SOURCE_UNKNOWN > SOURCE_UNKNOWN 1`] = `"Tell us if you're sending from your own wallet or from an exchange."`;
+
+exports[`every public FindingCode has an exercised fixture > STATUS_STALE > STATUS_STALE 1`] = `"We last read this quote 1 minute ago. Run the checks again before you send."`;
+
+exports[`every public FindingCode has an exercised fixture > SWAP_TYPE_UNSUPPORTED > SWAP_TYPE_UNSUPPORTED 1`] = `"This quote type collects deposits for partner apps and is not meant for personal sends. Neer doesn't support it."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_CONTRACT_MISMATCH > TOKEN_CONTRACT_MISMATCH 1`] = `"Same name, different token. The quote wants FAKE 0xcAca…cAcA, but you picked FAKE 0xDada…DADA. Check the token in your wallet."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_NETWORK_MISMATCH > TOKEN_NETWORK_MISMATCH 1`] = `"The selected asset ID belongs to another network. Choose the token on the quote's origin network."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_NOT_SELECTED > TOKEN_NOT_SELECTED 1`] = `"Tell us which token you're sending so we can compare it with the quote."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_PRICE_STALE > TOKEN_PRICE_STALE 1`] = `"Prices are 15 minutes old, so the dollar value is approximate. Token amounts are still exact."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_SYMBOL_MISMATCH > TOKEN_SYMBOL_MISMATCH 1`] = `"Wrong token. The quote expects FAKE. You're about to send FAKE_OTHER."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_UNACCEPTED_CONTRACT > TOKEN_UNACCEPTED_CONTRACT 1`] = `"Wrong token. This token isn't one NEAR Intents accepts on Ethereum. The quote expects FAKE at 0xcAca…cAcA."`;
+
+exports[`every public FindingCode has an exercised fixture > TOKEN_UNRECOGNISED > TOKEN_UNRECOGNISED 1`] = `"We don't recognise this token on Ethereum, so we can't compare it with the quote."`;
+
+exports[`every public FindingCode has an exercised fixture > XRP_ADDRESS_INVALID > XRP_ADDRESS_INVALID 1`] = `"This isn't a valid XRP address. Use an XRP address of your own wallet, without a tag."`;
+
+exports[`every public FindingCode has an exercised fixture > XRP_DESTINATION_TAG_UNSUPPORTED > XRP_DESTINATION_TAG_UNSUPPORTED 1`] = `"XRP destination tags aren't supported for this swap. Use an XRP address of your own wallet, without a tag."`;
+
+exports[`every public FindingCode has an exercised fixture > XRP_XADDRESS_WARNING > XRP_XADDRESS_WARNING 1`] = `"This XRP X-address includes a destination tag, which may not be supported. Use a classic r… address of your own wallet."`;

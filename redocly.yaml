@@ -1,0 +1,5 @@
+extends:
+  - recommended-strict
+rules:
+  # The repository license decision remains deferred; do not invent one.
+  info-license: off
