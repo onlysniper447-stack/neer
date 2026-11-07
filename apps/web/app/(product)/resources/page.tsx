@@ -78,10 +78,10 @@ const FAQ = [
   ["Which networks does Neer cover?", "Every network in the NEAR Intents token list. The Analytics page lists them and shows which ones Neer validates address formats and checksums for."],
   [
     "What does Neer store?",
-    "Neer's server keeps no history of your addresses or checks. It holds a status read in memory for 5 seconds so tracker tabs share it, and counts requests per IP for one minute to rate-limit. The Analytics page shows counts kept only in your browser, which you can clear.",
+    "Tracker lookups use an address-keyed memory cache. Browser statistics stay in localStorage. IP-based rate-limit keys go to Upstash when configured. Read the privacy page for details.",
   ],
   ["Can my app use this?", "Yes. The same checks are a JSON API, and the <NeerGuard/> React widget keeps a Send button disabled until a fresh Safe to send."],
-  ["Is Neer part of NEAR?", "No. It's an independent project built on the public NEAR Intents 1Click API, not affiliated with NEAR Foundation."],
+  ["Is Neer part of NEAR?", "Independent project, not affiliated with NEAR Foundation. Neer uses the public NEAR Intents 1Click API."],
 ] as const;
 
 const LINKS = [

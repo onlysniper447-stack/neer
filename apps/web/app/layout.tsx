@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: { default: "Neer: check before you send", template: "%s · Neer" },
-  description: "Neer checks your crypto transfer against the NEAR Intents quote before you send, so the money lands where you meant.",
+  title: { default: "Neer | Review before sending", template: "%s · Neer" },
+  description: "Understand quote mismatches and warnings before deciding whether to send funds. Neer cannot recover a transfer after it is sent.",
   robots: { index: true, follow: true },
 };
 

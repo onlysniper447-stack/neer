@@ -43,6 +43,7 @@ export function SiteFooter() {
           </p>
           <p className="max-w-sm">Check a NEAR Intents deposit before you send. Neer never asks for your seed phrase, a signature or an approval.</p>
           <p className="max-w-sm">Independent project, not affiliated with NEAR Foundation. Quotes come from the public NEAR Intents 1Click API.</p>
+          <p><Link className={linkCls} href="/privacy">Privacy and data handling</Link></p>
         </div>
         <nav aria-label="Footer: tools" className="text-sm">
           <h2 className="mb-2 font-semibold text-ink">Tools</h2>

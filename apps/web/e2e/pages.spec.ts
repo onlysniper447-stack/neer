@@ -5,7 +5,8 @@ import { describeSend, pasteAddress } from "./helpers";
 
 /** Every page in the menu plus the core flows. */
 const PAGES = [
-  { path: "/", h1: "Check the deposit.Then make your move." },
+  { path: "/", h1: "Check whether your deposit details match your quote." },
+  { path: "/privacy", h1: "Neer processes deposit details and request metadata." },
   { path: "/check", h1: "Check before you send." },
   { path: "/tools", h1: "Everything you can check with Neer" },
   { path: "/tools/address", h1: "Address checker" },

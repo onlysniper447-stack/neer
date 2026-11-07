@@ -4,15 +4,15 @@ import Link from "next/link";
 import styles from "./home.module.css";
 
 const PROBLEMS = [
-  ["Wrong network", "Check the destination network"],
-  ["Expired quote", "See the deadline before sending"],
-  ["Unclear progress", "Follow the transfer status"],
+  ["Your network must match the quote.", "Compares your selected sending network with the quote’s origin network, not just a list of supported networks."],
+  ["Your quote must still be valid.", "Checks the quote deadline against the current time and the network’s estimated confirmation time."],
+  ["Your amount must meet the quote’s requirement.", "Compares your entered amount with the quote’s required input or minimum, depending on swap type."],
 ] as const;
 
 const STEPS = [
-  "Paste your deposit details",
-  "Review checks and warnings",
-  "Send from your wallet when ready",
+  ["Paste your deposit details.", "Paste the deposit address from your swap app, then enter the network, token and amount you intend to send."],
+  ["Read the findings and warnings.", "For example, an expired quote returns “Don’t send” and asks you to get a new quote from your swap app."],
+  ["Decide whether to send.", "A warning needs review, and no result guarantees success. You decide whether to send from your wallet."],
 ] as const;
 
 export default function Home() {
@@ -27,12 +27,12 @@ export default function Home() {
 
       <main id="main" tabIndex={-1} className={styles.main}>
         <section className={styles.hero} aria-labelledby="hero-title">
-          <p className={styles.eyebrow}>NEAR Intents, checked.</p>
+          <p className={styles.eyebrow}>Review a NEAR Intents deposit before sending.</p>
           <h1 id="hero-title">
-            <span>Check the deposit.</span>
-            <span className={styles.teal}>Then make your move.</span>
+            <span>Check whether your deposit details</span>{" "}
+            <span className={styles.teal}>match your quote.</span>
           </h1>
-          <p className={styles.description}>Check your NEAR Intents deposit details before you send funds.</p>
+          <p className={styles.description}>Neer compares your deposit address, chosen network, token, amount and required memo with the signed NEAR Intents quote, and checks its deadline.</p>
           <div className={styles.actions}>
             <Link href="/check" aria-label="Check a deposit" className={styles.primary}>
               Check a deposit
@@ -43,7 +43,7 @@ export default function Home() {
         </section>
 
         <section className={styles.problems} aria-labelledby="problems-title">
-          <h2 id="problems-title">Small mistakes. Stuck transfers.</h2>
+          <h2 id="problems-title">Neer flags mismatches that need your attention.</h2>
           <dl className={styles.problemList}>
             {PROBLEMS.map(([problem, solution]) => (
               <div key={problem} className={styles.problemRow}>
@@ -55,29 +55,32 @@ export default function Home() {
         </section>
 
         <section id="how-it-works" className={styles.how} aria-labelledby="how-title">
-          <h2 id="how-title">How Neer works</h2>
+          <h2 id="how-title">Review the findings before deciding whether to send.</h2>
           <ol className={styles.steps}>
-            {STEPS.map((step, index) => (
+            {STEPS.map(([step, detail], index) => (
               <li key={step}>
                 <span className={styles.number} aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-                <span>{step}</span>
+                <div><h3 className={styles.stepTitle}>{step}</h3><p className={styles.stepDetail}>{detail}</p></div>
               </li>
             ))}
           </ol>
         </section>
 
         <section className={styles.banner} aria-labelledby="control-title">
-          <h2 id="control-title">Your wallet. Your decision.</h2>
-          <p>Neer checks details. You stay in control.</p>
+          <h2 id="control-title">Neer cannot recover funds after you send a transfer.</h2>
+          <p>Checks happen before sending and do not verify the counterparty or guarantee delivery.</p>
         </section>
+        <p className={styles.trust}>Neer does not request seed phrases or private keys, connect a wallet, or ask you to sign transactions.</p>
       </main>
 
       <footer className={styles.footer}>
         <nav aria-label="Footer">
           <Link href="/">Neer</Link><span aria-hidden="true">/</span>
           <Link href="/tools">Tools</Link><span aria-hidden="true">/</span>
-          <Link href="/resources">Resources</Link>
+          <Link href="/resources">Resources</Link><span aria-hidden="true">/</span>
+          <Link href="/privacy">Privacy</Link>
         </nav>
+        <p>Independent project, not affiliated with NEAR Foundation.</p>
         <p>Built for NEAR Hackathon 2026</p>
       </footer>
     </div>
