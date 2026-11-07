@@ -34,9 +34,9 @@ export default function Home() {
           </h1>
           <p className={styles.description}>Check your NEAR Intents deposit details before you send funds.</p>
           <div className={styles.actions}>
-            <Link href="/check" className={styles.primary}>
+            <Link href="/check" aria-label="Check a deposit" className={styles.primary}>
               Check a deposit
-              <span className={styles.arrow}><ArrowRight size={21} aria-hidden="true" /></span>
+              <span className={styles.arrow} aria-hidden="true"><ArrowRight size={21} aria-hidden="true" /></span>
             </Link>
             <a href="#how-it-works" className={styles.secondary}>How it works</a>
           </div>

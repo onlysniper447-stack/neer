@@ -4,6 +4,10 @@ test("approved homepage has the supplied logo and no product menu or example che
   await page.goto("/");
   await expect(page.getByRole("link", { name: "Neer home" }).locator("img")).toHaveAttribute("src", /neer-logo/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Check the deposit.");
+  const depositCta = page.getByRole("main").getByRole("link", { name: "Check a deposit", exact: true });
+  await expect(depositCta).toHaveAccessibleName("Check a deposit");
+  await expect(depositCta).toHaveAttribute("aria-label", "Check a deposit");
+  await expect(depositCta.locator("svg")).toHaveAttribute("aria-hidden", "true");
   await expect(page.getByRole("button", { name: "Open menu" })).toHaveCount(0);
   await expect(page.getByLabel("Deposit address")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Small mistakes. Stuck transfers." })).toBeVisible();
