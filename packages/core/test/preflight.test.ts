@@ -149,7 +149,7 @@ describe("time left", () => {
 
   it("passes with plenty of time", () => {
     const res = run(arbUsdc(NOW), goodArb);
-    expect(check(res, "time").message).toBe("41 minutes left. Plenty of time.");
+    expect(check(res, "time").message).toBe("41 minutes left under the current timing rules. Recheck before sending.");
   });
 });
 
@@ -231,7 +231,7 @@ describe("chain minimums", () => {
     expect(check(run(arbUsdc(NOW), goodArb), "minimum").severity).toBe("pass");
   });
 
-  it("warns when the dated minimums config is older than its max age", () => {
+  it("reports unknown when the dated minimums config is older than its max age", () => {
     const res = preflight({
       depositAddress: arbUsdc(NOW).quote.depositAddress!,
       lookup: found(makeStatus(arbUsdc(NOW), "PENDING_DEPOSIT", NOW)),
@@ -241,7 +241,7 @@ describe("chain minimums", () => {
       rules: { ...DEFAULT_RULES, minimums: { ...DEFAULT_RULES.minimums, checkedAt: "2026-01-01T00:00:00Z" } },
       quotePublicKey: TEST_PUBLIC_KEY,
     });
-    expect(check(res, "minimum").severity).toBe("warn");
+    expect(check(res, "minimum").severity).toBe("unknown");
   });
 });
 
@@ -250,12 +250,12 @@ describe("amount vs swap type (BigInt only)", () => {
   it("EXACT_INPUT: below amountIn blocks, equal passes, above warns", () => {
     expect(check(run(exactIn, { ...goodArb, amount: "4999999" }), "amount").severity).toBe("block");
     expect(check(run(exactIn, { ...goodArb, amount: "4999999" }), "amount").message).toBe(
-      "Too little. This swap needs 5 USDC. If you send 4.999999 USDC it will be refunded, not swapped.",
+      "This quote needs 5 USDC. You entered 4.999999 USDC. Do not send; refund handling depends on NEAR Intents and may include fees.",
     );
     expect(check(run(exactIn, goodArb), "amount").severity).toBe("pass");
     const over = check(run(exactIn, { ...goodArb, amount: "7000000" }), "amount");
     expect(over.severity).toBe("warn");
-    expect(over.message).toBe("You're sending more than needed. The extra 2 USDC comes back to your refund address after the swap.");
+    expect(over.message).toBe("The entered amount exceeds the quote by 2 USDC. Reduce it; any excess refund depends on provider processing and fees.");
   });
 
   it("EXACT_OUTPUT: below minAmountIn blocks, between passes, above amountIn warns", () => {

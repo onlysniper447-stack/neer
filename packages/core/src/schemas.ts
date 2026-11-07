@@ -10,7 +10,7 @@ import { z } from "zod";
 
 const nstr = z.string().nullish();
 /** Integer amount in base units, as 1Click sends it. */
-const baseUnits = z.string().regex(/^\d+$/, "expected an integer string in base units");
+const baseUnits = z.string().max(256).regex(/^\d+$/, "expected an integer string in base units");
 const isoDate = z.string().refine((s) => !Number.isNaN(Date.parse(s)), "expected an ISO date");
 
 export const SwapTypeSchema = z.enum(["EXACT_INPUT", "EXACT_OUTPUT", "FLEX_INPUT", "ANY_INPUT"]);

@@ -1,6 +1,7 @@
 import "server-only";
 import { ONE_CLICK_BASE_URL, OneClickClient } from "@neer/oneclick";
 import type { Lookup, Token } from "@neer/core";
+import { StatusCache } from "./status-cache";
 
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "[::1]", "::1"]);
 
@@ -67,8 +68,7 @@ export async function getTokens(): Promise<TokensState> {
 
 // ------------------------------------------------------------------ status
 
-const STATUS_DEDUPE_MS = 5_000;
-const statusCache = new Map<string, { at: number; value: Promise<Lookup> }>();
+const statusCache = new StatusCache();
 
 /**
  * Status lookup. Preflight always reads fresh (`dedupe: false`); the tracker
@@ -76,14 +76,5 @@ const statusCache = new Map<string, { at: number; value: Promise<Lookup> }>();
  */
 export function getStatus(address: string, memo: string | null | undefined, opts: { dedupe: boolean }): Promise<Lookup> {
   if (!opts.dedupe) return client.getStatus(address, memo);
-  const key = `${address.toLowerCase()}|${memo ?? ""}`;
-  const now = Date.now();
-  const hit = statusCache.get(key);
-  if (hit && now - hit.at < STATUS_DEDUPE_MS) return hit.value;
-  const value = client.getStatus(address, memo);
-  statusCache.set(key, { at: now, value });
-  if (statusCache.size > 5_000) {
-    for (const [k, v] of statusCache) if (now - v.at >= STATUS_DEDUPE_MS) statusCache.delete(k);
-  }
-  return value;
+  return statusCache.get(address, memo, () => client.getStatus(address, memo));
 }

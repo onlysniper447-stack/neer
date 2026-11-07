@@ -67,7 +67,7 @@ const used: Rule = (c) => {
     case "PROCESSING":
       return r("block", "Already in use", s === "PROCESSING" ? "Swap in progress" : "Deposit already seen", "A deposit to this address is already on its way. Each deposit address works once. Don't send again; track it instead.", { actual, expected: { status: "PENDING_DEPOSIT" } });
     case "INCOMPLETE_DEPOSIT":
-      return r("block", "Already used", "Less than needed arrived", "Someone already sent less than this swap needs to this address. It will be refunded after the deadline. Don't send more here; get a new quote.", { actual, expected: { status: "PENDING_DEPOSIT" } });
+      return r("block", "Already used", "Less than needed arrived", "NEAR Intents reports an incomplete deposit. Don't send more here; check refund status with your swap app.", { actual, expected: { status: "PENDING_DEPOSIT" } });
     case "SUCCESS":
     case "REFUNDED":
     case "FAILED":
@@ -81,24 +81,27 @@ const time: Rule = (c) => {
   const before = sendBefore(c);
   if (!before) return r("unknown", "No deadline", "No deadline in quote", "This quote has no deadline, so we can't tell how long it's valid. Get a fresh quote.");
   const left = Math.floor((before.getTime() - c.now.getTime()) / 1000);
-  const expected = { sendBefore: before.toISOString() };
+  const chain = c.originChain ? getChain(c.originChain) : undefined;
+  const budget = chain?.confirmBudgetSec ?? 10 * 60;
+  const safeWindow = Math.max(2 * budget, c.rules.nearExpiryWarnSec);
+  const inactiveAt = c.qr.quote.timeWhenInactive ? Date.parse(c.qr.quote.timeWhenInactive) : Infinity;
+  const safeUntil = new Date(Math.min(before.getTime() - safeWindow * 1000, inactiveAt));
+  const expected = { sendBefore: before.toISOString(), safeUntil: safeUntil.toISOString() };
   const actual = { secondsLeft: left };
   if (left <= 0) {
     return r("block", "Quote expired", "Expired", "This quote has expired. Don't send to this address. Get a new quote from your app.", { expected, actual, action: { kind: "new-quote", label: "Get a new quote" } });
   }
-  const chain = c.originChain ? getChain(c.originChain) : undefined;
-  const budget = chain?.confirmBudgetSec ?? 10 * 60;
   if (left < budget) {
     return r("block", "Too close to expiry", `${humanDuration(left)} left`, `Too close. Only ${humanDuration(left)} left, and a send on ${chain?.name ?? "this network"} can take about ${humanDuration(budget)}. Get a fresh quote.`, { expected, actual, action: { kind: "new-quote", label: "Get a fresh quote" } });
   }
-  if (left < Math.max(2 * budget, c.rules.nearExpiryWarnSec)) {
+  if (left < safeWindow) {
     return r("warn", "Close to expiry", `${humanDuration(left)} left`, `${capitalise(humanDuration(left))} left. If your send could take longer, get a fresh quote first.`, { expected, actual, action: { kind: "new-quote", label: "Get a fresh quote" } });
   }
   const inactive = c.qr.quote.timeWhenInactive ? new Date(c.qr.quote.timeWhenInactive) : null;
   if (inactive && inactive.getTime() <= c.now.getTime()) {
     return r("warn", "Address gone cold", "Slower processing", "This deposit address has gone quiet, so the swap may take longer than usual.", { expected, actual });
   }
-  return r("pass", "Time left", `${humanDuration(left)} left`, `${capitalise(humanDuration(left))} left. Plenty of time.`, { expected, actual });
+  return r("pass", "Time left", `${humanDuration(left)} left`, `${capitalise(humanDuration(left))} left under the current timing rules. Recheck before sending.`, { expected, actual });
 };
 
 function capitalise(s: string): string {
@@ -125,6 +128,9 @@ const lookalike: Rule = (c) => {
       }
       return r("block", "Different address", "Not the quote's address", `${where} isn't the quote's address. Copy it again from your swap app.`, { expected, actual, action: fix });
     }
+    if (cand.label === "send" && validateAddress(cmpChain, cand.addr).status === "invalid") {
+      return r("block", "Invalid send address", "Invalid format or checksum", "The address on your send screen has an invalid format or checksum. Copy it again from your swap app.");
+    }
   }
   return r("pass", "Address matches", "Matches the quote", "Address matches the quote, character for character.", { expected: { address: quoteAddr } });
 };
@@ -144,7 +150,7 @@ const network: Rule = (c) => {
   }
   const expectedName = chainName(c.originChain);
   const expected = { chain: c.originChain, chainId: getChain(c.originChain).evmChainId ?? null };
-  if (c.unknownChainId !== undefined && !c.declaredChain) {
+  if (c.unknownChainId !== undefined) {
     return r("unknown", "Network unknown", `Chain ID ${c.unknownChainId}`, `We don't recognise chain ID ${c.unknownChainId}. This quote expects ${expectedName}.`, { expected, actual: { chainId: c.unknownChainId } });
   }
   if (!c.declaredChain) {
@@ -213,8 +219,11 @@ const token: Rule = (c) => {
     return r("block", "Wrong token", `${got.symbol}, not ${want.symbol}`, `Wrong token. The quote expects ${want.symbol}. You're about to send ${got.symbol}.`, { expected, actual, action: { kind: "edit-send", label: "Change token" } });
   }
   if (got.blockchain !== want.blockchain) {
-    // Same token name on another network; the network check reports the real problem.
-    return r("pass", "Same token", want.symbol, `${got.symbol}, the same token as the quote. Check the network row.`, { expected, actual });
+    // When the selected network is already wrong, its network check blocks.
+    if (c.declaredChain !== c.originChain) {
+      return r("pass", "Same token symbol", want.symbol, `${got.symbol} has the same symbol. The network check reports the mismatch.`, { expected, actual });
+    }
+    return r("block", "Token network mismatch", `${got.symbol} on ${chainName(got.blockchain)}`, "The selected asset ID belongs to another network. Choose the token on the quote's origin network.", { expected, actual, action: { kind: "edit-send", label: "Change token" } });
   }
   const viaTx = c.decoded?.kind === "erc20-transfer" || c.decoded?.kind === "native";
   return r(viaTx ? "block" : "warn", "Different token contract", `Another ${got.symbol}`, `Same name, different token. The quote wants ${want.symbol} ${want.contractAddress ? shortAddress(want.contractAddress) : "(native)"}, but you picked ${got.symbol} ${got.contractAddress ? shortAddress(got.contractAddress) : "(native)"}. Check the token in your wallet.`, { expected, actual, action: { kind: "edit-send", label: "Change token" } });
@@ -271,10 +280,10 @@ const amount: Rule = (c) => {
   const actual = { amount: sent.toString() };
   const need = type === "EXACT_INPUT" ? amountIn : minIn;
   if (sent < need) {
-    return r("block", "Too little", `${fmtOrigin(c, sent)}, needs ${fmtOrigin(c, need)}`, `Too little. This swap needs ${fmtOrigin(c, need)}. If you send ${fmtOrigin(c, sent)} it will be refunded, not swapped.`, { expected, actual, action: { kind: "edit-send", label: "Change amount" } });
+    return r("block", "Too little", `${fmtOrigin(c, sent)}, needs ${fmtOrigin(c, need)}`, `This quote needs ${fmtOrigin(c, need)}. You entered ${fmtOrigin(c, sent)}. Do not send; refund handling depends on NEAR Intents and may include fees.`, { expected, actual, action: { kind: "edit-send", label: "Change amount" } });
   }
   if (type !== "FLEX_INPUT" && sent > amountIn) {
-    return r("warn", "More than needed", `${fmtOrigin(c, sent)}`, `You're sending more than needed. The extra ${fmtOrigin(c, sent - amountIn)} comes back to your refund address after the swap.`, { expected, actual });
+    return r("warn", "More than needed", `${fmtOrigin(c, sent)}`, `The entered amount exceeds the quote by ${fmtOrigin(c, sent - amountIn)}. Reduce it; any excess refund depends on provider processing and fees.`, { expected, actual });
   }
   if (type === "EXACT_OUTPUT" && sent < amountIn) {
     return r("pass", "Amount is enough", fmtOrigin(c, sent), `Amount is enough. The quote suggests ${fmtOrigin(c, amountIn)}; at least ${fmtOrigin(c, minIn)} is needed.`, { expected, actual });
@@ -282,7 +291,7 @@ const amount: Rule = (c) => {
   if (type === "FLEX_INPUT") {
     return r("pass", "Amount is enough", fmtOrigin(c, sent), `Amount is enough. This swap accepts at least ${fmtOrigin(c, minIn)}.`, { expected, actual });
   }
-  return r("pass", "Amount is right", fmtOrigin(c, sent), `Amount is right. Send exactly ${fmtOrigin(c, sent)}.`, { expected, actual });
+  return r("pass", "Amount is right", fmtOrigin(c, sent), `The entered amount matches the quote: ${fmtOrigin(c, sent)}.`, { expected, actual });
 };
 
 // ---------------------------------------------------------------- minimum
@@ -294,6 +303,10 @@ const minimum: Rule = (c) => {
   if (usd === undefined) return r("unknown", "USD value unknown", "No USD value", "We couldn't read the dollar value of this swap, so we can't check network minimums.");
   if (!c.originChain || !c.destChain) return r("unknown", "Minimum unknown", "Network unknown", "We couldn't look up the networks for this swap, so we can't check network minimums.");
   const m = c.rules.minimums;
+  const ageDays = (c.now.getTime() - new Date(m.checkedAt).getTime()) / 86_400_000;
+  if (!Number.isFinite(ageDays) || ageDays >= c.rules.minimumsMaxAgeDays) {
+    return r("unknown", "Minimums need re-checking", "Rules not re-checked", `Network minimums change. The rules last checked on ${m.checkedAt.slice(0, 10)} are no longer treated as current.`);
+  }
   const min1000 = parseUsdMicros(m.usd1000)!;
   const minTron = parseUsdMicros(m.tronOriginUsd)!;
   const sides = [c.originChain, c.destChain].filter((ch) => m.usd1000Chains.includes(ch));
@@ -305,11 +318,7 @@ const minimum: Rule = (c) => {
   if (c.originChain === "tron" && usd < minTron) {
     return r("block", "Below the minimum", `${formatUsd(usd)}, minimum $100`, `Below the minimum. Swaps from Tron under $100 are paused right now. Yours is ${formatUsd(usd)}. Try a larger amount or another network.`, { expected: { minUsd: m.tronOriginUsd }, actual });
   }
-  const ageDays = (c.now.getTime() - new Date(m.checkedAt).getTime()) / 86_400_000;
-  if (ageDays > c.rules.minimumsMaxAgeDays) {
-    return r("warn", "Minimums may be out of date", "Rules not re-checked", `Network minimums change often. Ours were last checked on ${m.checkedAt.slice(0, 10)}.`, { actual });
-  }
-  return r("pass", "Above the minimum", "Above minimum", "Above the minimum for this network.", { actual });
+  return r("pass", "Published minimums checked", "No listed restriction triggered", "No blocking minimum in the published rules. Other provider limits may apply.", { actual });
 };
 
 // ---------------------------------------------------------------- xrp
@@ -340,7 +349,7 @@ const refund: Rule = (c) => {
   const req = c.qr.quoteRequest;
   const to = req.refundTo;
   if (req.refundType === "INTENTS") {
-    return r("info", "Refunds to Intents", "Intents account", `If anything goes wrong, refunds go to the NEAR Intents account ${shortAddress(to)}.`, { expected: { refundTo: to } });
+    return r("info", "Refunds to Intents", "Intents account", `The quote lists NEAR Intents account ${shortAddress(to)} for refunds. Neer does not verify account ownership or refund delivery.`, { expected: { refundTo: to } });
   }
   if (req.refundType === "CONFIDENTIAL_INTENTS") return null; // covered by the confidential check
   if (!c.originChain) return r("unknown", "Refund unknown", "Network unknown", "We couldn't check the refund address because we don't know the network.");
@@ -351,24 +360,27 @@ const refund: Rule = (c) => {
     return r("block", "Refund address won't work", `Not a ${name} address`, `This refund address won't work on ${name}. If the swap fails, your refund can't reach you.`, { expected, action: { kind: "new-quote", label: "Get a new quote" } });
   }
   if (c.qr.quote.depositAddress && sameAddress(c.originChain, to, c.qr.quote.depositAddress)) {
-    return r("block", "Refund to deposit address", "Same as deposit", "The refund address is the deposit address itself, so a refund could never reach you. Get a new quote with your own address.", { expected, action: { kind: "new-quote", label: "Get a new quote" } });
+    return r("block", "Refund to deposit address", "Same as deposit", "The quote sends refunds back to its deposit address. Request a new quote with a separate address you control.", { expected, action: { kind: "new-quote", label: "Get a new quote" } });
   }
   if (v.status === "unsupported") {
     return r("unknown", "Refund not checked", shortAddress(to), `We don't check ${name} addresses yet. Make sure you control ${shortAddress(to)}.`, { expected });
   }
   if (c.from) {
     if (sameAddress(c.originChain, to, c.from)) {
-      return r("pass", "Refunds come back", shortAddress(to), `If anything goes wrong, refunds go back to your wallet ${shortAddress(to)}.`, { expected, actual: { from: c.from } });
+      return r("pass", "Refund address matches sender", shortAddress(to), `The quote lists ${shortAddress(to)} for refunds, matching your declared sender. Neer does not verify ownership or guarantee a refund.`, { expected, actual: { from: c.from } });
     }
-    return r("warn", "Refunds go elsewhere", shortAddress(to), `Refunds go to an address you're not sending from. Make sure you control ${shortAddress(to)}.`, { expected, actual: { from: c.from } });
+    return r("warn", "Refunds go elsewhere", shortAddress(to), `The quoted refund address differs from your declared sender. Make sure you control ${shortAddress(to)}; Neer cannot verify ownership.`, { expected, actual: { from: c.from } });
   }
-  return r("info", "Refund address", shortAddress(to), `If anything goes wrong, refunds go to ${shortAddress(to)}. Make sure that's an address you control.`, { expected });
+  return r("info", "Refund address", shortAddress(to), `The quote lists ${shortAddress(to)} for refunds. Make sure you control it. Neer cannot guarantee refund delivery.`, { expected });
 };
 
 // ---------------------------------------------------------------- approval and dust
 
 const approval: Rule = (c) => {
   const d = c.decoded;
+  if (d && (!c.originChain || getChain(c.originChain).family !== "evm")) {
+    return r("unknown", "Draft transaction not supported", "EVM drafts only", "Draft transaction decoding only covers EVM networks. Do not treat an EVM draft as proof of a transfer on another network.");
+  }
   const refundFee = c.qr.quote.refundFee ? BigInt(c.qr.quote.refundFee) : undefined;
   if (d?.kind === "approval") {
     return r("block", "Not a deposit", d.method, "This isn't a deposit. Your wallet is asking to approve spending, not to send. A NEAR Intents deposit never needs an approval.", { actual: { method: d.method } });

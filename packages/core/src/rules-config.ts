@@ -1,6 +1,6 @@
 /**
  * Versioned, dated rules config. The chain minimums are temporary 1Click rules
- * that change; `checkedAt` is when a human last confirmed them against the docs.
+ * that change; `checkedAt` is when the published sources were last reviewed against the docs.
  */
 export interface RulesConfig {
   version: string;
@@ -24,9 +24,9 @@ export interface RulesConfig {
 }
 
 export const DEFAULT_RULES: RulesConfig = {
-  version: "2026.10.0",
+  version: "2026.11.1",
   minimums: {
-    checkedAt: "2026-10-27T10:30:00Z",
+    checkedAt: "2026-11-07T14:02:52Z",
     sources: [
       "https://docs.near-intents.org/changelog/entries/2026-09-09-temporary-1000-minimum",
       "https://docs.near-intents.org/changelog/entries/2026-09-14-temporary-tron-100-minimum",

@@ -82,3 +82,20 @@ describe("OneClickClient.getTokens", () => {
     expect(await new OneClickClient({ fetch: fakeFetch(() => json([{ nope: 1 }])) }).getTokens()).toEqual({ ok: false, reason: "invalid_response" });
   });
 });
+
+describe("upstream response boundaries", () => {
+  it("does not follow redirects, including when authorization is configured", async () => {
+    let policy: RequestRedirect | undefined;
+    const client = new OneClickClient({ jwt: "test-only", fetch: fakeFetch((_url, init) => { policy = init?.redirect; return json(liveStatus); }) });
+    await client.getStatus("x");
+    expect(policy).toBe("error");
+  });
+
+  it("cancels responses exceeding two MiB before parsing", async () => {
+    let cancelled = false;
+    const stream = new ReadableStream<Uint8Array>({ pull(c) { c.enqueue(new Uint8Array(1_100_000)); }, cancel() { cancelled = true; } });
+    const client = new OneClickClient({ fetch: fakeFetch(() => new Response(stream)) });
+    expect(await client.getStatus("x")).toMatchObject({ kind: "error", reason: "invalid_response" });
+    expect(cancelled).toBe(true);
+  });
+});

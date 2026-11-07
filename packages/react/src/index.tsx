@@ -1,3 +1,4 @@
+import { isResult, safeUntil } from "./result.js";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
@@ -41,6 +42,7 @@ export interface NeerCheck {
   title: string;
   headline: string;
   message: string;
+  expected?: { safeUntil?: string };
 }
 
 export interface NeerResult {
@@ -50,6 +52,7 @@ export interface NeerResult {
   message: string;
   checks: NeerCheck[];
   serverTime: string;
+  quote?: { verified: boolean; sendBefore: string | null } | null;
   requestId?: string;
   rulesVersion: string;
   checksHash: string;
@@ -76,7 +79,7 @@ export interface UseNeerPreflightOptions {
   endpoint: string;
   deposit: NeerDeposit | null;
   transfer: NeerTransfer | null;
-  /** A verdict older than this stops allowing sends. Default 60 s. */
+  /** A verdict older than this stops allowing sends. Default and maximum 60 s. */
   maxAgeMs?: number;
   /** Wait this long after inputs change before checking. Default 300 ms. */
   debounceMs?: number;
@@ -92,17 +95,13 @@ function firstProblem(result: NeerResult): string | null {
   return result.verdict === "safe" ? null : result.message;
 }
 
-function isResult(x: unknown): x is NeerResult {
-  if (!x || typeof x !== "object") return false;
-  const r = x as Record<string, unknown>;
-  return (r.verdict === "safe" || r.verdict === "check" || r.verdict === "block") && Array.isArray(r.checks) && typeof r.serverTime === "string";
-}
-
 export function useNeerPreflight(opts: UseNeerPreflightOptions): NeerGuardValue {
   const { endpoint, deposit, transfer, maxAgeMs = 60_000, debounceMs = 300 } = opts;
+  const validOptions = Number.isFinite(maxAgeMs) && maxAgeMs > 0 && maxAgeMs <= 60_000 && Number.isFinite(debounceMs) && debounceMs >= 0;
   const fetchImpl = opts.fetch ?? globalThis.fetch;
   const key = deposit && transfer ? JSON.stringify([endpoint, deposit, transfer]) : null;
   const [state, setState] = useState<NeerState>({ status: "idle" });
+  const [stateNonce, setStateNonce] = useState(-1);
   const [stateKey, setStateKey] = useState<string | null>(null);
   const [stale, setStale] = useState(false);
   const [nonce, setNonce] = useState(0);
@@ -112,12 +111,18 @@ export function useNeerPreflight(opts: UseNeerPreflightOptions): NeerGuardValue 
   });
 
   useEffect(() => {
-    if (!key) return;
+    if (!key || !validOptions) return;
     const ctrl = new AbortController();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     const timer = setTimeout(async () => {
       setState({ status: "checking" });
       setStateKey(key);
+      setStateNonce(nonce);
       setStale(false);
+      timeout = setTimeout(() => {
+        setState({ status: "error", message: "Neer timed out. Don't send yet." });
+        ctrl.abort();
+      }, 10_000);
       try {
         const res = await fetchRef.current(`${endpoint}/api/v1/preflight`, {
           method: "POST",
@@ -128,39 +133,49 @@ export function useNeerPreflight(opts: UseNeerPreflightOptions): NeerGuardValue 
         const json: unknown = await res.json().catch(() => null);
         if (ctrl.signal.aborted) return;
         if (isResult(json) && res.ok) {
-          setState({ status: "done", result: json, checkedAt: Date.now() });
+          const checkedAt = Date.parse(json.serverTime);
+          if (checkedAt > Date.now() + 5_000 || checkedAt < Date.now() - maxAgeMs) {
+            setState({ status: "error", message: "The result timestamp is out of date or disagrees with your clock. Don't send yet." });
+          } else {
+            setState({ status: "done", result: json, checkedAt });
+          }
         } else {
           const err = (json as { error?: { message?: string } } | null)?.error?.message;
-          setState({ status: "error", message: err ?? `Neer returned HTTP ${res.status}. Don't send yet.`, ...(isResult(json) ? { result: json } : {}) });
+          setState({ status: "error", message: typeof err === "string" ? err : `Neer returned an invalid result or HTTP ${res.status}. Don't send yet.`, ...(isResult(json) ? { result: json } : {}) });
         }
       } catch (e) {
         if (ctrl.signal.aborted) return;
         setState({ status: "error", message: e instanceof Error && e.name === "TimeoutError" ? "Neer timed out. Don't send yet." : "Couldn't reach Neer. Don't send yet." });
+      } finally {
+        if (timeout) clearTimeout(timeout);
       }
     }, debounceMs);
     return () => {
       ctrl.abort();
       clearTimeout(timer);
+      if (timeout) clearTimeout(timeout);
     };
-  }, [key, nonce, debounceMs]); // key captures endpoint, deposit and transfer by value
+  }, [key, nonce, debounceMs, maxAgeMs, validOptions]); // key captures endpoint, deposit and transfer by value
 
   useEffect(() => {
     if (state.status !== "done") return;
-    const t = setTimeout(() => setStale(true), Math.max(0, state.checkedAt + maxAgeMs - Date.now()));
+    const until = Math.min(state.checkedAt + maxAgeMs, safeUntil(state.result), Date.parse(state.result.quote?.sendBefore ?? ""));
+    const t = setTimeout(() => setStale(true), Math.max(0, (Number.isFinite(until) ? until : Date.now()) - Date.now()));
     return () => clearTimeout(t);
   }, [state, maxAgeMs]);
 
   const recheck = useCallback(() => setNonce((n) => n + 1), []);
 
-  const current = key !== null && stateKey === key;
-  const effective: NeerState = current ? state : key ? { status: "checking" } : { status: "idle" };
+  const current = key !== null && stateKey === key && stateNonce === nonce;
+  const effective: NeerState = !validOptions ? { status: "error", message: "maxAgeMs must be between 1 and 60000; debounceMs must be finite and nonnegative." } : current ? state : key ? { status: "checking" } : { status: "idle" };
   const result = effective.status === "done" ? effective.result : effective.status === "error" ? effective.result : undefined;
-  const canSend = effective.status === "done" && effective.result.verdict === "safe" && !stale;
+  const expired = effective.status === "done" && (stale || Date.now() >= Math.min(effective.checkedAt + maxAgeMs, safeUntil(effective.result), Date.parse(effective.result.quote?.sendBefore ?? "")));
+  const canSend = effective.status === "done" && effective.result.verdict === "safe" && !expired;
   const reason =
     effective.status === "error"
       ? effective.message
       : effective.status === "done"
-        ? stale && effective.result.verdict === "safe"
+        ? expired && effective.result.verdict === "safe"
           ? "This check is out of date. Check again before you send."
           : firstProblem(effective.result)
         : null;
@@ -191,12 +206,12 @@ const TONE: Record<Verdict | "pending", { fg: string; bg: string; word: string }
 
 /** Small default status line (inline styles, no CSS needed). Optional. */
 export function NeerStatus({ guard }: { guard: NeerGuardValue }) {
-  const { state, verdict, reason } = guard;
+  const { state, verdict, reason, canSend } = guard;
   if (state.status === "idle") return null;
-  const tone = state.status === "checking" ? TONE.pending : state.status === "error" && !verdict ? TONE.check : TONE[verdict ?? "check"];
-  const word = state.status === "error" && !verdict ? "Can't check right now" : tone.word;
+  const tone = state.status === "checking" ? TONE.pending : state.status === "error" || (verdict === "safe" && !canSend) ? TONE.check : TONE[verdict ?? "check"];
+  const word = state.status === "error" ? "Can't check right now" : verdict === "safe" && !canSend ? "Check again" : tone.word;
   return (
-    <div role="status" aria-live="polite" data-neer-verdict={verdict ?? state.status} style={{ color: tone.fg, background: tone.bg, padding: "8px 12px", borderRadius: 8, fontSize: 14 }}>
+    <div role="status" aria-live="polite" data-neer-verdict={verdict === "safe" && !canSend ? "check" : verdict ?? state.status} style={{ color: tone.fg, background: tone.bg, padding: "8px 12px", borderRadius: 8, fontSize: 14 }}>
       <strong>{word}</strong>
       {reason ? <span>. {reason}</span> : null}
     </div>

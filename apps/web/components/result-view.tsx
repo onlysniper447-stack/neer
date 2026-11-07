@@ -3,6 +3,8 @@
 import { SAFE_DEFINITION, getChain, type CheckResult, type PreflightResult } from "@neer/core";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
+import { useServerNow } from "@/hooks/use-server-now";
+import { isFreshSafe } from "@/lib/result-freshness";
 import { Button } from "@/components/ui/button";
 import { AddressChip } from "./address-chip";
 import { CheckList } from "./check-list";
@@ -40,7 +42,10 @@ export function ResultView({
   sendSummary?: string;
 }) {
   const q = result.quote;
-  const tone = toneForVerdict(result.verdict);
+  const now = useServerNow(result.serverTime);
+  const freshSafe = isFreshSafe(result, now);
+  const stale = result.verdict === "safe" && !freshSafe;
+  const tone = toneForVerdict(stale ? "check" : result.verdict);
   const action = primaryAction(result.checks);
   const lookalike = result.checks.find((c) => c.id === "lookalike");
   const depositAddress = q?.depositAddress ?? pastedAddress;
@@ -49,7 +54,9 @@ export function ResultView({
   const pending = q?.status === "PENDING_DEPOSIT";
 
   let primary: React.ReactNode = null;
-  if (result.verdict === "safe") {
+  if (stale) {
+    primary = onEdit ? <Button size="lg" onClick={() => onEdit()}>Check these details again</Button> : <Button asChild size="lg"><Link href="/check">Run a new check</Link></Button>;
+  } else if (result.verdict === "safe") {
     primary = (
       <Button asChild size="lg" className="w-full sm:w-auto">
         <Link href={track}>Track this deposit</Link>
@@ -92,11 +99,11 @@ export function ResultView({
     <div
       className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] lg:grid-rows-[auto_1fr] lg:gap-x-8 xl:gap-x-10"
       data-testid="result"
-      data-verdict={result.verdict}
+      data-verdict={stale ? "check" : result.verdict}
     >
       <div className="space-y-4 lg:col-start-1 lg:row-start-1">
-        <VerdictCard tone={tone} label={result.label} headline={result.headline} message={result.verdict === "safe" ? undefined : result.message}>
-          {result.verdict === "safe" && q ? (
+        <VerdictCard tone={tone} label={stale ? "Check again" : result.label} headline={stale ? "This result is out of date" : result.headline} message={stale ? "The previous check no longer authorizes a send. Recheck these details and the current quote status before deciding." : result.verdict === "safe" ? undefined : result.message}>
+          {freshSafe && q ? (
             <div className="rounded-xl bg-bg/70 p-4">
               <p className="text-sm font-medium text-muted">Send exactly</p>
               <p className="mt-0.5 font-mono text-xl font-semibold tabular sm:text-2xl" data-testid="send-exactly">
@@ -114,7 +121,7 @@ export function ResultView({
             ) : null}
           </div>
         </VerdictCard>
-        {result.verdict === "safe" ? <p className="text-sm text-muted">{SAFE_DEFINITION}</p> : null}
+        {freshSafe ? <p className="text-sm text-muted">{SAFE_DEFINITION}</p> : null}
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start" aria-label="Deposit and quote">
@@ -167,6 +174,7 @@ export function ResultView({
       </aside>
 
       <div className="lg:col-start-1 lg:row-start-2">
+        {stale ? <p className="mb-3 text-sm text-muted">These findings are from the previous check, not a current verdict.</p> : null}
         <CheckList checks={result.checks} />
       </div>
     </div>

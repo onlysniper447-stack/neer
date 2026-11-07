@@ -90,7 +90,7 @@ export const RULE_CATALOG: readonly RuleInfo[] = [
     title: "Amount",
     what: "You send at least what the quote needs, using the quote's swap type.",
     blocksWhen: "You'd send less than the quote needs.",
-    warnsWhen: "You'd send more (the extra goes back to the refund address), or the tokens differ so it can't compare.",
+    warnsWhen: "You'd send more than quoted, or the tokens differ so it can't compare. Refunds are not guaranteed.",
     maxSeverity: "block",
   },
   {
@@ -112,7 +112,7 @@ export const RULE_CATALOG: readonly RuleInfo[] = [
   {
     id: "refund",
     title: "Refund to",
-    what: "Refunds go to a valid address on the right network, ideally yours.",
+    what: "The quoted refund address has a supported format. Ownership and refund delivery are not verified.",
     blocksWhen: "The refund address is invalid, or it's the deposit address itself.",
     warnsWhen: null,
     maxSeverity: "block",

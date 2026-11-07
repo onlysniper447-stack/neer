@@ -1,31 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useServerNow } from "@/hooks/use-server-now";
 import { useMounted } from "@/hooks/use-mounted";
 import { formatClock } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 /**
  * Send-before countdown: absolute time first, then a bar and the time left.
- * Corrects for the device clock using the server time of the last response
- * (render with key={serverTime} so a new response resets the offset).
+ * Uses server time and elapsed time; a device clock rollback cannot extend it.
  * Announces only at 15, 5 and 1 minutes.
  */
 export function Countdown({ sendBefore, serverTime, startedAt, budgetSec }: { sendBefore: string; serverTime: string; startedAt?: string; budgetSec: number }) {
   const mounted = useMounted();
-  const [offset] = useState(() => new Date(serverTime).getTime() - Date.now());
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
+  const serverNow = useServerNow(serverTime);
 
   if (!mounted) {
     return <div className="h-[104px] animate-pulse rounded-xl bg-surface" aria-hidden="true" />;
   }
 
   const end = new Date(sendBefore).getTime();
-  const serverNow = now + offset;
   const left = Math.max(0, Math.floor((end - serverNow) / 1000));
   const start = startedAt ? new Date(startedAt).getTime() : end - 30 * 60_000;
   const fraction = Math.min(1, Math.max(0, (end - serverNow) / Math.max(1, end - start)));
@@ -47,7 +40,7 @@ export function Countdown({ sendBefore, serverTime, startedAt, budgetSec }: { se
 
   return (
     <div className="rounded-xl border border-line p-4 sm:p-5" data-testid="countdown" data-state={state}>
-      <p className="text-sm text-muted">Send before</p>
+      <p className="text-sm text-muted">Deposit deadline</p>
       <p className="tabular text-2xl font-semibold tracking-tight">{formatClock(sendBefore)}</p>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface" aria-hidden="true">
         <div

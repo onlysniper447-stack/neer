@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { clientIp, rateLimit } from "@/lib/server/rate-limit";
 import { newRequestId, preflightService } from "@/lib/server/service";
+import { readJsonBody } from "@/lib/server/read-json-body";
 import { apiHeaders } from "@/lib/server/http";
 import { applyCors, preflightResponse } from "@/lib/server/cors";
 
 export const dynamic = "force-dynamic";
-
-const MAX_BODY_BYTES = 64 * 1024;
 
 export async function POST(req: NextRequest) {
   const requestId = newRequestId();
@@ -22,18 +21,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const text = await req.text();
-  if (text.length > MAX_BODY_BYTES) {
-    return NextResponse.json({ requestId, error: { code: "NEER_INVALID_INPUT", message: "Request body is too large." } }, { status: 400, headers });
-  }
-  let json: unknown;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    return NextResponse.json({ requestId, error: { code: "NEER_INVALID_INPUT", message: "Request body must be JSON." } }, { status: 400, headers });
+  const input = await readJsonBody(req);
+  if (!input.ok) {
+    return NextResponse.json({ requestId, error: { code: "NEER_INVALID_INPUT", message: input.message } }, { status: 400, headers });
   }
 
-  const { status, body } = await preflightService(json, requestId);
+  const { status, body } = await preflightService(input.value, requestId);
   return NextResponse.json(body, { status, headers });
 }
 

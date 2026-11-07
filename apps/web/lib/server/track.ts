@@ -48,16 +48,20 @@ export async function trackService(address: string, memo: string | null, request
     };
   }
   const s = lookup.status;
-  const view = describeStatus(s, tokenState.tokens);
+  const now = new Date();
   const summary = preflight({
     depositAddress: address,
     depositMemo: memo,
     lookup,
     transfer: DeclaredTransferSchema.parse({ source: "unknown" }),
     tokens: tokenState.tokens,
-    now: new Date(),
+    now,
     quotePublicKey: quotePublicKeyOverride,
   });
+  if (!summary.quote?.verified || !summary.signedQuote || summary.checks.some((c) => ["lookalike", "memo"].includes(c.id) && c.severity === "block")) {
+    return { status: 422, body: { requestId, error: { code: "NEER_QUOTE_UNVERIFIED", message: "The quote could not be verified for this address and memo." }, label: "Unconfirmed quote", message: "Do not send. The returned quote does not verify for this deposit lookup." } };
+  }
+  const view = describeStatus(s, tokenState.tokens, now);
   const d = s.swapDetails;
   return {
     status: 200,
@@ -66,7 +70,7 @@ export async function trackService(address: string, memo: string | null, request
       address,
       ...view,
       updatedAt: s.updatedAt,
-      serverTime: new Date().toISOString(),
+      serverTime: now.toISOString(),
       estimateSeconds: s.quoteResponse.quote.timeEstimate ?? null,
       originTxs: (d?.originChainTxHashes ?? []).map((t) => ({ hash: t.hash, explorerUrl: safeUrl(t.explorerUrl) })),
       destinationTxs: (d?.destinationChainTxHashes ?? []).map((t) => ({ hash: t.hash, explorerUrl: safeUrl(t.explorerUrl) })),

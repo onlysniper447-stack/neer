@@ -1,11 +1,12 @@
 "use client";
 
-import { getChain } from "@neer/core";
+import { describePendingDeposit, getChain } from "@neer/core";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useServerNow } from "@/hooks/use-server-now";
 import { useMounted } from "@/hooks/use-mounted";
 import { formatClock } from "@/lib/format";
 import type { TrackBody } from "@/lib/server/track";
@@ -55,10 +56,15 @@ function TxLinks({ txs }: { txs: { hash: string; explorerUrl: string | null }[] 
   );
 }
 
-export function Tracker({ address, memo }: { address: string; memo: string | null }) {
+export function Tracker(props: { address: string; memo: string | null }) {
+  return <TrackerSession key={JSON.stringify([props.address, props.memo])} {...props} />;
+}
+
+function TrackerSession({ address, memo }: { address: string; memo: string | null }) {
   const mounted = useMounted();
   const [data, setData] = useState<TrackBody | null>(null);
-  const [problem, setProblem] = useState<{ kind: "not_found" | "unavailable" | "offline" | "limited"; message: string } | null>(null);
+  const [problem, setProblem] = useState<{ kind: "not_found" | "unavailable" | "offline" | "limited" | "unverified"; message: string } | null>(null);
+  const now = useServerNow(data?.serverTime ?? "");
   const [lastChecked, setLastChecked] = useState<string | null>(null);
 
   useEffect(() => {
@@ -67,14 +73,18 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
     const qs = new URLSearchParams({ address, ...(memo ? { memo } : {}) });
 
     let inFlight = false;
+    let controller: AbortController | undefined;
     async function poll() {
       if (inFlight || stopped) return;
       inFlight = true;
       if (timer) clearTimeout(timer);
       let next = document.visibilityState === "visible" ? VISIBLE_MS : HIDDEN_MS;
+      controller = new AbortController();
+      const timeout = setTimeout(() => controller?.abort(), 10_000);
       try {
-        const res = await fetch(`/api/v1/track?${qs.toString()}`, { cache: "no-store" });
+        const res = await fetch(`/api/v1/track?${qs.toString()}`, { cache: "no-store", signal: controller.signal });
         const json = (await res.json()) as TrackBody | ErrorBody;
+        if (stopped) return;
         if (res.ok && "status" in json) {
           setData(json);
           setProblem(null);
@@ -82,6 +92,10 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
           if (json.terminal) stopped = true;
         } else if (res.status === 404) {
           setProblem({ kind: "not_found", message: "We can't find this quote." });
+          stopped = true;
+        } else if (res.status === 422) {
+          setData(null);
+          setProblem({ kind: "unverified", message: "The returned quote could not be verified for this address and memo. Do not send." });
           stopped = true;
         } else if (res.status === 429) {
           setProblem({ kind: "limited", message: "Too many checks. We'll try again shortly." });
@@ -91,14 +105,17 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
           next = Math.max(next, 10_000);
         }
       } catch {
+        if (stopped) return;
         setProblem(
           navigator.onLine
             ? { kind: "unavailable", message: "Can't reach Neer right now. We'll keep trying." }
             : { kind: "offline", message: "You're offline. We'll check again when you're back." },
         );
         next = Math.max(next, 10_000);
+      } finally {
+        clearTimeout(timeout);
+        inFlight = false;
       }
-      inFlight = false;
       if (!stopped) timer = setTimeout(poll, next);
     }
 
@@ -110,17 +127,18 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
     window.addEventListener("online", wake);
     return () => {
       stopped = true;
+      controller?.abort();
       if (timer) clearTimeout(timer);
       document.removeEventListener("visibilitychange", wake);
       window.removeEventListener("online", wake);
     };
   }, [address, memo]);
 
-  if (problem?.kind === "not_found") {
+  if (problem?.kind === "not_found" || problem?.kind === "unverified") {
     return (
       <div className="max-w-2xl space-y-4" data-testid="tracker" data-status="NOT_FOUND">
         <TrackerHeader title="Deposit status" />
-        <VerdictCard tone="stop" label="Don't send" headline="We can't find this quote" message="Don't send yet. Copy the address again, or ask your swap app for a new quote.">
+        <VerdictCard tone="stop" label="Don't send" headline={problem.kind === "unverified" ? "Unconfirmed quote" : "We can't find this quote"} message={problem.kind === "unverified" ? problem.message : "Don't send yet. Copy the address again, or ask your swap app for a new quote."}>
           <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href="/track">Paste a different address</Link>
           </Button>
@@ -157,12 +175,16 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
   const q = data.quote;
   const tone = data.tone === "safe" ? "safe" : data.tone === "stop" ? "stop" : "check";
   const pending = data.status === "PENDING_DEPOSIT";
+  const pendingView = pending ? describePendingDeposit(q?.sendBefore ?? null, new Date(now)) : null;
+  const label = pendingView?.label ?? data.label;
+  const message = pendingView?.message ?? data.message;
+  const timeline = pendingView && pendingView.tone !== "neutral" ? data.timeline.map((step) => step.key === "deposit" ? { ...step, title: pendingView.label, tone: pendingView.tone } : step) : data.timeline;
   const checkHref = `/check?${new URLSearchParams({ address, ...(memo ? { memo } : {}) }).toString()}`;
 
   const detail = {
     deposit:
       pending && q?.sendBefore && mounted ? (
-        <span>Send before {formatClock(q.sendBefore)}</span>
+        <span>Deposit deadline {formatClock(q.sendBefore)}</span>
       ) : data.depositedAmountFormatted ? (
         <span>
           {data.depositedAmountFormatted} {q?.originSymbol ?? ""} received
@@ -200,11 +222,11 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
 
           <section className="rounded-2xl border border-line p-5 sm:p-6" aria-labelledby="status-label">
             <h2 id="status-label" className="text-xl font-semibold tracking-tight" aria-live="polite" data-testid="status-label">
-              {data.terminal ? "How it went" : data.label}
+              {data.terminal ? "How it went" : label}
             </h2>
-            {data.status !== "PROCESSING" && !data.terminal ? <p className="mt-1 text-muted">{data.message}</p> : null}
+            {data.status !== "PROCESSING" && !data.terminal ? <p className="mt-1 text-muted">{message}</p> : null}
             <div className="mt-5">
-              <StatusTimeline steps={data.timeline} detail={detail} />
+              <StatusTimeline steps={timeline} detail={detail} />
             </div>
           </section>
 
@@ -237,7 +259,7 @@ export function Tracker({ address, memo }: { address: string; memo: string | nul
           </div>
 
           <p className="text-xs leading-5 break-all text-muted" data-testid="last-checked">
-            {data.terminal ? "Final status. " : "Updates every 5 seconds while this tab is open. "}
+            {data.terminal ? "NEAR Intents reported a final status. " : "Checks about every 5 seconds when visible, less often when hidden or unavailable. "}
             {lastChecked && mounted ? `Last checked ${formatClock(lastChecked, true)}.` : ""}
             {q?.correlationId ? ` 1Click correlation ID ${q.correlationId}.` : ""}
           </p>

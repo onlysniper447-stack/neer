@@ -114,6 +114,28 @@ describe("trackService", () => {
     ]);
   });
 
+  it("shows expired pending quotes without a send instruction", async () => {
+    lookups.set(E2E_ADDRESSES.expired.toLowerCase(), () => found(makeStatus(arbUsdc(new Date(), { depositAddress: E2E_ADDRESSES.expired, requestDeadlineMin: -5 }), "PENDING_DEPOSIT", new Date())));
+    const r = await trackService(E2E_ADDRESSES.expired, null, "expired");
+    expect(r.status).toBe(200);
+    expect(r.body.label).toBe("Quote expired");
+    expect(r.body.message).toContain("Do not send");
+  });
+
+  it("rejects an altered signed quote even when upstream says SUCCESS", async () => {
+    const qr = arbUsdc(new Date(), { depositAddress: E2E_ADDRESSES.used });
+    qr.quote.amountIn = "1";
+    lookups.set(E2E_ADDRESSES.used.toLowerCase(), () => found(makeStatus(qr, "SUCCESS", new Date())));
+    const r = await trackService(E2E_ADDRESSES.used, null, "tampered");
+    expect(r.status).toBe(422);
+    expect("status" in r.body).toBe(false);
+  });
+
+  it("rejects a valid quote returned for a different lookup address", async () => {
+    lookups.set(E2E_ADDRESSES.used.toLowerCase(), () => found(makeStatus(arbUsdc(new Date()), "SUCCESS", new Date())));
+    expect((await trackService(E2E_ADDRESSES.used, null, "mismatch")).status).toBe(422);
+  });
+
   it("404 for unknown, 503 when 1Click is down", async () => {
     expect((await trackService(E2E_ADDRESSES.notFound, null, "r")).status).toBe(404);
     expect((await trackService(E2E_ADDRESSES.upstreamDown, null, "r")).status).toBe(503);

@@ -35,3 +35,11 @@ test("tracker keeps trying when 1Click is down", async ({ page }) => {
   await page.goto(`/track?address=${E2E_ADDRESSES.upstreamDown}`);
   await expect(page.getByText("Can't check right now. NEAR Intents didn't answer.")).toBeVisible();
 });
+
+test("expired pending quotes never invite another deposit", async ({ page }) => {
+  await page.goto(`/track?address=${E2E_ADDRESSES.expired}`);
+  await expect(page.getByTestId("tracker")).toHaveAttribute("data-status", "PENDING_DEPOSIT");
+  await expect(page.getByTestId("status-label")).toHaveText("Quote expired");
+  await expect(page.getByText(/The deposit deadline has passed\. Do not send another deposit/)).toBeVisible();
+  await expect(page.getByText("Send 5.0 USDC on Arbitrum to this address before the deadline.")).toHaveCount(0);
+});

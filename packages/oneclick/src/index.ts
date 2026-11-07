@@ -28,6 +28,7 @@ export type QuoteResult =
 type Raw =
   | { kind: "ok"; status: number; body: unknown }
   | { kind: "http"; status: number; body: unknown }
+  | { kind: "invalid_response" }
   | { kind: "timeout" }
   | { kind: "network"; detail: string };
 
@@ -53,9 +54,27 @@ export class OneClickClient {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const res = await this.fetchImpl(`${this.baseUrl}${path}`, { ...init, headers, signal: controller.signal, cache: "no-store" });
+      const res = await this.fetchImpl(`${this.baseUrl}${path}`, { ...init, headers, signal: controller.signal, cache: "no-store", redirect: "error" });
       let body: unknown = null;
-      const text = await res.text();
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder("utf-8", { fatal: true });
+      let text = "";
+      let bytes = 0;
+      try {
+        while (reader) {
+          const part = await reader.read();
+          if (part.done) break;
+          bytes += part.value.byteLength;
+          if (bytes > 2 * 1024 * 1024) {
+            await reader.cancel();
+            return { kind: "invalid_response" };
+          }
+          text += decoder.decode(part.value, { stream: true });
+        }
+        text += decoder.decode();
+      } finally {
+        reader?.releaseLock();
+      }
       if (text) {
         try {
           body = JSON.parse(text);
@@ -78,6 +97,7 @@ export class OneClickClient {
     if (depositMemo) qs.set("depositMemo", depositMemo);
     const raw = await this.request(`/v0/status?${qs.toString()}`);
     if (raw.kind === "timeout") return { kind: "error", reason: "timeout" };
+    if (raw.kind === "invalid_response") return { kind: "error", reason: "invalid_response" };
     if (raw.kind === "network") return { kind: "error", reason: "network", detail: raw.detail };
     if (raw.kind === "http") {
       if (raw.status === 404) return { kind: "not_found" };
@@ -94,7 +114,7 @@ export class OneClickClient {
   /** GET /v0/tokens. */
   async getTokens(): Promise<TokensResult> {
     const raw = await this.request("/v0/tokens");
-    if (raw.kind === "timeout" || raw.kind === "network") return { ok: false, reason: raw.kind };
+    if (raw.kind === "timeout" || raw.kind === "network" || raw.kind === "invalid_response") return { ok: false, reason: raw.kind };
     if (raw.kind === "http") return { ok: false, reason: "bad_status" };
     const parsed = TokenListSchema.safeParse(raw.body);
     if (!parsed.success) return { ok: false, reason: "invalid_response" };
@@ -111,7 +131,7 @@ export class OneClickClient {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (raw.kind === "timeout" || raw.kind === "network") return { ok: false, reason: raw.kind };
+    if (raw.kind === "timeout" || raw.kind === "network" || raw.kind === "invalid_response") return { ok: false, reason: raw.kind };
     if (raw.kind === "http") {
       const msg = ErrorBodySchema.safeParse(raw.body);
       return { ok: false, reason: "bad_status", status: raw.status, message: msg.success ? msg.data.message : undefined };

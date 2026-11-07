@@ -130,8 +130,8 @@ function validateXrp(raw: string): AddressValidation {
 
 function validateTon(raw: string): AddressValidation {
   const rawForm = /^(-?\d+):([0-9a-fA-F]{64})$/.exec(raw);
-  if (rawForm) {
-    return { status: "valid", family: "ton", normalized: `${rawForm[1]}:${rawForm[2]!.toLowerCase()}` };
+  if (rawForm && Number(rawForm[1]) >= -128 && Number(rawForm[1]) <= 127) {
+    return { status: "valid", family: "ton", normalized: `${Number(rawForm[1])}:${rawForm[2]!.toLowerCase()}` };
   }
   const fail: AddressValidation = { status: "invalid", family: "ton", reason: "not a valid TON address" };
   if (raw.length !== 48) return fail;
@@ -141,9 +141,9 @@ function validateTon(raw: string): AddressValidation {
   if (!bytes || bytes.length !== 36) return fail;
   const crc = crc16xmodem(bytes.slice(0, 34));
   if (bytes[34] !== crc >> 8 || bytes[35] !== (crc & 0xff)) return fail;
-  const flags = bytes[0]! & 0x7f; // strip test-only bit
+  const flags = bytes[0]!; // Test-only flags are not mainnet deposit addresses.
   if (flags !== 0x11 && flags !== 0x51) return fail;
-  const wc = bytes[1] === 0xff ? -1 : bytes[1]!;
+  const wc = bytes[1]! >= 128 ? bytes[1]! - 256 : bytes[1]!;
   const hash = Array.from(bytes.slice(2, 34), (b) => b.toString(16).padStart(2, "0")).join("");
   return { status: "valid", family: "ton", normalized: `${wc}:${hash}` };
 }
@@ -162,8 +162,15 @@ function validateBtc(raw: string): AddressValidation {
       if (dec && dec.length > 0) {
         const version = dec[0]!;
         // v0 must be bech32, v1+ must be bech32m (BIP-350)
-        if ((version === 0) === (codec === bech32)) {
-          return { status: "valid", family: "btc", normalized: lower };
+        try {
+          const program = codec.fromWords([...dec.slice(1)]);
+          if (version > 16 || program.length < 2 || program.length > 40) continue;
+          if (version === 0 && program.length !== 20 && program.length !== 32) continue;
+          if ((version === 0) === (codec === bech32)) {
+            return { status: "valid", family: "btc", normalized: lower };
+          }
+        } catch {
+          // Invalid bit padding is not a witness program.
         }
       }
     }

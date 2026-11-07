@@ -50,11 +50,11 @@ export interface CheckResult {
 }
 
 const hex = z.string().regex(/^0x[0-9a-fA-F]*$/, "expected 0x-prefixed hex");
-const baseUnits = z.string().regex(/^\d+$/, "expected an integer string in base units");
+const baseUnits = z.string().max(256).regex(/^\d+$/, "expected an integer string in base units");
 
 /** A draft EVM transaction, as a wallet would show it before signing. Optional. */
 export const DraftTxSchema = z.object({
-  to: z.string().min(1).max(128),
+  to: z.string().regex(/^0x[0-9a-fA-F]{40}$/, "expected an EVM address"),
   data: hex.max(20_000).optional(),
   value: baseUnits.optional(),
   chainId: z.number().int().positive().optional(),
