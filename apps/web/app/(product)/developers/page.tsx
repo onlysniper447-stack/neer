@@ -232,6 +232,12 @@ export default async function DevelopersPage() {
               <code className="font-mono text-sm text-ink">content-type</code> header, exposed <code className="font-mono text-sm text-ink">X-Request-Id</code> and{" "}
               <code className="font-mono text-sm text-ink">Retry-After</code>, and a 10-minute preflight cache.
             </p>
+            <p className="mt-4 text-muted">
+              Preflight supports POST and OPTIONS; track supports GET and OPTIONS. TRACE is unsupported, including on the <code className="font-mono text-sm text-ink">/v1/*</code> aliases.
+              The framework or hosting provider may reject TRACE before Neer&apos;s route code runs. For those responses, do not rely on a particular status code or JSON error body, or on application headers such as{" "}
+              <code className="font-mono text-sm text-ink">X-Request-Id</code>, CORS, <code className="font-mono text-sm text-ink">Allow</code> or an API-version header.
+              Local Next.js can return 500 rather than an application 405; a local result does not establish production behavior.
+            </p>
             <CodeBlock className="mt-4" code={"NEER_CORS_ORIGINS=https://wallet.example,https://app.example"} title=".env" />
           </Section>
 
