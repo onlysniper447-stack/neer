@@ -18,3 +18,15 @@ describe("available tools", () => {
     expect(descriptions.every((text) => text.split(/\s+/).length < 30)).toBe(true);
   });
 });
+
+it("tracker entry points describe reports and include failure rather than promise delivery", () => {
+  const page = readFileSync(new URL("../app/(product)/track/page.tsx", import.meta.url), "utf8");
+  const entry = readFileSync(new URL("../components/deposit-start.tsx", import.meta.url), "utf8");
+  const readme = readFileSync(new URL("../../../README.md", import.meta.url), "utf8");
+  for (const copy of [page, entry, readme]) {
+    expect(copy).not.toMatch(/until.*delivered or refunded/);
+    expect(copy).toContain("failure");
+    expect(copy).toContain("does not independently confirm");
+  }
+  expect(page).toContain("status reported by NEAR Intents");
+});

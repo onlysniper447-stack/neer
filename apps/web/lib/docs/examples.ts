@@ -7,9 +7,10 @@ import track from "./examples/track.json";
 import trackBadRequest from "./examples/track-400.json";
 
 /**
- * Real responses captured from this API running against the live 1Click API on
+ * Quote examples captured from this API running against the live 1Click API on
  * 2026-10-27 (a fresh 5 USDC Arbitrum -> Solana quote; nothing was sent). A
- * unit test keeps their shape in sync with the service.
+ * unit test keeps their shape in sync with the service. Error examples reflect
+ * current input validation.
  */
 export const EXAMPLES = { safe, block, badRequest, notFound, unsupported, track, trackBadRequest };
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MemoSchema, PastedAddressSchema } from "@/lib/inputs";
+import { MemoSchema, PastedAddressSchema, TrackQuerySchema } from "@/lib/inputs";
 
 describe("PastedAddressSchema", () => {
   it.each([
@@ -39,5 +39,13 @@ describe("MemoSchema", () => {
     expect(MemoSchema.safeParse("42 07").success).toBe(false);
     expect(MemoSchema.safeParse("42\u000a07").success).toBe(false);
     expect(MemoSchema.safeParse("４２").success).toBe(false);
+  });
+});
+
+describe("missing tracker addresses", () => {
+  it.each([undefined, "", "   ", "\n\t"])("returns only a required-address issue for %s", (address) => {
+    const result = TrackQuerySchema.safeParse({ address });
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.issues.map((i) => ({ path: i.path.join("."), message: i.message }))).toEqual([{ path: "address", message: "Paste the full deposit address" }]);
   });
 });

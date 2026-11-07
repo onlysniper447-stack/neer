@@ -6,12 +6,13 @@ import { z } from "zod";
  * hidden characters or other punctuation is refused instead of "cleaned up".
  */
 export const PastedAddressSchema = z
-  .string()
+  .string({ error: "Paste the full deposit address" })
   .trim()
   .min(3, "Paste the full deposit address")
   .max(128, "That's longer than any deposit address")
-  .refine((v) => !v.includes("://"), "That's a link, not a deposit address. Copy the address itself from your swap app.")
-  .regex(/^[A-Za-z0-9:_\-.+/=]+$/, "This contains characters a deposit address never has. Copy it again from your swap app.");
+  .pipe(z.string()
+    .refine((v) => !v.includes("://"), "That's a link, not a deposit address. Copy the address itself from your swap app.")
+    .regex(/^[A-Za-z0-9:_\-.+/=]+$/, "This contains characters a deposit address never has. Copy it again from your swap app."));
 
 export const MemoSchema = z
   .string()

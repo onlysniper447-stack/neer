@@ -122,7 +122,7 @@ export default async function DepositStart() {
         <Link href="/track" className="group rounded-xl border border-line p-6 transition-colors hover:border-brand/50 hover:bg-surface">
           <Radar className="size-6 text-brand" aria-hidden="true" />
           <p className="mt-3 text-lg font-semibold">Already sent? Track it</p>
-          <p className="mt-1 text-muted">Follow a deposit until it&apos;s delivered or refunded, in plain English.</p>
+          <p className="mt-1 text-muted">Review NEAR Intents reports of progress, completion, refunds or failures. Neer does not independently confirm transfers.</p>
           <span className="mt-3 inline-flex items-center gap-1 font-medium text-brand">
             Open the swap tracker <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </span>

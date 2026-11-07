@@ -7,10 +7,6 @@
       {
         "path": "address",
         "message": "Paste the full deposit address"
-      },
-      {
-        "path": "address",
-        "message": "This contains characters a deposit address never has. Copy it again from your swap app."
       }
     ]
   }

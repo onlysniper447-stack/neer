@@ -8,7 +8,7 @@ import { MemoSchema, PastedAddressSchema } from "@/lib/inputs";
 import { first, type SearchParams } from "@/lib/search-params";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Swap tracker", description: "Follow a NEAR Intents deposit until it's delivered or refunded." };
+export const metadata: Metadata = { title: "Swap tracker", description: "Review NEAR Intents reports of deposit progress, completion, refund or failure. Neer does not independently confirm transfers." };
 export const dynamic = "force-dynamic";
 
 const STATUS_ORDER = ["PENDING_DEPOSIT", "KNOWN_DEPOSIT_TX", "PROCESSING", "SUCCESS", "INCOMPLETE_DEPOSIT", "REFUNDED", "FAILED"] as const;
@@ -49,7 +49,7 @@ export default async function TrackPage({ searchParams }: { searchParams: Search
     return (
       <>
         <PageHeader eyebrow="Tools" title="Swap tracker">
-          Paste the deposit address you sent to. Neer follows it until the swap is delivered or refunded, and explains each step in plain English.
+          Review status reported by NEAR Intents: waiting, processing, completion, refund or failure. Neer does not independently confirm delivery or refunds.
         </PageHeader>
         <TrackForm />
       </>

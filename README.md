@@ -6,7 +6,7 @@ Paste the deposit address from your swap app, say how you'll send (network,
 token, amount, wallet or exchange) and Neer compares that with the quote 1Click
 signed for that address. You get one of three answers, **Safe to send**,
 **Check this** or **Don't send**, with the reason and a fix. After you
-send, the tracker follows the deposit until it's delivered or refunded.
+send, the tracker displays NEAR Intents reports of progress, completion, refund or failure. It does not independently confirm delivery or refunds.
 
 Neer only reads public 1Click data. It never asks for a seed phrase, never
 connects a wallet, never signs and never sends anything.
