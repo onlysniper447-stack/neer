@@ -1,0 +1,341 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`verifier HTTP behavior snapshot > 400: deferred quoteId 1`] = `
+{
+  "body": {
+    "details": [
+      {
+        "message": "Unsupported fields are not accepted.",
+        "path": "",
+      },
+    ],
+    "error": "invalid_input",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 400,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > 400: invalid JSON 1`] = `
+{
+  "body": {
+    "details": [
+      {
+        "message": "Request body must be valid UTF-8 JSON.",
+        "path": "",
+      },
+    ],
+    "error": "invalid_input",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 400,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > 400: oversized body 1`] = `
+{
+  "body": {
+    "details": [
+      {
+        "message": "Request body is too large.",
+        "path": "",
+      },
+    ],
+    "error": "invalid_input",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 400,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > 400: unknown key 1`] = `
+{
+  "body": {
+    "details": [
+      {
+        "message": "Unsupported fields are not accepted.",
+        "path": "",
+      },
+    ],
+    "error": "invalid_input",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 400,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > 405 GET 1`] = `
+{
+  "body": {
+    "error": "method_not_allowed",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "allow": "POST, OPTIONS",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 405,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > 405 PUT 1`] = `
+{
+  "body": {
+    "error": "method_not_allowed",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "allow": "POST, OPTIONS",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 405,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > OPTIONS preflight 1`] = `
+{
+  "body": "",
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 204,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > block: network mismatch 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [
+      {
+        "code": "NETWORK_MISMATCH",
+        "fix": "Switch to expected network.",
+        "message": "Wrong network. This address is for Ethereum. You chose Base. Funds sent on Base won't be swapped automatically.",
+        "severity": "block",
+      },
+    ],
+    "quote": {
+      "amount": "5",
+      "expiresAt": "2026-11-07T16:30:00.000Z",
+      "minimumAmount": "5",
+      "network": "eth",
+      "swapType": "EXACT_INPUT",
+      "token": "nep141:fake-usdc.omft.near",
+      "verified": true,
+    },
+    "status": "block",
+    "version": "1.0.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 200,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > keeps the public exports 1`] = `
+[
+  "FINDING_CODES",
+  "VERIFY_VERSION",
+  "VerifyInputError",
+  "VerifyInputSchema",
+  "createQuoteFetcher",
+  "verifyDeposit",
+  "verifyDepositWithLegacy",
+  "verifyLegacyPreflight",
+]
+`;
+
+exports[`verifier HTTP behavior snapshot > keeps the public exports 2`] = `"1.0.0"`;
+
+exports[`verifier HTTP behavior snapshot > pass 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [],
+    "quote": {
+      "amount": "5",
+      "expiresAt": "2026-11-07T16:30:00.000Z",
+      "minimumAmount": "5",
+      "network": "eth",
+      "swapType": "EXACT_INPUT",
+      "token": "nep141:fake-usdc.omft.near",
+      "verified": true,
+    },
+    "status": "pass",
+    "version": "1.0.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 200,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > rate limit returns 429 after the verify bucket is exhausted 1`] = `
+{
+  "body": {
+    "error": "rate_limited",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "retry-after": "60",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 429,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > upstream unavailable stays a 200 block 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [
+      {
+        "code": "QUOTE_UNAVAILABLE",
+        "fix": "Wait and retry before sending.",
+        "message": "NEAR Intents didn't answer. Wait a minute and try again before you send.",
+        "severity": "block",
+      },
+    ],
+    "quote": null,
+    "status": "block",
+    "version": "1.0.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 200,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > warn: source missing 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [
+      {
+        "code": "SOURCE_UNKNOWN",
+        "fix": "Say wallet or exchange.",
+        "message": "Tell us if you're sending from your own wallet or from an exchange.",
+        "severity": "warn",
+      },
+    ],
+    "quote": {
+      "amount": "5",
+      "expiresAt": "2026-11-07T16:30:00.000Z",
+      "minimumAmount": "5",
+      "network": "eth",
+      "swapType": "EXACT_INPUT",
+      "token": "nep141:fake-usdc.omft.near",
+      "verified": true,
+    },
+    "status": "warn",
+    "version": "1.0.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.0.0",
+  },
+  "status": 200,
+}
+`;
