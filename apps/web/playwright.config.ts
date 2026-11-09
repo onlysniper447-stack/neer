@@ -3,10 +3,12 @@ import { TEST_PUBLIC_KEY } from "@neer/fixtures/scenarios";
 
 const MOCK_PORT = 4010;
 const APP_PORT = 3100;
+const RHEA_MOCK_PORT = 4011;
 
 /**
  * Runs the production build (`next build` first) against a local mock of the
- * 1Click API. Nothing here talks to the real 1Click service.
+ * 1Click API and a local mock of the RHEA API. Nothing here talks to the real
+ * 1Click or RHEA services.
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -19,7 +21,7 @@ export default defineConfig({
   use: { baseURL: `http://127.0.0.1:${APP_PORT}`, trace: "retain-on-failure" },
   projects: [
     { name: "e2e", testIgnore: /screenshots\.spec\.ts/, use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", testMatch: /(homepage|paste-flow|nav|pages)\.spec\.ts/, use: { ...devices["Pixel 7"] } },
+    { name: "mobile", testMatch: /(homepage|paste-flow|nav|pages|rhea-route)\.spec\.ts/, use: { ...devices["Pixel 7"] } },
     { name: "screenshots", testMatch: /screenshots\.spec\.ts/ },
   ],
   webServer: [
@@ -31,6 +33,13 @@ export default defineConfig({
       stdout: "ignore",
     },
     {
+      command: `tsx e2e/mock-rhea.ts`,
+      url: `http://127.0.0.1:${RHEA_MOCK_PORT}/__calls`,
+      env: { RHEA_MOCK_PORT: String(RHEA_MOCK_PORT) },
+      reuseExistingServer: false,
+      stdout: "ignore",
+    },
+    {
       command: `next start --port ${APP_PORT} --hostname 127.0.0.1`,
       url: `http://127.0.0.1:${APP_PORT}/`,
       env: {
@@ -38,6 +47,8 @@ export default defineConfig({
         NEER_TEST_QUOTE_PUBKEY: TEST_PUBLIC_KEY,
         NEER_DISABLE_RATE_LIMIT: "1",
         NEER_CORS_ORIGINS: "https://wallet.example",
+        NEER_TEST_RHEA_UPSTREAM: `http://127.0.0.1:${RHEA_MOCK_PORT}`,
+        RHEA_API_KEY: "fake-e2e-key",
         UPSTASH_REDIS_REST_URL: "",
         UPSTASH_REDIS_REST_TOKEN: "",
       },

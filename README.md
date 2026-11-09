@@ -54,7 +54,7 @@ focus trap, Esc closes, focus returns to the button) with four sections:
 
 | Section | Path | What's there |
 | --- | --- | --- |
-| Tools | `/tools` | The three working tools. Deposit preflight (`/` then `/check`), swap tracker (`/track`, paste an address, then `/track?address=…`), address checker (`/tools/address`: networks an address is valid on, checksum, canonical form, lookalike compare; runs in the browser with `@neer/core`). Only implemented tools are listed. |
+| Tools | `/tools` | The four working tools. Deposit preflight (`/` then `/check`), swap tracker (`/track`, paste an address, then `/track?address=…`), address checker (`/tools/address`: networks an address is valid on, checksum, canonical form, lookalike compare; runs in the browser with `@neer/core`), RHEA route estimate (`/tools/rhea-route`, see below). Only implemented tools are listed. |
 | Analytics | `/analytics` | Live network and token counts from 1Click `/v0/tokens` (server cache, 5 min), every network with its token count, whether Neer validates its addresses, its minimum and confirm budget; the minimums Neer enforces with their sources; the rules catalog with severities. Optional local-only counts of this browser's checks (localStorage, verdicts and networks only, with a Clear button). No invented numbers: if 1Click doesn't answer, the page says so. |
 | API | `/developers` | Docs for `POST /api/v1/preflight` and `GET /api/v1/track` with real responses captured from the live API (`apps/web/lib/docs/examples`, kept in sync by a unit test), error codes, rate limits, CORS, `<NeerGuard/>`, copy buttons and a try-it form that calls this deployment. |
 | Resources | `/resources` | How Neer works, the three answers, every check and status in plain English, safety tips, FAQ, and links to the NEAR Intents docs, explorer, NEAR support and terms, and near/intents#382. |
@@ -64,6 +64,26 @@ on `/check` the verdict and checks sit beside the countdown, deposit address and
 quote details; the tracker does the same. Loading states are skeletons shaped
 like the page. Motion is limited to short fades and the drawer slide, and is
 switched off with `prefers-reduced-motion`.
+
+### RHEA route estimate (read-only)
+
+`/tools/rhea-route` asks the RHEA Cross-Chain Swap API for an estimate (router,
+estimated output, minimum output), then links to Neer's existing `/check` with
+`network`, `token` and `amount` filled in and the deposit address left blank.
+The deposit address comes from RHEA's own app (x.rhea.finance). Neer never
+builds, signs, submits or reports a swap.
+
+- Server routes, same-origin only (no CORS headers): `GET /api/v1/rhea/tokens?direction=from|to&chain=<RHEA chain ID>`
+  (RHEA's public token lists, no key, cached 10 min) and `POST /api/v1/rhea/quote` (needs `RHEA_API_KEY` on the server;
+  without it the route returns 503 `RHEA_NOT_CONFIGURED` and makes no RHEA call).
+- Upstream paths are limited to `/get_chain_prices`, `/api/swap/supported_to_tokens` and `/api/v2/swap/quote`
+  (per [CrossChainDexAPI.md](https://github.com/rhea-finance/rhea-sdk-docs/blob/main/CrossChainDexAPI.md)), 8 s timeout,
+  plain HTTP (no RHEA SDK dependency), no remote logos, no CSP change.
+- Own rate limits (quotes 20/min/IP, token lists 60/min/IP), 4 KiB body limit.
+- A quote needs the user's public source address (`sender`); Neer never fills one in. A Neer check is offered only for
+  `nearintents` / `preswap-nearintents` routes whose token matches the NEAR Intents token list.
+- `/api/v1/verify`, `@neer/verify` and `@neer/mcp-verify` are unchanged; `apps/web/test/contract` pins their sources and
+  HTTP behavior to production commit 26b01b1.
 
 ## Layout
 

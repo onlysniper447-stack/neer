@@ -18,13 +18,18 @@ import { chainLabel, loadCheckPage } from "@/lib/server/service";
 import { first, type SearchParams } from "@/lib/search-params";
 
 export const metadata: Metadata = { title: "Preflight", robots: { index: false } };
+const ADDRESS_NEEDED = "Paste the deposit address from your swap app into Deposit address, review the other details, then run checks.";
 export const dynamic = "force-dynamic";
 
 export default async function CheckPage({ searchParams }: { searchParams: SearchParams }) {
   const sp = await searchParams;
   const link = parseCheckQuery(sp);
   if (link.kind === "empty") return <DepositStart />;
-  if (link.kind === "invalid") return <DeepLinkCheck key={JSON.stringify(link.draft)} draft={link.draft} error={link.message} />;
+  if (link.kind === "invalid") {
+    // A link that is valid except for a missing deposit address (e.g. from the RHEA route tool) asks for the address instead of calling the link invalid.
+    const onlyAddressMissing = sp.address === undefined && parseCheckQuery({ ...sp, address: "address-check.near" }).kind === "verify";
+    return <DeepLinkCheck key={JSON.stringify(link.draft)} draft={link.draft} error={onlyAddressMissing ? ADDRESS_NEEDED : link.message} />;
+  }
   if (link.kind === "verify") {
     const draft = verificationDraft(link.input);
     const limit = await rateLimit("check-page", clientIp(await headers()));

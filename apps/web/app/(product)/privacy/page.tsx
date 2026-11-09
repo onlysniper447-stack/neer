@@ -19,6 +19,12 @@ export default function PrivacyPage() {
         <p>Addresses and memos also appear in check and tracker URLs. Browser history and hosting or upstream request logs may retain those URLs.</p>
         <p>Hosting and upstream providers may keep request logs. This page does not specify their retention periods.</p>
       </section>
+      <section className="space-y-3" aria-labelledby="rhea-data">
+        <h2 id="rhea-data" className="text-xl font-semibold">The RHEA route estimate sends route details to RHEA.</h2>
+        <p>When you request an estimate, Neer&apos;s server sends the chains, tokens, amount, slippage limit and the public addresses you entered to the RHEA Finance API.</p>
+        <p>Token lists for that page are also loaded from RHEA through Neer&apos;s server and cached in server memory for up to ten minutes.</p>
+        <p>Neer does not store these details. RHEA may keep its own request logs. This page does not specify RHEA&apos;s retention periods.</p>
+      </section>
       <section className="space-y-3" aria-labelledby="browser-data">
         <h2 id="browser-data" className="text-xl font-semibold">Your browser keeps local statistics and your theme preference.</h2>
         <p>Statistics in localStorage contain verdict counts, network IDs, and first and latest check times, not deposit addresses, amounts or quotes.</p>

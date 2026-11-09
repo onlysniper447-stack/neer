@@ -4,6 +4,8 @@ export interface NavLink {
   title: string;
   href: string;
   description: string;
+  /** Menu-only links are left out of the footer. */
+  menuOnly?: boolean;
 }
 
 export interface NavSection extends NavLink {
@@ -22,6 +24,7 @@ export const NAV: NavSection[] = [
       { title: "Deposit preflight", href: "/check", description: "Check a deposit before you send" },
       { title: "Swap tracker", href: "/track", description: "Follow a deposit until it lands" },
       { title: "Address checker", href: "/tools/address", description: "Validate an address and its checksum" },
+      { title: "RHEA route estimate", href: "/tools/rhea-route", description: "Compare a RHEA estimate, then check the deposit", menuOnly: true },
     ],
   },
   {

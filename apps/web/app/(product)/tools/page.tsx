@@ -1,9 +1,9 @@
-import { ArrowRight, Fingerprint, Radar, ShieldCheck } from "lucide-react";
+import { ArrowRight, Fingerprint, Radar, Route, ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 
-export const metadata: Metadata = { title: "Tools", description: "Neer's deposit preflight, swap tracker and address checker." };
+export const metadata: Metadata = { title: "Tools", description: "Neer's deposit preflight, swap tracker, address checker and RHEA route estimate." };
 
 const TOOLS = [
   {
@@ -26,6 +26,13 @@ const TOOLS = [
     title: "Address checker",
     text: "Check supported address formats and available checksums, or compare two addresses. A format match does not prove the network, ownership or account existence.",
     cta: "Check an address",
+  },
+  {
+    href: "/tools/rhea-route",
+    Icon: Route,
+    title: "RHEA route estimate",
+    text: "Request a swap estimate from RHEA's cross-chain API, then check the deposit address in Neer before you send. Estimates can change or expire.",
+    cta: "Compare a RHEA route",
   },
 ] as const;
 

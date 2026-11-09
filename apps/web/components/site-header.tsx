@@ -48,7 +48,7 @@ export function SiteFooter() {
         <nav aria-label="Footer: tools" className="text-sm">
           <h2 className="mb-2 font-semibold text-ink">Tools</h2>
           <ul className="space-y-1">
-            {NAV[0]!.links.map((l) => (
+            {NAV[0]!.links.filter((l) => !l.menuOnly).map((l) => (
               <li key={l.href}>
                 <Link className={linkCls} href={l.href}>
                   {l.title}
