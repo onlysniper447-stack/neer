@@ -67,23 +67,47 @@ switched off with `prefers-reduced-motion`.
 
 ### RHEA route estimate (read-only)
 
-`/tools/rhea-route` asks the RHEA Cross-Chain Swap API for an estimate (router,
-estimated output, minimum output), then links to Neer's existing `/check` with
-`network`, `token` and `amount` filled in and the deposit address left blank.
-The deposit address comes from RHEA's own app (x.rhea.finance). Neer never
-builds, signs, submits or reports a swap.
+`/tools/rhea-route` asks the [RHEA Finance](https://rhea.finance) Cross-Chain Swap API for a
+quote estimate: router, estimated output and minimum output. When RHEA picks a NEAR Intents route
+(`nearintents` or `preswap-nearintents`) and the input token is on the NEAR Intents token list,
+the page links to Neer's `/check` with `network`, `token` and `amount` filled in and the deposit
+address left blank. For other routes (for example LI.FI) it says that a Neer check does not apply.
 
-- Server routes, same-origin only (no CORS headers): `GET /api/v1/rhea/tokens?direction=from|to&chain=<RHEA chain ID>`
-  (RHEA's public token lists, no key, cached 10 min) and `POST /api/v1/rhea/quote` (needs `RHEA_API_KEY` on the server;
-  without it the route returns 503 `RHEA_NOT_CONFIGURED` and makes no RHEA call).
-- Upstream paths are limited to `/get_chain_prices`, `/api/swap/supported_to_tokens` and `/api/v2/swap/quote`
-  (per [CrossChainDexAPI.md](https://github.com/rhea-finance/rhea-sdk-docs/blob/main/CrossChainDexAPI.md)), 8 s timeout,
-  plain HTTP (no RHEA SDK dependency), no remote logos, no CSP change.
-- Own rate limits (quotes 20/min/IP, token lists 60/min/IP), 4 KiB body limit.
-- A quote needs the user's public source address (`sender`); Neer never fills one in. A Neer check is offered only for
-  `nearintents` / `preswap-nearintents` routes whose token matches the NEAR Intents token list.
-- `/api/v1/verify`, `@neer/verify` and `@neer/mcp-verify` are unchanged; `apps/web/test/contract` pins their sources and
-  HTTP behavior to production commit 26b01b1.
+Neer does not connect a wallet, sign, send, build, submit or report a swap. It only requests
+quotes. The deposit address comes from RHEA's own app (x.rhea.finance): request the same swap
+there, then paste its deposit address into `/check` before sending anything.
+
+- **API key.** Quotes need `RHEA_API_KEY` set on the server (see `apps/web/.env.example`; the
+  key is a Bearer token from RHEA). It is read at request time, never sent to the browser and
+  not stored in this repository. Without it, token lists still load and `POST /api/v1/rhea/quote`
+  returns 503 `RHEA_NOT_CONFIGURED` without calling RHEA.
+- **RHEA endpoints used** (base `https://api.rhea.finance`, per
+  [CrossChainDexAPI.md](https://github.com/rhea-finance/rhea-sdk-docs/blob/main/CrossChainDexAPI.md)):
+  `GET /get_chain_prices` and `GET /api/swap/supported_to_tokens` (public token lists, no key,
+  cached 10 min) and `POST /api/v2/swap/quote` (key required). No other RHEA path is allowed by
+  the client. Plain HTTP, no RHEA SDK dependency.
+- **Neer routes**, same-origin only (no CORS headers; cross-origin requests get 403):
+  `GET /api/v1/rhea/tokens?direction=from|to&chain=<RHEA chain ID>` and `POST /api/v1/rhea/quote`.
+  Own rate limits (quotes 20/min/IP, token lists 60/min/IP), 4 KiB body limit.
+- **Timeouts.** Token lists time out after 8 s and quotes after 12 s. Neer asks RHEA to wait up
+  to 8 s for providers (6 s per cross-chain provider, RHEA's maximum).
+- **Privacy.** A quote needs your public source address (`sender`); Neer never fills one in. The
+  source address, the optional destination address, the tokens and the amount are sent to RHEA
+  with the request. Never enter a seed phrase or private key. See `/privacy`.
+- `/api/v1/verify`, `@neer/verify` and `@neer/mcp-verify` are unchanged; `apps/web/test/contract`
+  pins their sources and HTTP behavior to production commit 26b01b1.
+
+Known limits:
+
+- RHEA quotes take several seconds and can fail. In testing on 10 Nov 2026, quotes took about
+  6–8 s, and RHEA's NEAR Intents provider often timed out ("quote transport timeout"). Neer then
+  shows "RHEA's route providers did not return a quote in time" with RHEA's retry hint.
+- A quote has no deposit address. Whether a given RHEA deposit address passes Neer's checks is
+  only known after you paste it into `/check`.
+- Estimates can change or expire before you swap. The minimum output reflects the slippage limit
+  you picked.
+
+Independent project, not affiliated with NEAR Foundation or RHEA Finance.
 
 ## Layout
 
@@ -215,6 +239,9 @@ verify quote signatures or inspect the eventual wallet transaction.
 
 ## Security
 
+To report a vulnerability, see [SECURITY.md](SECURITY.md). Neer never asks for a seed
+phrase or private key.
+
 - CSP with a per-request nonce (`proxy.ts`), `strict-dynamic`, `frame-ancestors 'none'`,
   `object-src 'none'`, `base-uri 'none'`, `form-action 'self'`. API responses use
   `default-src 'none'`.
@@ -246,6 +273,12 @@ verify quote signatures or inspect the eventual wallet transaction.
 
 `pnpm test` does not run browser tests. Run `pnpm e2e` separately after a production
 build; unit and HTTP checks do not prove browser accessibility or rendering.
+
+CI (`.github/workflows/ci.yml`) runs on every push and pull request with Node 22.12 and
+pnpm 10.34.9: `pnpm install --frozen-lockfile`, then `pnpm typecheck`, `pnpm lint`,
+`pnpm test` and `pnpm build`. It uses no secrets; the RHEA and 1Click tests use local mocks.
+Playwright is not run in CI yet because `e2e/pages.spec.ts` still expects a "Refund helper"
+item that `/tools` does not have.
 
 The e2e suite runs the production build against `apps/web/e2e/mock-1click.ts`,
 which serves the recorded token list and `/v0/status` bodies shaped like the
@@ -311,3 +344,8 @@ menu; serious and critical violations fail the test.
   non-memo chain fails with "Incorrect depositMode".
 - Dry quotes are signed over the amount fields only (no deposit address), as
   in the SDK.
+
+## License
+
+[MIT](LICENSE), copyright 2026 Yusuf Habib, for the whole repository.
+`packages/mcp-verify` keeps its own MIT notice ([LICENSE](packages/mcp-verify/LICENSE)).

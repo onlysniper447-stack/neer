@@ -79,4 +79,4 @@ In this checkout, `docs/api.md`, `docs/findings.md`, `docs/limits.md` and `docs/
 
 ## License scope
 
-[MIT](LICENSE) applies to this new package only, as explicitly approved. The notice uses repository owner handle `onlysniper447-stack` (also corroborated by the repository author identity) and the actual package creation year 2026; it does not invent a legal personal name. No root repository license or other component's license is selected or changed.
+[MIT](LICENSE). The notice in this package uses the repository owner handle `onlysniper447-stack` and the year 2026. The rest of the repository is also MIT ([root LICENSE](../../LICENSE)).
