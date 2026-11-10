@@ -7,7 +7,7 @@ This policy describes the prepared **1.0.0 verification contract**, currently lo
 - `VERIFY_VERSION` in [types.ts](../packages/verify/src/types.ts) is the single runtime verification-contract constant, currently `1.0.0`. Results, the version response header, OpenAPI and finding introduced versions must agree with the relevant contract release.
 - The URL namespace `/api/v1/verify` (also `/v1/verify`) identifies the API major version. Minor/patch contract versions keep that namespace. A breaking API major requires an explicitly reviewed new namespace and migration plan, not a silent change to v1.
 - Workspace package manifests currently use `0.1.0`, including `@neer/verify`; they are not evidence that a 1.0.0 npm package was published. A later package release must deliberately synchronize/document its relationship to the contract. No package version is bumped by this documentation phase.
-- `DEFAULT_RULES.version` is currently `2026.11.1`. This dated rule snapshot and its `checkedAt` freshness metadata are distinct from semantic contract versions and quote deadlines. A rule refresh does not extend a quote's validity. No result exposes the full internal rule/receipt object through the public projection.
+- `DEFAULT_RULES.version` is currently `2026.11.2` (minimums re-checked 2026-11-10; the previous snapshot was `2026.11.1`). This dated rule snapshot and its `checkedAt` freshness metadata are distinct from semantic contract versions and quote deadlines. A rule refresh does not extend a quote's validity. No result exposes the full internal rule/receipt object through the public projection.
 
 ## Semantic version rules
 

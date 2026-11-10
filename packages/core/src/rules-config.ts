@@ -24,12 +24,13 @@ export interface RulesConfig {
 }
 
 export const DEFAULT_RULES: RulesConfig = {
-  version: "2026.11.1",
+  version: "2026.11.2",
   minimums: {
-    checkedAt: "2026-11-07T14:02:52Z",
+    checkedAt: "2026-11-10T09:42:00Z",
     sources: [
       "https://docs.near-intents.org/changelog/entries/2026-09-09-temporary-1000-minimum",
       "https://docs.near-intents.org/changelog/entries/2026-09-14-temporary-tron-100-minimum",
+      "https://docs.near-intents.org/changelog",
     ],
     usd1000Chains: ["bsc", "pol", "ton", "op", "avax", "stellar", "monad", "xlayer", "adi"],
     usd1000: "1000",

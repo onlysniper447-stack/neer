@@ -33,7 +33,7 @@
     "packages/core/src/context.ts": "0d7a93d88962487a9726954d697ca4fcae86b2d2a899ccadb2f32cdba05098c6",
     "packages/core/src/index.ts": "7bd38f92de8454efccc08ce1b39e5f4862dfe32533b09a067398b0515e57c99a",
     "packages/core/src/preflight.ts": "ca159f0462b92f3b54a3ee3cf90832cb79a106421e945388f5a5f3c1f6e40221",
-    "packages/core/src/rules-config.ts": "523f3423e82ac3a3b904c61fbc69f0260755bbc736a13f345b8996614cc9b171",
+    "packages/core/src/rules-config.ts": "1bc7a8321badc46fd3c54041e8b486290d227ea008b768d06d43bdd07f4446ca",
     "packages/core/src/schemas.ts": "9981ce003efd6926930e34d3f31946a711fee8b6758af47905d3cf07a0ed14f7",
     "packages/core/src/signature.ts": "bc5bcedd5ea1e0fe48b7e0983407412a52840e39a4c8c3cc531228f0e77fb107",
     "packages/core/src/stable-json.ts": "8877a2bdbf0082aceb137f49cc2a489cf09735ec9975e4bc0f6bd221e410f2b5",
@@ -53,5 +53,14 @@
     "packages/verify/src/input.ts": "758c6846a8a3c6fa6124b23b5e88d6d1c46d3945dcf278253fca8baae2a46ade",
     "packages/verify/src/projection.ts": "1e9eb257c75ecc978334099fffc43ded50e3c1bb8bc3ced5e5628cd2fdfd1c07",
     "packages/verify/src/types.ts": "440d0cb58a31ae06f4eb21d05e570d3bb6dc95b96e2a728074c159612ca5c8a1"
-  }
+  },
+  "updates": [
+    {
+      "file": "packages/core/src/rules-config.ts",
+      "from": "523f3423e82ac3a3b904c61fbc69f0260755bbc736a13f345b8996614cc9b171",
+      "to": "1bc7a8321badc46fd3c54041e8b486290d227ea008b768d06d43bdd07f4446ca",
+      "rulesVersion": "2026.11.2",
+      "reason": "Rule data refresh only: minimums re-verified against NEAR Intents changelog on 2026-11-10 (checkedAt, version, changelog index source). No logic change; verifier HTTP snapshots unchanged."
+    }
+  ]
 }

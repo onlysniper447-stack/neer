@@ -176,7 +176,7 @@ deadline, refund address…) fails the check and blocks.
 
 Every message is plain English and says what to do (`packages/core/src/checks.ts`).
 Rules config (minimums, budgets) is versioned in `packages/core/src/rules-config.ts`
-(`2026.10.0`); each response carries `rulesVersion` and a `checksHash`.
+(currently `2026.11.2`; minimums last checked 2026-11-10, treated as unknown after 14 days); each response carries `rulesVersion` and a `checksHash`.
 
 ## API
 
