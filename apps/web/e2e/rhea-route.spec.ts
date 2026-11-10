@@ -53,7 +53,7 @@ test("shows RHEA's estimate and prefills a Neer check without an address", async
 
   const quote = page.getByTestId("rhea-quote");
   await expect(quote).toBeVisible();
-  await expect(page.getByTestId("rhea-router")).toHaveText("nearintents");
+  await expect(page.getByTestId("rhea-router")).toHaveText("Near Intents (nearintents)");
   await expect(page.getByTestId("rhea-amount-in")).toHaveText("10 USDC on Base");
   await expect(page.getByTestId("rhea-estimated")).toHaveText("9.95 USDC on NEAR");
   await expect(page.getByTestId("rhea-minimum")).toHaveText("9.90025 USDC");

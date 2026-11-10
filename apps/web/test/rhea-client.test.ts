@@ -117,7 +117,7 @@ describe("rheaQuote", () => {
     expect(f.calls[2]!.headers.authorization).toBe("Bearer fake-test-key");
     expect(f.calls[2]!.body).toEqual({
       fromChain: "8453", toChain: "near", tokenIn: BASE_USDC, tokenOut: NEAR_USDC, amountIn: "10000000", slippage: 50,
-      quoteWaitingTimeMs: 5000, sameChainTimeoutMs: 500, crossChainTimeoutMs: 5000, sender: FAKE_SENDER, recipient: "neer-demo.near",
+      quoteWaitingTimeMs: 8000, sameChainTimeoutMs: 500, crossChainTimeoutMs: 6000, sender: FAKE_SENDER, recipient: "neer-demo.near",
     });
   });
 
@@ -189,9 +189,15 @@ describe("rheaQuote", () => {
     expect(Date.now() - started).toBeLessThan(2000);
   });
 
-  it("uses an 8 second timeout by default", () => {
+  it("uses an 8 second timeout for token lists and 12 seconds for quotes", () => {
     const src = readFileSync(new URL("../lib/server/rhea-node.ts", import.meta.url), "utf8");
     expect(src).toContain("export const RHEA_TIMEOUT_MS = 8000;");
+    expect(src).toContain("export const RHEA_QUOTE_TIMEOUT_MS = 12000;");
+    expect(src).toContain("timeoutMs: deps.timeoutMs ?? RHEA_QUOTE_TIMEOUT_MS,");
+    // RHEA answers HTTP 400 "crossChainTimeoutMs must be between 1000 and 6000 milliseconds" above 6000.
+    expect(src).toContain("export const CROSS_CHAIN_WAIT_MS = 6000;");
+    // The quote must still end inside the client timeout.
+    expect(src).toContain("export const QUOTE_WAIT_MS = 8000;");
   });
 
   it.each([
@@ -308,6 +314,16 @@ describe("live RHEA quote shapes (recorded 10 Nov 2026, redacted)", () => {
     const err = await rejection(rheaQuote(quoteInput(), deps));
     expect([err.code, err.status, err.message, err.retryAfterSec]).toEqual([code, status, message, retry]);
     expect(err.message).not.toMatch(/correlationId|StableFlow|HTTP 403|OpenOcean/);
+  });
+
+  it("parses the real NEAR Intents quote (estimatedOut, no amountOut) and offers a Neer check", async () => {
+    const { body } = live("success-nearintents");
+    expect((body.data as { bestQuote: Record<string, unknown> }).bestQuote.amountOut).toBeUndefined();
+    expect(parseQuoteData(body.data)).toEqual({ router: "nearintents", routerName: "Near Intents", amountOut: "19988860", minAmountOut: "19788971", alternatives: 0 });
+    vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { body } }).fn);
+    const view = await rheaQuote(quoteInput(), deps);
+    expect([view.router, view.routerName, view.viaNearIntents, view.estimatedOut, view.minAmountOut]).toEqual(["nearintents", "Near Intents", true, "19.98886", "19.788971"]);
+    expect(view.check).not.toBeNull();
   });
 
   it("the mocks carry the same success fields Neer reads", () => {

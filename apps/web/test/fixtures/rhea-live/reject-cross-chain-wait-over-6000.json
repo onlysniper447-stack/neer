@@ -1,0 +1,23 @@
+{
+  "recordedAt": "2026-11-10T08:31Z",
+  "note": "Live RHEA response when crossChainTimeoutMs > 6000 (redacted).",
+  "httpStatus": 400,
+  "request": {
+    "fromChain": "near",
+    "toChain": "8453",
+    "tokenIn": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "tokenOut": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "amountIn": "10000000",
+    "slippage": 50,
+    "quoteWaitingTimeMs": 8000,
+    "sameChainTimeoutMs": 500,
+    "crossChainTimeoutMs": 8000,
+    "sender": "neer-demo.near",
+    "recipient": "0x00000000000000000000000000000000000d3e40"
+  },
+  "body": {
+    "code": -1,
+    "data": null,
+    "msg": "crossChainTimeoutMs must be between 1000 and 6000 milliseconds"
+  }
+}

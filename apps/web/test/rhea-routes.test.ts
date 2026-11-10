@@ -122,7 +122,7 @@ describe("POST /api/v1/rhea/quote", () => {
     vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { reject: new DOMException("The operation was aborted due to timeout", "TimeoutError") } }).fn);
     const res = await quoteRoute.POST(post(quoteInput()));
     expect(res.status).toBe(504);
-    expect((await res.json()).error).toEqual({ code: "RHEA_TIMEOUT", message: "RHEA did not answer within 8 seconds. Try again." });
+    expect((await res.json()).error).toEqual({ code: "RHEA_TIMEOUT", message: "RHEA did not answer within 12 seconds. Try again." });
   });
 
   it("maps RHEA's QUOTE_TIMEOUT business error to 503 with Retry-After", async () => {

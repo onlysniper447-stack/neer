@@ -26,11 +26,16 @@ import {
 export const RHEA_BASE_URL = "https://api.rhea.finance";
 export const RHEA_TIMEOUT_MS = 8000;
 /**
- * Wait RHEA may spend on NEAR Intents and cross-chain providers. Live quotes on
- * 10 Nov 2026 hit RHEA's 3 s default ("quote transport timeout after 3s"); with
- * 5 s a full answer took about 6.2 s, inside RHEA_TIMEOUT_MS.
+ * Quote-only client timeout. RHEA's quote endpoint waits for its providers
+ * before answering; the first live NEAR Intents quote (10 Nov 2026) took
+ * 8.05 s with an 8 s provider wait, so the 8 s default above would abort it.
+ * Token lists keep RHEA_TIMEOUT_MS.
  */
-export const QUOTE_WAIT_MS = 5000;
+export const RHEA_QUOTE_TIMEOUT_MS = 12000;
+/** Wait RHEA may spend collecting provider quotes before it answers. */
+export const QUOTE_WAIT_MS = 8000;
+/** Per cross-chain provider wait. RHEA rejects values above 6000 with HTTP 400. */
+export const CROSS_CHAIN_WAIT_MS = 6000;
 export const ALLOWED_PATHS = new Set(["/get_chain_prices", "/api/swap/supported_to_tokens", "/api/v2/swap/quote"]);
 const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 const TOKENS_TTL_MS = 10 * 60_000;
@@ -383,7 +388,7 @@ export async function rheaQuote(raw: unknown, deps: QuoteDeps): Promise<RheaQuot
   const env = await request("/api/v2/swap/quote", {
     method: "POST",
     auth: true,
-    timeoutMs: deps.timeoutMs,
+    timeoutMs: deps.timeoutMs ?? RHEA_QUOTE_TIMEOUT_MS,
     body: {
       fromChain: input.fromChain,
       toChain: input.toChain,
@@ -393,7 +398,7 @@ export async function rheaQuote(raw: unknown, deps: QuoteDeps): Promise<RheaQuot
       slippage: input.slippageBps,
       quoteWaitingTimeMs: QUOTE_WAIT_MS,
       sameChainTimeoutMs: 500,
-      crossChainTimeoutMs: QUOTE_WAIT_MS,
+      crossChainTimeoutMs: CROSS_CHAIN_WAIT_MS,
       sender: input.sender,
       ...(input.recipient ? { recipient: input.recipient } : {}),
     },

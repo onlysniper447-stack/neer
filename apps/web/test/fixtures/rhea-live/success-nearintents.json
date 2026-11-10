@@ -1,0 +1,98 @@
+{
+  "recordedAt": "2026-11-10T08:31Z",
+  "note": "Live RHEA POST /api/v2/swap/quote NEAR Intents success, redacted: the NEAR sender is replaced with neer-demo.near, the demo EVM address with a placeholder.",
+  "httpStatus": 200,
+  "elapsedMs": 8050,
+  "request": {
+    "fromChain": "near",
+    "toChain": "42161",
+    "tokenIn": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "tokenOut": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+    "amountIn": "20000000",
+    "slippage": 100,
+    "quoteWaitingTimeMs": 8000,
+    "sameChainTimeoutMs": 500,
+    "crossChainTimeoutMs": 6000,
+    "sender": "neer-demo.near",
+    "recipient": "0x00000000000000000000000000000000000d3e40"
+  },
+  "body": {
+    "code": 0,
+    "data": {
+      "approvalMayBeRequired": false,
+      "bestQuote": {
+        "amountIn": "20000000",
+        "amountInUsd": "19.990920000000",
+        "appFees": [
+          {
+            "fee": 2,
+            "recipient": "crosschaindexfee.near"
+          }
+        ],
+        "approvalMayBeRequired": false,
+        "destinationTxCount": 0,
+        "estimatedOut": "19988860",
+        "estimatedOutFormatted": "19.98886",
+        "estimatedOutSmallest": "19988860",
+        "estimatedOutUsd": "19.979785057560",
+        "executionMode": "DIRECT",
+        "executionPlan": "DIRECT_PROVIDER_TRANSACTION",
+        "executionType": "transaction",
+        "fromChain": "near",
+        "guaranteedOut": "19788971",
+        "guaranteedOutSmallest": "19788971",
+        "minAmountIn": "20000000",
+        "minAmountOut": "19788971",
+        "providerAmountIn": "20000000",
+        "recipient": "0x00000000000000000000000000000000000d3e40",
+        "referral": "rhea",
+        "requiresExternalPreSwap": false,
+        "routeId": "nearintents",
+        "routeLabel": "nearintents",
+        "router": "nearintents",
+        "routerName": "Near Intents",
+        "sender": "neer-demo.near",
+        "sourceTxCount": 1,
+        "sourceTxCountMax": 1,
+        "sourceTxCountMin": 1,
+        "timeEstimate": 19,
+        "toChain": "42161",
+        "tokenIn": {
+          "address": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+          "decimals": 6,
+          "symbol": "USDC"
+        },
+        "tokenOut": {
+          "address": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+          "decimals": 6,
+          "symbol": "USDC"
+        }
+      },
+      "chainType": "cross-chain",
+      "destinationTxCount": 0,
+      "executionMode": "DIRECT",
+      "executionPlan": "DIRECT_PROVIDER_TRANSACTION",
+      "executionType": "transaction",
+      "isCrossChain": true,
+      "quoteProviderWarnings": [
+        {
+          "message": "stableflow: StableFlow HTTP 403: {\"code\":403,\"message\":\"\"}",
+          "source": "direct"
+        },
+        {
+          "message": "omnibridge: Near-One Omni Bridge source token is not registered on the destination chain",
+          "source": "direct"
+        },
+        {
+          "errorCode": "QUOTE_TIMEOUT",
+          "message": "preswap: preswap quote timeout after 6.5s",
+          "source": "direct"
+        }
+      ],
+      "sourceTxCount": 1,
+      "sourceTxCountMax": 1,
+      "sourceTxCountMin": 1
+    },
+    "msg": "success"
+  }
+}
