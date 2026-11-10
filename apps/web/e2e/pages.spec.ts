@@ -26,6 +26,8 @@ function watchConsole(page: Page): string[] {
 }
 
 async function axe(page: Page) {
+  // Next streams metadata, so on a slow runner <title> can land after the heading; wait for it before scanning.
+  await expect(page).toHaveTitle(/\S/);
   const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"]).analyze();
   return results.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => `${v.id}: ${v.help} (${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")})`);
 }
