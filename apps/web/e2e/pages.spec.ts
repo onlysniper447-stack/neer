@@ -153,11 +153,14 @@ test("resources links to the official sources", async ({ page }) => {
   }
 });
 
-test("tools: coming-later items aren't links", async ({ page }) => {
+// /tools lists implemented tools only (6b2606f removed the "coming later" list).
+test("tools: lists only the implemented tools, each linking to its page", async ({ page }) => {
   await page.goto("/tools");
-  await expect(page.getByText("Refund helper")).toBeVisible();
-  await expect(page.getByRole("link", { name: /Refund helper/ })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /Deposit preflight/ }).first()).toHaveAttribute("href", "/check");
+  const main = page.locator("main");
+  for (const [name, href] of [["Deposit preflight", "/check"], ["Swap tracker", "/track"], ["Address checker", "/tools/address"], ["RHEA route estimate", "/tools/rhea-route"]] as const) {
+    await expect(main.getByRole("link", { name: new RegExp(name) }).first()).toHaveAttribute("href", href);
+  }
+  await expect(main.getByText(/Refund helper|Coming later/)).toHaveCount(0);
 });
 
 test("swap tracker page: paste an address and track it", async ({ page, request }) => {

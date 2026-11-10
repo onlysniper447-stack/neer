@@ -277,9 +277,8 @@ build; unit and HTTP checks do not prove browser accessibility or rendering.
 
 CI (`.github/workflows/ci.yml`) runs on every push and pull request with the latest Node 22.x
 and pnpm 10.34.9: `pnpm install --frozen-lockfile`, then `pnpm typecheck`, `pnpm lint`,
-`pnpm test` and `pnpm build`. It uses no secrets; the RHEA and 1Click tests use local mocks.
-Playwright is not run in CI yet because `e2e/pages.spec.ts` still expects a "Refund helper"
-item that `/tools` does not have.
+`pnpm test` and `pnpm build`. A separate job runs the Playwright `e2e` and `mobile` projects
+(Chromium) against the local mocks. It uses no secrets; the RHEA and 1Click tests use local mocks.
 
 The e2e suite runs the production build against `apps/web/e2e/mock-1click.ts`,
 which serves the recorded token list and `/v0/status` bodies shaped like the
