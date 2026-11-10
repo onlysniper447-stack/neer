@@ -17,14 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Version must match "packageManager" in package.json.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 10.34.9
-      - uses: actions/setup-node@v4
+      # Latest Node 22. The app runs on 22.12+, but the test toolchain needs
+      # newer: jsdom 30 requires ^22.22.2 and its undici 8 fails to load on
+      # 22.12 ("Failed to start forks worker"; first CI run, 10 Nov 2026).
+      - uses: actions/setup-node@v7
         with:
-          node-version: "22.12"
+          node-version: "22.x"
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
