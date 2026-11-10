@@ -25,6 +25,12 @@ import {
  */
 export const RHEA_BASE_URL = "https://api.rhea.finance";
 export const RHEA_TIMEOUT_MS = 8000;
+/**
+ * Wait RHEA may spend on NEAR Intents and cross-chain providers. Live quotes on
+ * 10 Nov 2026 hit RHEA's 3 s default ("quote transport timeout after 3s"); with
+ * 5 s a full answer took about 6.2 s, inside RHEA_TIMEOUT_MS.
+ */
+export const QUOTE_WAIT_MS = 5000;
 export const ALLOWED_PATHS = new Set(["/get_chain_prices", "/api/swap/supported_to_tokens", "/api/v2/swap/quote"]);
 const MAX_RESPONSE_BYTES = 5 * 1024 * 1024;
 const TOKENS_TTL_MS = 10 * 60_000;
@@ -257,6 +263,7 @@ export async function getRheaTokens(direction: RheaTokenDirection, chainId: Rhea
 const BASE_UNITS = /^\d{1,78}$/;
 const RawBestQuote = z.object({
   router: z.string().trim().min(1).max(64),
+  routerName: z.string().nullish(),
   amountOut: z.string().optional(),
   estimatedOut: z.string().optional(),
   minAmountOut: z.string().optional(),
@@ -267,7 +274,7 @@ const RawQuoteData = z.object({
 }).passthrough();
 
 /** Follows the SDK's route normalizer: amountOut ?? estimatedOut; minAmountOut falls back to amountOut. */
-export function parseQuoteData(data: unknown): { router: string; amountOut: string; minAmountOut: string; alternatives: number } {
+export function parseQuoteData(data: unknown): { router: string; routerName: string | null; amountOut: string; minAmountOut: string; alternatives: number } {
   const parsed = RawQuoteData.safeParse(data);
   if (!parsed.success) throw new RheaError("RHEA_BAD_RESPONSE", 502, "RHEA returned a quote Neer could not read.");
   const best = parsed.data.bestQuote;
@@ -278,7 +285,46 @@ export function parseQuoteData(data: unknown): { router: string; amountOut: stri
   }
   const router = best.router.replace(/[^a-z0-9._-]/gi, "").toLowerCase();
   if (!router) throw new RheaError("RHEA_BAD_RESPONSE", 502, "RHEA returned a quote without a router.");
-  return { router, amountOut, minAmountOut, alternatives: parsed.data.allQuotes?.length ?? 0 };
+  const routerName = best.routerName ? cleanMessage(best.routerName).slice(0, 40) || null : null;
+  return { router, routerName, amountOut, minAmountOut, alternatives: parsed.data.allQuotes?.length ?? 0 };
+}
+
+const FailureData = z.object({
+  errorCode: z.string().nullish(),
+  reason: z.string().nullish(),
+  retryAfterMs: z.number().nullish(),
+  errors: z.array(z.unknown()).nullish(),
+}).passthrough();
+
+/**
+ * A failed quote arrives as HTTP 200 with code -1. Its msg concatenates every
+ * provider's internal error (HTTP codes, correlation IDs), so Neer never shows
+ * it. Only RHEA's error code, its retry hint and NEAR Intents' own message are
+ * used, e.g. "No liquidity available" or "recipient is not valid".
+ */
+export function quoteFailure(env: { code: number; msg?: string | null; data?: unknown }): RheaError {
+  const top = FailureData.safeParse(env);
+  const inner = FailureData.safeParse(env.data);
+  const pick = <K extends "errorCode" | "reason" | "retryAfterMs">(k: K) => (inner.success ? inner.data[k] : undefined) ?? (top.success ? top.data[k] : undefined);
+  const errors = (inner.success ? inner.data.errors : null) ?? [];
+  const intents = nearIntentsMessage(errors);
+  const intentsNote = intents ? ` NEAR Intents reported: ${intents}.` : "";
+  if (pick("errorCode") === "QUOTE_TIMEOUT" || pick("reason") === "quote_timeout") {
+    const ms = pick("retryAfterMs");
+    const retryAfterSec = typeof ms === "number" && ms > 0 ? Math.min(Math.ceil(ms / 1000), 300) : 10;
+    return new RheaError("RHEA_QUOTE_TIMEOUT", 503, `RHEA's route providers did not return a quote in time.${intentsNote} Try again in ${retryAfterSec} seconds.`, retryAfterSec);
+  }
+  return new RheaError("RHEA_NO_ROUTE", 422, `RHEA found no route for this request.${intentsNote}`);
+}
+
+function nearIntentsMessage(errors: unknown[]): string | null {
+  for (const e of errors) {
+    if (typeof e !== "string" || !e.startsWith("nearintents:")) continue;
+    const m = /"message"\s*:\s*"([^"]{1,80})"/.exec(e);
+    const text = m?.[1] ?? (/timeout/i.test(e) ? "quote timed out" : null);
+    if (text) return cleanMessage(text);
+  }
+  return null;
 }
 
 function findToken(list: RheaToken[], address: string): RheaToken | undefined {
@@ -345,17 +391,14 @@ export async function rheaQuote(raw: unknown, deps: QuoteDeps): Promise<RheaQuot
       tokenOut: tokenOut.address,
       amountIn,
       slippage: input.slippageBps,
-      quoteWaitingTimeMs: 3000,
+      quoteWaitingTimeMs: QUOTE_WAIT_MS,
       sameChainTimeoutMs: 500,
-      crossChainTimeoutMs: 3000,
+      crossChainTimeoutMs: QUOTE_WAIT_MS,
       sender: input.sender,
       ...(input.recipient ? { recipient: input.recipient } : {}),
     },
   });
-  if (env.code !== 0) {
-    const msg = cleanMessage(env.msg);
-    throw new RheaError("RHEA_NO_ROUTE", 422, msg ? `RHEA did not return a route: ${msg}` : "RHEA did not return a route for this request.");
-  }
+  if (env.code !== 0) throw quoteFailure(env);
   const quote = parseQuoteData(env.data);
   const viaNearIntents = NEAR_INTENTS_ROUTERS.has(quote.router);
   const amountHuman = fromBaseUnits(amountIn, tokenIn.decimals);
@@ -373,6 +416,7 @@ export async function rheaQuote(raw: unknown, deps: QuoteDeps): Promise<RheaQuot
   }
   return {
     router: quote.router,
+    routerName: quote.routerName,
     viaNearIntents,
     fromChain: input.fromChain,
     toChain: input.toChain,

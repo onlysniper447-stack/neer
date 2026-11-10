@@ -93,7 +93,7 @@ test("a non-NEAR Intents route offers no Neer check", async ({ page }) => {
   await page.getByLabel("Amount you send").fill("1");
   await page.getByLabel("Your source address (public, optional)").fill("0x0000000000000000000000000000000000001111");
   await page.getByRole("button", { name: "Get RHEA estimate" }).click();
-  await expect(page.getByTestId("rhea-router")).toHaveText("lifi");
+  await expect(page.getByTestId("rhea-router")).toHaveText("LI.FI (lifi)");
   await expect(page.getByTestId("rhea-check-link")).toHaveCount(0);
   await expect(page.getByTestId("rhea-check-note")).toContainText("Neer checks NEAR Intents deposit addresses only");
 });

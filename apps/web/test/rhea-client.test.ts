@@ -65,8 +65,8 @@ describe("token list normalization", () => {
 
 describe("quote parsing", () => {
   it("follows the SDK route rules", () => {
-    expect(parseQuoteData(quoteOk().data)).toEqual({ router: "nearintents", amountOut: "9950000", minAmountOut: "9900250", alternatives: 1 });
-    expect(parseQuoteData({ bestQuote: { router: "nearintents", estimatedOut: "5" } })).toEqual({ router: "nearintents", amountOut: "5", minAmountOut: "5", alternatives: 0 });
+    expect(parseQuoteData(quoteOk().data)).toEqual({ router: "nearintents", routerName: null, amountOut: "9950000", minAmountOut: "9900250", alternatives: 1 });
+    expect(parseQuoteData({ bestQuote: { router: "nearintents", estimatedOut: "5" } })).toEqual({ router: "nearintents", routerName: null, amountOut: "5", minAmountOut: "5", alternatives: 0 });
   });
   it("rejects missing routers and non-integer amounts", () => {
     expect(() => parseQuoteData({ bestQuote: { amountOut: "5" } })).toThrow(RheaError);
@@ -101,7 +101,7 @@ describe("rheaQuote", () => {
     vi.stubGlobal("fetch", f.fn);
     const view = await rheaQuote(quoteInput(), deps);
     expect(view).toEqual({
-      router: "nearintents", viaNearIntents: true, fromChain: "8453", toChain: "near",
+      router: "nearintents", routerName: null, viaNearIntents: true, fromChain: "8453", toChain: "near",
       tokenIn: { symbol: "USDC", decimals: 6, address: BASE_USDC }, tokenOut: { symbol: "USDC", decimals: 6, address: NEAR_USDC },
       amountIn: "10", estimatedOut: "9.95", minAmountOut: "9.90025", alternatives: 1, receivedAt: "2026-11-09T19:00:00.000Z",
       check: { network: "base", token: `nep141:base-${BASE_USDC}.omft.near`, amount: "10" }, checkNote: null,
@@ -117,7 +117,7 @@ describe("rheaQuote", () => {
     expect(f.calls[2]!.headers.authorization).toBe("Bearer fake-test-key");
     expect(f.calls[2]!.body).toEqual({
       fromChain: "8453", toChain: "near", tokenIn: BASE_USDC, tokenOut: NEAR_USDC, amountIn: "10000000", slippage: 50,
-      quoteWaitingTimeMs: 3000, sameChainTimeoutMs: 500, crossChainTimeoutMs: 3000, sender: FAKE_SENDER, recipient: "neer-demo.near",
+      quoteWaitingTimeMs: 5000, sameChainTimeoutMs: 500, crossChainTimeoutMs: 5000, sender: FAKE_SENDER, recipient: "neer-demo.near",
     });
   });
 
@@ -211,10 +211,10 @@ describe("rheaQuote", () => {
     expect([err.code, err.status, err.retryAfterSec]).toEqual(["RHEA_UPSTREAM_RATE_LIMITED", 503, 12]);
   });
 
-  it("reports a business error as no route, with RHEA's message cleaned", async () => {
-    vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { body: { code: 1001, msg: "no route\u0000 found\n<b>", data: null } } }).fn);
+  it("reports a business error as no route without echoing RHEA's provider internals", async () => {
+    vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { body: { code: 1001, msg: "no route\u0000 found\n<b> correlationId 123", data: null } } }).fn);
     const err = await rejection(rheaQuote(quoteInput(), deps));
-    expect([err.code, err.status, err.message]).toEqual(["RHEA_NO_ROUTE", 422, "RHEA did not return a route: no route found <b>"]);
+    expect([err.code, err.status, err.message]).toEqual(["RHEA_NO_ROUTE", 422, "RHEA found no route for this request."]);
   });
 
   it("reports 5xx and network failures as unavailable", async () => {
@@ -277,5 +277,44 @@ describe("safety boundaries", () => {
     expect(readdirSync(new URL("../app/api/v1/rhea", import.meta.url)).sort()).toEqual(["quote", "tokens"]);
     const pkg = readFileSync(new URL("../package.json", import.meta.url), "utf8");
     expect(pkg).not.toContain("@rhea-finance");
+  });
+});
+
+describe("live RHEA quote shapes (recorded 10 Nov 2026, redacted)", () => {
+  const live = (name: string) => JSON.parse(readFileSync(new URL(`./fixtures/rhea-live/${name}.json`, import.meta.url), "utf8")) as { httpStatus: number; body: { code: number; msg?: string; data?: unknown } };
+
+  it("parses a real successful quote", () => {
+    const { httpStatus, body } = live("success-lifi");
+    expect([httpStatus, body.code]).toEqual([200, 0]);
+    expect(parseQuoteData(body.data)).toEqual({ router: "lifi", routerName: "LI.FI", amountOut: "19950000", minAmountOut: "19950000", alternatives: 0 });
+  });
+
+  it("shows a real non-NEAR Intents route without a Neer check", async () => {
+    const { body } = live("success-lifi");
+    vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { body } }).fn);
+    const view = await rheaQuote(quoteInput(), deps);
+    expect([view.router, view.routerName, view.estimatedOut, view.minAmountOut, view.check]).toEqual(["lifi", "LI.FI", "19.95", "19.95", null]);
+  });
+
+  it.each([
+    ["fail-recipient-invalid", "RHEA_NO_ROUTE", 422, "RHEA found no route for this request. NEAR Intents reported: recipient is not valid.", undefined],
+    ["fail-internal-error", "RHEA_NO_ROUTE", 422, "RHEA found no route for this request. NEAR Intents reported: Internal server error.", undefined],
+    ["fail-timeout-3s", "RHEA_QUOTE_TIMEOUT", 503, "RHEA's route providers did not return a quote in time. NEAR Intents reported: quote timed out. Try again in 6 seconds.", 6],
+    ["fail-timeout-no-liquidity", "RHEA_QUOTE_TIMEOUT", 503, "RHEA's route providers did not return a quote in time. NEAR Intents reported: No liquidity available. Try again in 7 seconds.", 7],
+  ])("maps real failure %s (HTTP 200, code -1)", async (name, code, status, message, retry) => {
+    const { httpStatus, body } = live(name);
+    expect([httpStatus, body.code]).toEqual([200, -1]);
+    vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { body } }).fn);
+    const err = await rejection(rheaQuote(quoteInput(), deps));
+    expect([err.code, err.status, err.message, err.retryAfterSec]).toEqual([code, status, message, retry]);
+    expect(err.message).not.toMatch(/correlationId|StableFlow|HTTP 403|OpenOcean/);
+  });
+
+  it("the mocks carry the same success fields Neer reads", () => {
+    const real = live("success-lifi").body.data as { bestQuote: Record<string, unknown> };
+    for (const k of ["router", "amountOut", "minAmountOut"]) {
+      expect(typeof real.bestQuote[k]).toBe("string");
+      expect(typeof (quoteOk().data.bestQuote as Record<string, unknown>)[k]).toBe("string");
+    }
   });
 });

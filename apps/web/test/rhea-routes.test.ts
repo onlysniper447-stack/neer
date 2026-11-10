@@ -125,6 +125,14 @@ describe("POST /api/v1/rhea/quote", () => {
     expect((await res.json()).error).toEqual({ code: "RHEA_TIMEOUT", message: "RHEA did not answer within 8 seconds. Try again." });
   });
 
+  it("maps RHEA's QUOTE_TIMEOUT business error to 503 with Retry-After", async () => {
+    vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { body: { code: -1, msg: "Cross-chain quote failed: x", errorCode: "QUOTE_TIMEOUT", retryAfterMs: 6500, data: { errorCode: "QUOTE_TIMEOUT", reason: "quote_timeout", retryAfterMs: 6500, errors: ["stableflow: StableFlow HTTP 403"] } } } }).fn);
+    const res = await quoteRoute.POST(post(quoteInput()));
+    expect(res.status).toBe(503);
+    expect(res.headers.get("Retry-After")).toBe("7");
+    expect((await res.json()).error).toEqual({ code: "RHEA_QUOTE_TIMEOUT", message: "RHEA's route providers did not return a quote in time. Try again in 7 seconds." });
+  });
+
   it("maps a malformed response to 502", async () => {
     vi.stubGlobal("fetch", fakeFetch({ ...OK_ROUTES(), "/api/v2/swap/quote": { text: "not json" } }).fn);
     const res = await quoteRoute.POST(post(quoteInput()));

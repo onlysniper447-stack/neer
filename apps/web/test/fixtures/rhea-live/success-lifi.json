@@ -1,0 +1,76 @@
+{
+  "recordedAt": "2026-11-10T08:04Z",
+  "note": "Live RHEA POST /api/v2/swap/quote response, redacted: demo addresses and IDs replaced; success bestQuote.raw and fee removed for size.",
+  "httpStatus": 200,
+  "elapsedMs": 6231,
+  "request": {
+    "fromChain": "8453",
+    "toChain": "42161",
+    "tokenIn": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "tokenOut": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+    "amountIn": "20000000",
+    "slippage": 50,
+    "quoteWaitingTimeMs": 5000,
+    "sameChainTimeoutMs": 500,
+    "crossChainTimeoutMs": 5000,
+    "sender": "0x00000000000000000000000000000000000d3e40",
+    "recipient": "0x00000000000000000000000000000000000d3e40"
+  },
+  "body": {
+    "code": 0,
+    "data": {
+      "approvalMayBeRequired": false,
+      "bestQuote": {
+        "amountOut": "19950000",
+        "approvalMayBeRequired": false,
+        "approvalSpender": "0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE",
+        "destinationTxCount": 0,
+        "estimatedOut": "19950000",
+        "estimatedOutSmallest": "19950000",
+        "executionMode": "DIRECT",
+        "executionPlan": "DIRECT_PROVIDER_TRANSACTION",
+        "executionType": "transaction",
+        "guaranteedOut": "19950000",
+        "guaranteedOutSmallest": "19950000",
+        "minAmountOut": "19950000",
+        "orderId": "00000000-0000-0000-0000-000000000000:0",
+        "quoteId": "00000000-0000-0000-0000-000000000000:0",
+        "requiresExternalPreSwap": false,
+        "routeId": "lifi:00000000-0000-0000-0000-000000000000:0",
+        "routeLabel": "LI.FI",
+        "router": "lifi",
+        "routerName": "LI.FI",
+        "sourceTxCount": 1,
+        "sourceTxCountMax": 1,
+        "sourceTxCountMin": 1,
+        "timeEstimate": 1080,
+        "tool": "polymerStandard"
+      },
+      "chainType": "cross-chain",
+      "destinationTxCount": 0,
+      "executionMode": "DIRECT",
+      "executionPlan": "DIRECT_PROVIDER_TRANSACTION",
+      "executionType": "transaction",
+      "isCrossChain": true,
+      "quoteId": "00000000-0000-0000-0000-000000000000:0",
+      "quoteProviderWarnings": [
+        {
+          "message": "stableflow: StableFlow HTTP 403: {\"code\":403,\"message\":\"\"}",
+          "source": "direct"
+        },
+        {
+          "message": "omnibridge: \u975e\u6cd5\u8bf7\u6c42",
+          "source": "direct"
+        },
+        {
+          "message": "preswap: pre-swap route failed: WETH: 1Click quote failed: NearIntents quote failed (400): {\"message\":\"No liquidity available\",\"correlationId\":\"redacted\",\"timestamp\":\"2026-11-10T08:05:45.045Z\",\"path\":\"/v0/quote\"}",
+          "source": "direct"
+        }
+      ],
+      "sourceTxCount": 1,
+      "sourceTxCountMax": 1,
+      "sourceTxCountMin": 1
+    },
+    "msg": "success"
+  }
+}

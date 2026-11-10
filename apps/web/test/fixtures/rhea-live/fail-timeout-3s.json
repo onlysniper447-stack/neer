@@ -1,0 +1,40 @@
+{
+  "recordedAt": "2026-11-10T08:04Z",
+  "note": "Live RHEA POST /api/v2/swap/quote response, redacted: demo addresses and IDs replaced; success bestQuote.raw and fee removed for size.",
+  "httpStatus": 200,
+  "elapsedMs": 4982,
+  "request": {
+    "fromChain": "8453",
+    "toChain": "near",
+    "tokenIn": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "tokenOut": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+    "amountIn": "5000000",
+    "slippage": 50,
+    "quoteWaitingTimeMs": 3000,
+    "sameChainTimeoutMs": 500,
+    "crossChainTimeoutMs": 3000,
+    "sender": "0x00000000000000000000000000000000000d3e40",
+    "recipient": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "body": {
+    "code": -1,
+    "data": {
+      "crossChainTimeoutMs": 3000,
+      "errorCode": "QUOTE_TIMEOUT",
+      "errors": [
+        "stableflow: StableFlow HTTP 403: {\"code\":403,\"message\":\"\"}",
+        "nearintents: quote transport timeout after 3s",
+        "contract-aggregate: openocean/WETH: OpenOcean quote HTTP 401; velora/WETH: ParaSwap quote failed: HTTP 403 Forbidden; body=<empty>; okx+omnibridge/WETH: Near-One Omni Bridge source token is not registered on the destination chain",
+        "preswap: pre-swap route failed: WETH: 1Click quote failed: NearIntents quote failed (400): {\"message\":\"No liquidity available\",\"correlationId\":\"redacted\",\"timestamp\":\"2026-11-10T08:04:59.790Z\",\"path\":\"/v0/quote\"}"
+      ],
+      "isCrossChain": true,
+      "reason": "quote_timeout",
+      "retryAfterMs": 6000,
+      "sameChainTimeoutMs": 500
+    },
+    "errorCode": "QUOTE_TIMEOUT",
+    "msg": "Cross-chain quote failed: stableflow: StableFlow HTTP 403: {\"code\":403,\"message\":\"\"}; nearintents: quote transport timeout after 3s; contract-aggregate: openocean/WETH: OpenOcean quote HTTP 401; velora/WETH: ParaSwap quote failed: HTTP 403 Forbidden; body=<empty>; okx+omnibridge/WETH: Near-One Omni Bridge source token is not registered on the destination chain; preswap: pre-swap route failed: WETH: 1Click quote failed: NearIntents quote failed (400): {\"message\":\"No liquidity available\",\"correlationId\":\"redacted\",\"timestamp\":\"2026-11-10T08:04:59.790Z\",\"path\":\"/v0/quote\"}",
+    "reason": "quote_timeout",
+    "retryAfterMs": 6000
+  }
+}

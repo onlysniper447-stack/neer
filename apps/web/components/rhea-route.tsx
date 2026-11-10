@@ -190,7 +190,7 @@ function QuoteResult({ quote }: { quote: RheaQuoteView }) {
   return (
     <div className="space-y-4 rounded-2xl border border-line p-5 sm:p-6" data-testid="rhea-quote">
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2">
-        <dt className="text-muted">Router</dt><dd className="font-mono" data-testid="rhea-router">{quote.router}</dd>
+        <dt className="text-muted">Router</dt><dd data-testid="rhea-router">{quote.routerName && quote.routerName.toLowerCase() !== quote.router ? <>{quote.routerName} <span className="font-mono text-muted">({quote.router})</span></> : <span className="font-mono">{quote.router}</span>}</dd>
         <dt className="text-muted">You send</dt><dd data-testid="rhea-amount-in">{quote.amountIn} {quote.tokenIn.symbol} on {from}</dd>
         <dt className="text-muted">Estimated output</dt><dd data-testid="rhea-estimated">{quote.estimatedOut} {quote.tokenOut.symbol} on {to}</dd>
         <dt className="text-muted">Minimum output</dt><dd data-testid="rhea-minimum">{quote.minAmountOut} {quote.tokenOut.symbol}</dd>

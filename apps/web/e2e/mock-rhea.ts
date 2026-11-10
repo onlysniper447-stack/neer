@@ -45,7 +45,7 @@ createServer((req, res) => {
       const body = JSON.parse(raw) as { amountIn: string; sender: string };
       const router = body.sender.toLowerCase().endsWith("1111") ? "lifi" : "nearintents";
       const out = (BigInt(body.amountIn) * 995n) / 1000n;
-      send(res, 200, { code: 0, msg: "ok", data: { isCrossChain: true, chainType: "cross-chain", bestQuote: { router, amountOut: out.toString(), minAmountOut: ((out * 995n) / 1000n).toString() }, allQuotes: [], errors: null } });
+      send(res, 200, { code: 0, msg: "ok", data: { isCrossChain: true, chainType: "cross-chain", bestQuote: { router, ...(router === "lifi" ? { routerName: "LI.FI", routeLabel: "LI.FI" } : {}), amountOut: out.toString(), estimatedOut: out.toString(), minAmountOut: ((out * 995n) / 1000n).toString(), executionType: "transaction" }, allQuotes: [], errors: null } });
     });
     return;
   }

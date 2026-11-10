@@ -107,6 +107,8 @@ export interface CheckPrefill {
 
 export interface RheaQuoteView {
   router: string;
+  /** RHEA's display name for the router, e.g. "LI.FI", when it sends one. */
+  routerName: string | null;
   viaNearIntents: boolean;
   fromChain: RheaChainId;
   toChain: RheaChainId;
@@ -137,6 +139,7 @@ export interface RheaApiError {
     | "RHEA_TIMEOUT"
     | "RHEA_BAD_RESPONSE"
     | "RHEA_NO_ROUTE"
+    | "RHEA_QUOTE_TIMEOUT"
     | "RHEA_UNAVAILABLE"
     | "RHEA_FORBIDDEN_ORIGIN";
   message: string;

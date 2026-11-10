@@ -28,13 +28,20 @@ export const toNear = () => ({
   },
 });
 
-export const quoteOk = (router = "nearintents") => ({
+/** Shaped like the live success in fixtures/rhea-live/success-lifi.json (no routerName: none seen live for NEAR Intents). */
+export const quoteOk = (router = "nearintents", routerName?: string) => ({
   code: 0,
   msg: "ok",
   data: {
     isCrossChain: true,
     chainType: "cross-chain",
-    bestQuote: { router, amountOut: "9950000", minAmountOut: "9900250", preSwap: null, bridge: { route: "intents" } },
+    executionType: "transaction",
+    quoteId: "00000000-0000-0000-0000-000000000000:0",
+    bestQuote: {
+      router, ...(routerName ? { routerName, routeLabel: routerName } : {}),
+      amountOut: "9950000", estimatedOut: "9950000", guaranteedOut: "9900250", minAmountOut: "9900250",
+      executionType: "transaction", quoteId: "00000000-0000-0000-0000-000000000000:0", preSwap: null, bridge: { route: "intents" },
+    },
     allQuotes: [{ router: "lifi", amountOut: "9900000" }],
     errors: null,
   },
