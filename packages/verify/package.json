@@ -1,6 +1,6 @@
 {
   "name": "@neer/verify",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pure NEAR Intents verification and legacy preflight compatibility",
   "license": "MIT",
   "type": "module",

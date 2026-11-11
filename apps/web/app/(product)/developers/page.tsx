@@ -27,20 +27,22 @@ const REQUEST_FIELDS: [string, string, string][] = [
   ["transfer.chain", "string", "1Click network id of the send, e.g. eth, base, arb, sol."],
   ["transfer.asset", "string", '"native", a token contract, or a 1Click assetId.'],
   ["transfer.amount", "string", "Amount in base units, as an integer string."],
-  ["transfer.source", '"wallet" | "exchange" | "unknown"', "Where the money comes from. Default unknown, which can't be Safe to send."],
+  ["transfer.source", '"wallet" | "exchange" | "unknown"', "Where the money comes from. Default unknown, which can't reach Checks passed."],
   ["transfer.chainId", "number", "The wallet's EVM chain id. A mismatch with the quote's network blocks."],
   ["transfer.from", "string", "Your sending address, compared with the refund address."],
   ["transfer.to", "string", "The address on the wallet's send screen, to catch clipboard swaps and lookalikes."],
   ["transfer.memo", "string | null", "The memo you'll attach. Omit to use deposit.memo."],
+  ["transfer.expectedRecipient", "string", "Your own receiving address. Compared with the quote's recipient; without it the verdict is check, never safe."],
+  ["transfer.expectedDestinationChain", "string", "1Click network id where you expect to receive. A different quoted destination blocks. Omit to use the quote's destination."],
   ["transfer.tx", "{ to, data?, value?, chainId? }", "Unsigned draft transaction. Neer decodes it to catch approvals and wrong recipients."],
   ["quote", "object | null", "Optional signed 1Click quote you already have. It must match the one 1Click returns for the address."],
 ];
 
 const RESPONSE_FIELDS: [string, string][] = [
-  ["verdict", '"safe" | "check" | "block"'],
-  ["label", "Safe to send, Check this, or Don't send"],
+  ["verdict", '"safe" | "check" | "block" (machine values, unchanged in 1.1.0)'],
+  ["label", "Checks passed, Check this, or Don't send"],
   ["headline, message", "Plain-English reason and what to do"],
-  ["checks[]", "Applicable checks and findings. The time check includes expected.safeUntil: recheck before this boundary; never cache a Safe indefinitely."],
+  ["checks[]", "Applicable checks and findings. The time check includes expected.safeUntil: recheck before this boundary; never cache a safe verdict indefinitely."],
   ["quote", "Quote metadata (networks, symbols, amounts, deadline, refund address), or null. Not every metadata field is signed"],
   ["signedQuote", "Original verified quote response. Preserve it as a record, not proof of delivery"],
   ["rulesVersion, checksHash", "Which rules ran, and a hash of the check results"],
@@ -59,12 +61,12 @@ const ERRORS: [string, string, string][] = [
 
 const WIDGET = `import { NeerGuard, NeerStatus } from "@neer/react";
 
-export function SendButton({ address, amount }: { address: string; amount: string }) {
+export function SendButton({ address, amount, receiveAt }: { address: string; amount: string; receiveAt: string }) {
   return (
     <NeerGuard
       endpoint="https://your-neer-deployment.example"
       deposit={{ address }}
-      transfer={{ chain: "arb", asset: "native", amount, source: "wallet" }}
+      transfer={{ chain: "arb", asset: "native", amount, source: "wallet", expectedRecipient: receiveAt }}
     >
       {(guard) => (
         <>
@@ -131,7 +133,7 @@ export default async function DevelopersPage() {
   return (
     <>
       <PageHeader eyebrow="API" title="Neer API">
-        The checks behind the web app, as JSON. No API key, read-only, and fail-closed: errors never return Safe to send.
+        The checks behind the web app, as JSON. No API key, read-only, and fail-closed: errors never return Checks passed.
       </PageHeader>
 
       <div className="grid gap-10 lg:grid-cols-[13rem_minmax(0,1fr)] xl:gap-16">
@@ -154,14 +156,15 @@ export default async function DevelopersPage() {
             <p className="mt-4 text-muted">
               Compares what you&apos;re about to send with the signed quote for the deposit address. Give at least <code className="font-mono text-sm text-ink">chain</code>,{" "}
               <code className="font-mono text-sm text-ink">asset</code> and <code className="font-mono text-sm text-ink">amount</code>; anything missing makes the related check Not
-              confirmed, so the verdict can&apos;t be Safe.
+              confirmed, so the verdict can&apos;t be safe. Since verifier 1.1.0 a safe verdict also needs{" "}
+              <code className="font-mono text-sm text-ink">expectedRecipient</code> to match the quote&apos;s recipient.
             </p>
             <H3>Request</H3>
             <CodeBlock code={curlPost(origin, "/api/v1/preflight", SAFE_REQUEST)} title="curl" />
             <div className="mt-4">
               <Table head={["Field", "Type", "Meaning"]} rows={REQUEST_FIELDS} mono={[0, 1]} />
             </div>
-            <H3>Response: 200, Safe to send (abridged)</H3>
+            <H3>Response: 200, Checks passed (abridged)</H3>
             <CodeBlock code={abridged(EXAMPLES.safe)} title="200 application/json" />
             <details className="mt-3 rounded-xl border border-line">
               <summary className="flex min-h-11 cursor-pointer items-center px-4 font-medium text-brand">Show the full response</summary>
@@ -243,7 +246,7 @@ export default async function DevelopersPage() {
 
           <Section id="widget" title="<NeerGuard/> React widget">
             <p className="text-muted">
-              Keeps your Send button disabled until Neer says Safe to send for exactly the current inputs, less than 60 seconds ago and within the time check’s safety window. Rechecking disables it immediately. Loading, errors, non-2xx responses, malformed bodies,
+              Keeps your Send button disabled until Neer says Checks passed for exactly the current inputs, less than 60 seconds ago and within the time check’s safety window. Rechecking disables it immediately. Loading, errors, non-2xx responses, malformed bodies,
               stale results, Check this and Don&apos;t send all keep it disabled. It never touches a wallet. It lives in this repo as{" "}
               <code className="font-mono text-sm text-ink">packages/react</code> (<code className="font-mono text-sm text-ink">@neer/react</code>); it isn&apos;t on npm yet. Add your
               site to <code className="font-mono text-sm text-ink">NEER_CORS_ORIGINS</code>.

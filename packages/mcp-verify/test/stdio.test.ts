@@ -13,7 +13,7 @@ import { input, pass } from "./fixtures.js";
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../../..");
 const cli=resolve(root,"packages/mcp-verify/dist/cli.js");
-const exact="Checks a NEAR Intents deposit (address, network, token, amount, memo) against its signed quote before funds are sent. Returns pass, warn, or block with reasons. Call this after getting a deposit address and before the user or agent sends funds. Does not sign or submit transactions.";
+const exact="Checks a NEAR Intents deposit (address, network, token, amount, memo, receiving address) against its signed quote before funds are sent. Returns pass, warn, or block with reasons. Pass expectedRecipient, the user's own receiving address; without it the result is never pass. Call this after getting a deposit address and before the user or agent sends funds. Does not sign or submit transactions.";
 
 describe("actual stdio process",()=>{
  it("lists exactly one described strict tool, rejects extra inputs, and returns actual HTTP JSON then status",async()=>{
@@ -25,7 +25,7 @@ describe("actual stdio process",()=>{
     if(mode==="network"){req.socket.destroy();return;}
     if(mode==="invalid"){res.setHeader("content-type","application/json");res.end('{"status":"pass"}');return;}
     const finding={code:mode==="warn"?"SOURCE_UNKNOWN":"QUOTE_EXPIRED",severity:mode,message:"FAKE_RETURNED_MESSAGE",fix:"FAKE_RETURNED_FIX"};
-    res.setHeader("content-type","application/json");res.setHeader("x-neer-verify-version","1.0.0");res.end(JSON.stringify({...pass,status:mode,findings:mode==="pass"?[]:[finding]}));
+    res.setHeader("content-type","application/json");res.setHeader("x-neer-verify-version","1.1.0");res.end(JSON.stringify({...pass,status:mode,findings:mode==="pass"?[]:[finding]}));
    });
   });
   await new Promise<void>(r=>upstream.listen(0,"127.0.0.1",r));const address=upstream.address();if(!address||typeof address==="string")throw Error("fixture bind failed");
@@ -36,7 +36,7 @@ describe("actual stdio process",()=>{
    await client.connect(transport);const list=await client.listTools();expect(calls).toBe(0);expect(list.tools).toHaveLength(1);
    const tool=list.tools[0]!;expect(tool.name).toBe(TOOL_NAME);expect(tool.description).toBe(exact);expect(TOOL_DESCRIPTION).toBe(exact);expect(tool.inputSchema.additionalProperties).toBe(false);
    const fields=tool.inputSchema.properties as Record<string,{description?:string;properties?:Record<string,{description?:string}>;additionalProperties?:boolean}>;
-   expect(Object.keys(fields)).toEqual(["depositAddress","network","token","amount","memo","lookupMemo","source","transfer"]);
+   expect(Object.keys(fields)).toEqual(["depositAddress","network","token","amount","memo","lookupMemo","expectedRecipient","expectedDestinationChain","source","transfer"]);
    for(const field of Object.values(fields))expect(field.description?.length).toBeGreaterThan(5);
    expect(fields.transfer!.additionalProperties).toBe(false);for(const field of Object.values(fields.transfer!.properties!))expect(field.description?.length).toBeGreaterThan(5);
    expect(tool.inputSchema.required).toEqual(["depositAddress","network","token","amount"]);

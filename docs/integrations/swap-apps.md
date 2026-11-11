@@ -16,6 +16,8 @@ All names are case-sensitive and single-valued. See the authoritative [deep-link
 | amount | Required human-readable decimal amount, not base units |
 | memo | Optional sending memo; empty means explicit null |
 | lookupMemo | Optional separate quote lookup memo; defaults to memo/null |
+| recipient | Optional (1.1.0) user's own receiving address; without it the result is Check this, never Checks passed |
+| recipientNetwork | Optional (1.1.0) network ID where the user expects to receive |
 | source | Optional wallet/exchange/unknown; missing remains unknown and cannot pass |
 | chainId | Optional positive safe-integer EVM chain ID, digits only |
 | from | Optional declared sender, not proof of control |

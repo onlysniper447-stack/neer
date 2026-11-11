@@ -22,6 +22,8 @@ All parameters are single-valued and case-sensitive. Root/nested arbitrary JSON 
 | `amount` | `amount` | Required human-readable decimal amount for automatic verification, not base units. Metadata supplies decimals; precision is not guessed. |
 | `memo` | `memo` | Optional declared send memo. Empty query value means explicit null/no send memo; omission inherits lookup context. Legacy lookup treats this as its lookup memo under the existing schema. |
 | `lookupMemo` | `lookupMemo` | Optional separate quote lookup memo. Empty means null; omission defaults to memo or null. This selects automatic-verification mode, even without other context. |
+| `recipient` | `expectedRecipient` | Optional (since 1.1.0) receiving address the user expects funds at. Without it an otherwise matching link shows Check this, never Checks passed. |
+| `recipientNetwork` | `expectedDestinationChain` | Optional (since 1.1.0) canonical network ID where the user expects to receive. |
 | `source` | `source` | Optional wallet/exchange/unknown. Omission stays unknown and warns, never an assumed wallet/pass. |
 | `chainId` | `transfer.chainId` | Optional digits-only positive safe-integer EVM chain ID; zero, decimal/exponent/negative/unsafe values reject. |
 | `from` | `transfer.from` | Optional declared sender, not proof of control. |
@@ -35,9 +37,11 @@ A valid complete link runs **on the server while /check loads**, using the same 
 
 The result appears as a manual check would, with existing stale/expired safe-result protection. Change details hides that result and opens the prefilled form. Form submission validates the same contract before a native GET navigation, so rerunning unchanged details requests a fresh server check instead of replaying client router state. Invalid edits do not run. Rate limits and unavailable/unknown findings cannot become a pass. Server metadata-dependent precision errors show the form without a stale result.
 
-## Copy link and memo consent
+## Copy link, memo and receiving-address consent
 
 The result panel's Copy link control starts with **Include memo in link unchecked**. By default **both memo and lookupMemo are omitted**, including a standalone lookupMemo. Explicit opt-in includes each defined memo, preserving an empty/null value. Consent is remounted/reset for a different input/result or when leaving the result to edit. It is not saved in storage.
+
+The receiving address follows the same pattern with its own **Include receiving address in link** checkbox, shown only when the check had one, and unchecked by default. By default **both `recipient` and `recipientNetwork` are omitted**. A receiving address is less sensitive than a memo, but it can identify the user's wallet, and whoever opens a shared link should enter their own receiving address anyway, so it is opt-in rather than copied silently.
 
 A copied complete link includes canonical network/token/human amount/source and any declared transfer context. A legacy result without complete sending context copies only its legacy address lookup, not a fabricated automatic verification. Missing lookup memo can prevent the provider finding a quote; the recipient must supply it privately if needed. Copying does not extend a quote deadline or preserve a pass forever.
 

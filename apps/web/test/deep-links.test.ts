@@ -28,6 +28,17 @@ describe("strict checker link boundary",()=>{
  it("round trips human amounts, explicit null memo and all context without tx/quoteId",()=>{
   const input={...parsed(),amount:"5.123",memo:null,lookupMemo:"FAKE_LOOKUP",transfer:{chainId:1,from:"FAKE_FROM",to:"FAKE_TO"}};const params=verificationParams(input,true);expect(parseCheckQuery(queryRecord(params))).toMatchObject({kind:"verify",input});expect(verificationDraft(input).memo).toBe("");expect(params.has("quoteId")).toBe(false);expect(params.has("tx")).toBe(false);
  });
+ it("maps recipient and recipientNetwork to expectedRecipient and expectedDestinationChain (1.1.0)",()=>{
+  expect(parseCheckQuery({...base,recipient:"fake-recipient.near",recipientNetwork:"near"})).toMatchObject({kind:"verify",input:{expectedRecipient:"fake-recipient.near",expectedDestinationChain:"near"}});
+  for(const bad of [{recipient:"https://fake.example/x"},{recipient:""},{recipientNetwork:"Arbitrum One"}])expect(parseCheckQuery({...base,...bad}).kind).toBe("invalid");
+  const q=new URLSearchParams({...base,recipient:"fake-a.near"});q.append("recipient","fake-b.near");expect(parseCheckQuery(queryRecord(q)).kind).toBe("invalid");
+ });
+ it("omits the receiving address from copied links unless the user opts in, independently of memos",()=>{
+  const input={...parsed(),memo:"FAKE_SEND",expectedRecipient:"fake-recipient.near",expectedDestinationChain:"near"};
+  for(const memo of [false,true]){const no=new URL(copiedCheckLink("https://example.test",input,memo));expect(no.searchParams.has("recipient")).toBe(false);expect(no.searchParams.has("recipientNetwork")).toBe(false);expect(no.href).not.toContain("fake-recipient");}
+  const yes=new URL(copiedCheckLink("https://example.test",input,false,true));expect(yes.searchParams.get("recipient")).toBe("fake-recipient.near");expect(yes.searchParams.get("recipientNetwork")).toBe("near");expect(yes.searchParams.has("memo")).toBe(false);
+  expect(verificationDraft(input).recipient).toBe("fake-recipient.near");
+ });
  it("invalidates copy opt-in context after every input/result revision",()=>{
   const input=parsed(),r={serverTime:"2026-11-07T15:30:00Z",checksHash:"FAKE_HASH"};const old=copyContext(input,r);
   for(const next of [{...input,memo:"FAKE_CHANGED"},{...input,lookupMemo:"FAKE_CHANGED"},{...input,amount:"6"},{...input,network:"base"}])expect(copyContext(next,r)).not.toBe(old);

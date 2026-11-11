@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { ASSETS, E2E_ADDRESSES } from "@neer/fixtures/scenarios";
+import { ASSETS, E2E_ADDRESSES, SOL_RECIPIENT } from "@neer/fixtures/scenarios";
 import { API_EXAMPLE_BODY } from "../lib/api-example";
 
 const preflight = (address: string, transfer: Record<string, unknown>) => ({
@@ -20,9 +20,19 @@ test("POST /api/v1/preflight returns a signed-quote verdict", async ({ request }
 });
 
 test("/v1/preflight alias works", async ({ request }) => {
-  const res = await request.post("/v1/preflight", preflight(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000" }));
+  const res = await request.post("/v1/preflight", preflight(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000", expectedRecipient: SOL_RECIPIENT }));
   expect(res.status()).toBe(200);
   expect((await res.json()).verdict).toBe("safe");
+});
+
+test("a matching send without a receiving address is check, never safe (1.1.0)", async ({ request }) => {
+  const res = await request.post("/v1/preflight", preflight(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000" }));
+  expect(res.status()).toBe(200);
+  const body = await res.json();
+  expect(body.verdict).toBe("check");
+  expect(body.label).toBe("Check this");
+  expect(body.headline).toBe("Receiving address not confirmed");
+  expect(body.checks.find((c: { id: string }) => c.id === "recipient").severity).toBe("unknown");
 });
 
 test("bad input is a 400 with field issues", async ({ request }) => {

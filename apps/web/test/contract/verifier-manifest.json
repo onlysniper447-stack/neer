@@ -4,7 +4,7 @@
     "apps/web/app/home.module.css": "32679cb9c523eeb88b6208fa5f70f05434d4dd4416e4f5b0b4cc1dd3058d7238",
     "apps/web/app/layout.tsx": "697d562e1778a774c0177b4d2bc9739ab9bc831c6a5da4aaeac25a0309f6b4cf",
     "apps/web/app/page.tsx": "5a53ec77ee16c21b6b02b90a4010be217afd01ccea245e27529c8929eed26ec3",
-    "apps/web/lib/deep-links.ts": "c45d88c9cc222cf2416cb0eeb1efaaac322b88ba132f55f0b470c5240e454945",
+    "apps/web/lib/deep-links.ts": "7b3e5a8b30daf4d355d1f623c5061594819df0592ca06a6084c24a2b1a201769",
     "apps/web/lib/server/cors.ts": "d00b55f4a18c704b2abf25499111d2ead031fea9e81e066aae56faa8b8ee766a",
     "apps/web/lib/server/http-node.ts": "aadae582233ed6a3011b2faa885d2f882f31062e826a38c4d66ce0b063395a3b",
     "apps/web/lib/server/http.ts": "214cba63a7e06fe0aa00d6aec19b6f768092c14a8ea698bc3f7be45de0bffd6b",
@@ -24,35 +24,35 @@
     "apps/web/next.config.ts": "99f5562d3b6db1011b9f600259743e556f4feb07e8f9e9fafe9e453da2cb5db2",
     "apps/web/pages/api/v1/verify.ts": "b4d641000f2611eb9c6c914c18bf0448aa97c59db79c001046d40a037f43c410",
     "apps/web/proxy.ts": "24f3204a99c8db9cf30d5e0aaa3b656af2d0f6a561b686d59b0aed7c601b67da",
-    "openapi.yaml": "997c26b3c43713b5d9db2f267c8e9a93010d52fd310a34071d066ec88690eed6",
+    "openapi.yaml": "6157850fd559ee370ce6b800fe2f217c54dac20888105f3a45c310d62b6eded3",
     "packages/core/src/address.ts": "4332ec847c6be79347be0d2e58f50baaaac73ab0d20fb55a810a8d11812caf25",
-    "packages/core/src/catalog.ts": "bb71a4fe385f325c133c51e9c211606d10d1ae658c41138daa2265071adfb2e6",
+    "packages/core/src/catalog.ts": "67d313fc484e68292a66219c74c8c95eb1fb0ec9bca4b0725eed0531daef346b",
     "packages/core/src/chains.ts": "f73699ec13ee80e56ff7d0de485ec70085f76aef3dcccdfad3f8879ab2df7c8a",
-    "packages/core/src/checks.ts": "dc1923d0d342aa16be685dba7d8f731e6c011896f98545ef3df4d15edccb17b8",
-    "packages/core/src/codes.ts": "4369264d18a775c96976ef6123c274abea09f24d7021e979a2f4c21e4d8501cb",
-    "packages/core/src/context.ts": "0d7a93d88962487a9726954d697ca4fcae86b2d2a899ccadb2f32cdba05098c6",
+    "packages/core/src/checks.ts": "b6a11ef17013486efe65f9369d1db672129d25d5b410ef4472e55840cfc711a0",
+    "packages/core/src/codes.ts": "7b1c8edd7ca791b2ba355d55802b1cb8e6d21f5bdab26d3924b34fd8caaa2fc0",
+    "packages/core/src/context.ts": "c302e726a63f09e233734b69fe2915d810fe3fdaeb15c675406b08d401737521",
     "packages/core/src/index.ts": "7bd38f92de8454efccc08ce1b39e5f4862dfe32533b09a067398b0515e57c99a",
-    "packages/core/src/preflight.ts": "ca159f0462b92f3b54a3ee3cf90832cb79a106421e945388f5a5f3c1f6e40221",
+    "packages/core/src/preflight.ts": "f6ef2cb9309035f7014dd4e88b62093f9547ad36d81b258c6f5c5ea80c308d92",
     "packages/core/src/rules-config.ts": "1bc7a8321badc46fd3c54041e8b486290d227ea008b768d06d43bdd07f4446ca",
     "packages/core/src/schemas.ts": "9981ce003efd6926930e34d3f31946a711fee8b6758af47905d3cf07a0ed14f7",
     "packages/core/src/signature.ts": "bc5bcedd5ea1e0fe48b7e0983407412a52840e39a4c8c3cc531228f0e77fb107",
     "packages/core/src/stable-json.ts": "8877a2bdbf0082aceb137f49cc2a489cf09735ec9975e4bc0f6bd221e410f2b5",
     "packages/core/src/status.ts": "526b728f543e04ac20b1238bc069d65f251e6c1ad5202febca11203a3186d750",
     "packages/core/src/tx.ts": "1990bd9f0d3771b013ff6dce825fe6423d38f1bd4dd4dda671b5a477b5ef5b8c",
-    "packages/core/src/types.ts": "6785bc4af2432914d4256e3ccde81596b62db282e309a6eab188b3001a42dd78",
+    "packages/core/src/types.ts": "3594b0e01cbebd85fa8ee8d459e2c7fd49947224081e04a4bbc9796792096d3e",
     "packages/core/src/units.ts": "00e5300dea60ccadd6a5a937b68dc9607857b729eecd1d4822d0b2b3edbac8ac",
-    "packages/mcp-verify/package.json": "09ea8636155f661533877ff0e57fb4cf7c502a7e146103ab3a28b0fb17dfbddd",
+    "packages/mcp-verify/package.json": "a4580ad0718522d3ade2d132c09a2c8f3159bac0a7608ccb29dbb282172941a3",
     "packages/mcp-verify/src/cli.ts": "187b0143cfee429c9752b298e16475619666b0978471b1164888764da23ebc0a",
     "packages/mcp-verify/src/client.ts": "c9334a18025ec1502437e0b9a7fe428d12d7731c21afa38eece45879210f5fa7",
-    "packages/mcp-verify/src/schema.ts": "e42b811fee4fdea3a2ea29692895cef10cff94625164ab69db33975e1271b6bb",
-    "packages/mcp-verify/src/server.ts": "3282927e7c11d5e65f0386a3253b13a902de5d9a55188b2e5507c3794c877a99",
+    "packages/mcp-verify/src/schema.ts": "5826ba78cfc7dd4b5556114c5d3b1e611025c8f3a578ee382eceb9491590d0d8",
+    "packages/mcp-verify/src/server.ts": "ea1f10315132137c7217916a1b137626904a803d8d533bff487f5c9f9d127a12",
     "packages/oneclick/src/index.ts": "b554d2a18b81832dc7444f1c92e5ccf8565e76e2922b2a2b087d1ee0657917b4",
-    "packages/verify/package.json": "eee45dd3b654ac3ffcabccddb4765e757e20c8e84b224a5764b245218edd2897",
+    "packages/verify/package.json": "69badeaea6dc42ecd73ed93a6a9279740eeb4d5cdfe715dfc287188685254704",
     "packages/verify/src/fetch-quote.ts": "b65095a9c3732175b3029965d6396bff2aafc7cb3b40ca57883490d52546fe3e",
-    "packages/verify/src/index.ts": "d4dbf2ebea17d4f6b8a4448bc4a43109972de3d4c0c047c936996a312091bfec",
-    "packages/verify/src/input.ts": "758c6846a8a3c6fa6124b23b5e88d6d1c46d3945dcf278253fca8baae2a46ade",
-    "packages/verify/src/projection.ts": "1e9eb257c75ecc978334099fffc43ded50e3c1bb8bc3ced5e5628cd2fdfd1c07",
-    "packages/verify/src/types.ts": "440d0cb58a31ae06f4eb21d05e570d3bb6dc95b96e2a728074c159612ca5c8a1"
+    "packages/verify/src/index.ts": "916030e67b3b94969819c0d66f1d37a23b98f1147ddce61f15a54d4a76b899c5",
+    "packages/verify/src/input.ts": "df97f71f0c912e6eb9fdc6ef879575df1cbc57072b25e86e8ec3b2f0a3c50d1c",
+    "packages/verify/src/projection.ts": "cbb162d44668d13e20371a5ab6461795693ead928f69aa1632ccee11b6a0bbe6",
+    "packages/verify/src/types.ts": "20c6c6eba6935eecb00ac3b9ec25f775c99f745ecb36c90c7fef6d87678481e6"
   },
   "updates": [
     {
@@ -61,6 +61,118 @@
       "to": "1bc7a8321badc46fd3c54041e8b486290d227ea008b768d06d43bdd07f4446ca",
       "rulesVersion": "2026.11.2",
       "reason": "Rule data refresh only: minimums re-verified against NEAR Intents changelog on 2026-11-10 (checkedAt, version, changelog index source). No logic change; verifier HTTP snapshots unchanged."
+    },
+    {
+      "file": "apps/web/lib/deep-links.ts",
+      "from": "c45d88c9cc222cf2416cb0eeb1efaaac322b88ba132f55f0b470c5240e454945",
+      "to": "7b3e5a8b30daf4d355d1f623c5061594819df0592ca06a6084c24a2b1a201769",
+      "verifyVersion": "1.1.0",
+      "reason": "Deep links accept recipient and recipientNetwork (mapped to expectedRecipient/expectedDestinationChain); copied links omit them unless the user opts in, same pattern as memos."
+    },
+    {
+      "file": "openapi.yaml",
+      "from": "997c26b3c43713b5d9db2f267c8e9a93010d52fd310a34071d066ec88690eed6",
+      "to": "6157850fd559ee370ce6b800fe2f217c54dac20888105f3a45c310d62b6eded3",
+      "verifyVersion": "1.1.0",
+      "reason": "Contract 1.1.0: expectedRecipient and expectedDestinationChain inputs, seven RECIPIENT_* FindingCode values, version bump."
+    },
+    {
+      "file": "packages/core/src/catalog.ts",
+      "from": "bb71a4fe385f325c133c51e9c211606d10d1ae658c41138daa2265071adfb2e6",
+      "to": "67d313fc484e68292a66219c74c8c95eb1fb0ec9bca4b0725eed0531daef346b",
+      "verifyVersion": "1.1.0",
+      "reason": "Catalog entry for the new recipient (Receiving address) check."
+    },
+    {
+      "file": "packages/core/src/checks.ts",
+      "from": "dc1923d0d342aa16be685dba7d8f731e6c011896f98545ef3df4d15edccb17b8",
+      "to": "b6a11ef17013486efe65f9369d1db672129d25d5b410ef4472e55840cfc711a0",
+      "verifyVersion": "1.1.0",
+      "reason": "New recipient rule (chain-aware match/lookalike/mismatch/network/forwarded/confidential, fail-closed); recipient added to REQUIRED_CHECKS so a pass requires a match."
+    },
+    {
+      "file": "packages/core/src/codes.ts",
+      "from": "4369264d18a775c96976ef6123c274abea09f24d7021e979a2f4c21e4d8501cb",
+      "to": "7b1c8edd7ca791b2ba355d55802b1cb8e6d21f5bdab26d3924b34fd8caaa2fc0",
+      "verifyVersion": "1.1.0",
+      "reason": "Eight RECIPIENT_* check codes; seven added to the actionable public finding codes."
+    },
+    {
+      "file": "packages/core/src/context.ts",
+      "from": "0d7a93d88962487a9726954d697ca4fcae86b2d2a899ccadb2f32cdba05098c6",
+      "to": "c302e726a63f09e233734b69fe2915d810fe3fdaeb15c675406b08d401737521",
+      "verifyVersion": "1.1.0",
+      "reason": "Context carries trimmed expectedRecipient/expectedDestinationChain from the declared transfer."
+    },
+    {
+      "file": "packages/core/src/preflight.ts",
+      "from": "ca159f0462b92f3b54a3ee3cf90832cb79a106421e945388f5a5f3c1f6e40221",
+      "to": "f6ef2cb9309035f7014dd4e88b62093f9547ad36d81b258c6f5c5ea80c308d92",
+      "verifyVersion": "1.1.0",
+      "reason": "Human labels: safe -> 'Checks passed' (headline 'Matches a signed NEAR Intents quote and your receiving address.'), SAFE_DEFINITION rewritten to list exactly what is verified; machine values unchanged."
+    },
+    {
+      "file": "packages/core/src/types.ts",
+      "from": "6785bc4af2432914d4256e3ccde81596b62db282e309a6eab188b3001a42dd78",
+      "to": "3594b0e01cbebd85fa8ee8d459e2c7fd49947224081e04a4bbc9796792096d3e",
+      "verifyVersion": "1.1.0",
+      "reason": "recipient check id; optional expectedRecipient/expectedDestinationChain on the declared transfer."
+    },
+    {
+      "file": "packages/mcp-verify/package.json",
+      "from": "09ea8636155f661533877ff0e57fb4cf7c502a7e146103ab3a28b0fb17dfbddd",
+      "to": "a4580ad0718522d3ade2d132c09a2c8f3159bac0a7608ccb29dbb282172941a3",
+      "verifyVersion": "1.1.0",
+      "reason": "Semver-minor bump to 1.1.0 for the new optional input fields (not published)."
+    },
+    {
+      "file": "packages/mcp-verify/src/schema.ts",
+      "from": "e42b811fee4fdea3a2ea29692895cef10cff94625164ab69db33975e1271b6bb",
+      "to": "5826ba78cfc7dd4b5556114c5d3b1e611025c8f3a578ee382eceb9491590d0d8",
+      "verifyVersion": "1.1.0",
+      "reason": "Tool input descriptions for expectedRecipient/expectedDestinationChain."
+    },
+    {
+      "file": "packages/mcp-verify/src/server.ts",
+      "from": "3282927e7c11d5e65f0386a3253b13a902de5d9a55188b2e5507c3794c877a99",
+      "to": "ea1f10315132137c7217916a1b137626904a803d8d533bff487f5c9f9d127a12",
+      "verifyVersion": "1.1.0",
+      "reason": "Tool description says a pass needs the user's receiving address via expectedRecipient."
+    },
+    {
+      "file": "packages/verify/package.json",
+      "from": "eee45dd3b654ac3ffcabccddb4765e757e20c8e84b224a5764b245218edd2897",
+      "to": "69badeaea6dc42ecd73ed93a6a9279740eeb4d5cdfe715dfc287188685254704",
+      "verifyVersion": "1.1.0",
+      "reason": "Semver-minor bump to 0.2.0 for contract 1.1.0 (not published)."
+    },
+    {
+      "file": "packages/verify/src/index.ts",
+      "from": "d4dbf2ebea17d4f6b8a4448bc4a43109972de3d4c0c047c936996a312091bfec",
+      "to": "916030e67b3b94969819c0d66f1d37a23b98f1147ddce61f15a54d4a76b899c5",
+      "verifyVersion": "1.1.0",
+      "reason": "Maps expectedRecipient/expectedDestinationChain into the core transfer."
+    },
+    {
+      "file": "packages/verify/src/input.ts",
+      "from": "758c6846a8a3c6fa6124b23b5e88d6d1c46d3945dcf278253fca8baae2a46ade",
+      "to": "df97f71f0c912e6eb9fdc6ef879575df1cbc57072b25e86e8ec3b2f0a3c50d1c",
+      "verifyVersion": "1.1.0",
+      "reason": "Strict validation of expectedRecipient (trimmed 1-128, no links) and expectedDestinationChain (network id)."
+    },
+    {
+      "file": "packages/verify/src/projection.ts",
+      "from": "1e9eb257c75ecc978334099fffc43ded50e3c1bb8bc3ced5e5628cd2fdfd1c07",
+      "to": "cbb162d44668d13e20371a5ab6461795693ead928f69aa1632ccee11b6a0bbe6",
+      "verifyVersion": "1.1.0",
+      "reason": "Fix texts for the seven public RECIPIENT_* findings; projection still shows only short addresses."
+    },
+    {
+      "file": "packages/verify/src/types.ts",
+      "from": "440d0cb58a31ae06f4eb21d05e570d3bb6dc95b96e2a728074c159612ca5c8a1",
+      "to": "20c6c6eba6935eecb00ac3b9ec25f775c99f745ecb36c90c7fef6d87678481e6",
+      "verifyVersion": "1.1.0",
+      "reason": "VERIFY_VERSION 1.0.0 -> 1.1.0 (X-Neer-Verify-Version header)."
     }
   ]
 }

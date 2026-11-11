@@ -4,6 +4,25 @@ All notable changes to the verification contract will be documented here, follow
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.1.0] - 2026-11-11
+
+### Added
+
+- Receiving-address check (`recipient`, required for a pass). New optional input `expectedRecipient` (the user's own receiving address) and `expectedDestinationChain`, in the core transfer, `@neer/verify` input, `/api/v1/verify` and `/v1/verify`, `/api/v1/preflight` (`transfer.expectedRecipient`), the MCP tool `verify_near_deposit`, OpenAPI, the `/check` form ("Your receiving address") and deep links (`recipient`, `recipientNetwork`).
+- Seven finding codes: `RECIPIENT_CONFIDENTIAL`, `RECIPIENT_NETWORK_MISMATCH`, `RECIPIENT_NETWORK_UNKNOWN`, `RECIPIENT_NOT_PROVIDED`, `RECIPIENT_LOOKALIKE`, `RECIPIENT_MISMATCH`, `RECIPIENT_FORWARDED` (76 public codes in total).
+- Fixture family 09-recipient-match; every existing fixture now carries the expected receiving address.
+
+### Changed
+
+- **Safety effect:** a matching send without a receiving address is now `check` / `warn` (`RECIPIENT_NOT_PROVIDED`), not `safe` / `pass`. A different, lookalike or wrong-network recipient blocks.
+- Human label for `safe` is now "Checks passed" (was "Safe to send"), with the headline "Matches a signed NEAR Intents quote and your receiving address." and a definition that lists what was and wasn't checked. Machine values `safe`/`check`/`block` and `pass`/`warn`/`block` are unchanged.
+- `VERIFY_VERSION` and `X-Neer-Verify-Version` are 1.1.0. Package versions: `@neer/core`, `@neer/verify`, `@neer/react` 0.2.0; `@neer/mcp-verify` 1.1.0 (not published).
+- Copied links leave out the receiving address unless the user ticks "Include receiving address in link".
+
+## [1.0.0]
+
 Target verification contract: **1.0.0**. Local and QA-preview work only: no production deployment, npm publication or release date is recorded. Existing workspace package manifests remain 0.1.0.
 
 ### Added

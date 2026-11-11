@@ -1,9 +1,11 @@
 /**
  * Guards the public verifier contract while other features change.
  * 1. Every verifier, alias, security-header and homepage source file must
- *    match the SHA-256 manifest recorded at production commit 26b01b1.
+ *    match the SHA-256 manifest recorded at production commit 26b01b1, plus
+ *    the reviewed `updates` listed in verifier-manifest.json (each with a reason).
  * 2. Recorded HTTP behavior of /api/v1/verify (status, headers, body) must
- *    match the snapshot recorded at that commit, using fake data only.
+ *    match the snapshot, using fake data only. Re-recorded deliberately for
+ *    verifier 1.1.0 (receiving-address check); see docs/versioning.md.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
@@ -62,6 +64,10 @@ async function record(response: Response) {
 
 const CASES: [string, () => Request][] = [
   ["pass", () => req("POST", input())],
+  ["warn: recipient missing (1.1.0; this was pass in 1.0.0)", () => { const b: Record<string, unknown> = { ...input() }; delete b.expectedRecipient; return req("POST", b); }],
+  ["block: recipient mismatch", () => req("POST", { ...input(), expectedRecipient: "other-account.near" })],
+  ["block: receiving network mismatch", () => req("POST", { ...input(), expectedDestinationChain: "arb" })],
+  ["400: expectedRecipient is a link", () => req("POST", { ...input(), expectedRecipient: "https://fake.example/x" })],
   ["warn: source missing", () => { const b: Record<string, unknown> = { ...input() }; delete b.source; return req("POST", b); }],
   ["block: network mismatch", () => req("POST", { ...input(), network: "base" })],
   ["400: deferred quoteId", () => req("POST", { ...input(), quoteId: "fake-quote-id" })],

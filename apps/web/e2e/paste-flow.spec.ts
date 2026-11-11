@@ -1,13 +1,15 @@
 import { expect, test } from "@playwright/test";
-import { ASSETS, E2E_ADDRESSES } from "@neer/fixtures/scenarios";
+import { ASSETS, DOCS_REFUND, E2E_ADDRESSES, SOL_RECIPIENT } from "@neer/fixtures/scenarios";
 import { describeSend, pasteAddress } from "./helpers";
 
-test("matching send gets Safe to send, with exact amount and a tracker link", async ({ page }) => {
+test("matching send with the receiving address gets Checks passed, with exact amount and a tracker link", async ({ page }) => {
   await pasteAddress(page, E2E_ADDRESSES.safe);
   await expect(page.getByTestId("route")).toContainText("5 USDC on Arbitrum → 4.735314 USDC on Solana");
   await describeSend(page, { network: "Arbitrum", asset: ASSETS.arbUsdc, amount: "5" });
   await expect(page.getByTestId("result")).toHaveAttribute("data-verdict", "safe");
-  await expect(page.getByTestId("verdict")).toContainText("Safe to send");
+  await expect(page.getByTestId("verdict")).toContainText("Checks passed");
+  await expect(page.getByTestId("verdict")).toContainText("Matches a signed NEAR Intents quote and your receiving address.");
+  await expect(page.getByTestId("check-recipient")).toHaveAttribute("data-severity", "pass");
   await expect(page.getByTestId("send-exactly")).toHaveText("5 USDC on Arbitrum");
   await expect(page.getByTestId("address-chip")).toHaveText(E2E_ADDRESSES.safe);
   await expect(page.getByTestId("countdown")).toBeVisible();
@@ -82,10 +84,10 @@ test("1Click being down fails closed", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Retry" })).toBeVisible();
 });
 
-test("memo deposits: right memo is Safe, missing memo is blocked", async ({ page }) => {
+test("memo deposits: right memo with the receiving address passes, missing memo is blocked", async ({ page }) => {
   await pasteAddress(page, E2E_ADDRESSES.memo, "4207198");
   await expect(page.getByTestId("route")).toContainText("on Stellar");
-  await describeSend(page, { network: "Stellar", asset: ASSETS.stellarUsdc, amount: "1100", memo: "4207198" });
+  await describeSend(page, { network: "Stellar", asset: ASSETS.stellarUsdc, amount: "1100", memo: "4207198", recipient: DOCS_REFUND });
   await expect(page.getByTestId("result")).toHaveAttribute("data-verdict", "safe");
 
   await page.getByRole("button", { name: "Change how I'll send" }).click();
@@ -101,4 +103,24 @@ test("rejects input that isn't an address before calling anything", async ({ pag
   await page.getByRole("button", { name: "Check address" }).click();
   await expect(page.getByText("This contains characters a deposit address never")).toBeVisible();
   await expect(page).toHaveURL(/\/check$/);
+});
+
+test("without a receiving address the same matching send is Check this, and adding it passes", async ({ page }) => {
+  await pasteAddress(page, E2E_ADDRESSES.safe);
+  await describeSend(page, { network: "Arbitrum", asset: ASSETS.arbUsdc, amount: "5", recipient: null });
+  await expect(page.getByTestId("result")).toHaveAttribute("data-verdict", "check");
+  await expect(page.getByTestId("verdict")).toContainText("Receiving address not confirmed");
+  await expect(page.getByTestId("check-recipient")).toHaveAttribute("data-severity", "unknown");
+  await page.getByRole("button", { name: "Change details" }).click();
+  await page.getByLabel("Your receiving address").fill(SOL_RECIPIENT);
+  await page.getByRole("button", { name: "Run checks" }).click();
+  await expect(page.getByTestId("result")).toHaveAttribute("data-verdict", "safe");
+});
+
+test("a quote that pays someone else is Don't send, with both short addresses", async ({ page }) => {
+  await pasteAddress(page, E2E_ADDRESSES.safe);
+  await describeSend(page, { network: "Arbitrum", asset: ASSETS.arbUsdc, amount: "5", recipient: "So11111111111111111111111111111111111111112" });
+  await expect(page.getByTestId("result")).toHaveAttribute("data-verdict", "block");
+  await expect(page.getByTestId("check-recipient")).toHaveAttribute("data-severity", "block");
+  await expect(page.getByTestId("check-recipient")).toContainText("The quote sends the swapped funds to 13Qk…gjRK, not your address So11…1112.");
 });

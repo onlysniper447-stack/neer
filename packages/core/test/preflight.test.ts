@@ -40,16 +40,25 @@ describe("recorded live quote (real 1Click signature)", () => {
     now: new Date("2026-10-27T10:20:00Z"),
   };
 
-  it("is Safe to send when every declared detail matches", () => {
-    const res = preflight({ ...base, transfer: DeclaredTransferSchema.parse(goodArb) });
+  it("passes (verdict safe, label Checks passed) when every declared detail and the receiving address match", () => {
+    const res = preflight({ ...base, transfer: DeclaredTransferSchema.parse({ ...goodArb, expectedRecipient: status.quoteResponse.quoteRequest.recipient }) });
     expect(res.verdict).toBe("safe");
-    expect(res.label).toBe("Safe to send");
-    expect(res.headline).toBe("Everything matches the quote.");
+    expect(res.label).toBe("Checks passed");
+    expect(res.headline).toBe("Matches a signed NEAR Intents quote and your receiving address.");
     expect(res.quote?.verified).toBe(true);
     expect(res.quote?.originChain).toBe("arb");
     expect(res.quote?.sendBefore).toBe("2026-10-27T10:46:37.000Z");
     expect(res.signedQuote?.signature).toBe(status.quoteResponse.signature);
     expect(res.checks.every((c) => c.severity === "pass" || c.severity === "info")).toBe(true);
+  });
+
+  // Deliberate 1.1.0 regression: the same matching send without a receiving address is no longer Safe.
+  it("is Check this when the receiving address is not entered, even if everything else matches", () => {
+    const res = preflight({ ...base, transfer: DeclaredTransferSchema.parse(goodArb) });
+    expect(res.verdict).toBe("check");
+    expect(res.label).toBe("Check this");
+    expect(res.headline).toBe("Receiving address not confirmed");
+    expect(check(res, "recipient").severity).toBe("unknown");
   });
 
   it("is Don't send once the 30-minute request deadline passes, even though quote.deadline is 3 days out", () => {
@@ -108,8 +117,8 @@ describe("near/intents#382 replay: 0.17 ETH on Base sent to an Ethereum quote", 
     expect(check(res, "network").headline).toBe("Network mismatch");
   });
 
-  it("is Safe to send once the user sends on Ethereum", () => {
-    const res = run(qr, { ...sendOnBase, chain: "eth" });
+  it("passes (safe) once the user sends on Ethereum and enters the receiving address", () => {
+    const res = run(qr, { ...sendOnBase, chain: "eth", expectedRecipient: qr.quoteRequest.recipient });
     expect(res.verdict).toBe("safe");
   });
 
@@ -183,7 +192,7 @@ describe("memo", () => {
   });
 
   it("uses the pasted memo when the transfer memo is not given separately", () => {
-    const res = run(qr, xlm, { memo: "4207198" });
+    const res = run(qr, { ...xlm, expectedRecipient: qr.quoteRequest.recipient }, { memo: "4207198" });
     expect(check(res, "memo").severity).toBe("pass");
     expect(res.verdict).toBe("safe");
   });
@@ -195,7 +204,8 @@ describe("memo", () => {
   });
 
   it("is informational when a memo is given for a quote that doesn't use one", () => {
-    const res = run(arbUsdc(NOW), { ...goodArb, memo: "123" });
+    const q = arbUsdc(NOW);
+    const res = run(q, { ...goodArb, memo: "123", expectedRecipient: q.quoteRequest.recipient });
     expect(check(res, "memo").severity).toBe("info");
     expect(res.verdict).toBe("safe");
   });
@@ -413,7 +423,7 @@ describe("lookalike and address match", () => {
 
   it("passes an ERC-20 transfer to the right address (Safe)", () => {
     const data = encodeFunctionData({ abi: erc20Abi, functionName: "transfer", args: [real as `0x${string}`, 5000000n] });
-    const res = run(qr, { ...wallet, from: DOCS_REFUND, tx: { to: ARB_USDC_CONTRACT, data, chainId: 42161 } });
+    const res = run(qr, { ...wallet, from: DOCS_REFUND, expectedRecipient: qr.quoteRequest.recipient, tx: { to: ARB_USDC_CONTRACT, data, chainId: 42161 } });
     expect(res.verdict).toBe("safe");
     expect(check(res, "approval").message).toBe("This is a plain transfer. No approvals involved.");
   });
@@ -524,12 +534,18 @@ describe("other checks", () => {
 
 describe("verdict aggregation fails closed", () => {
   const mk = (id: CheckResult["id"], severity: CheckResult["severity"]): CheckResult => ({ id, severity, title: id, headline: id, summary: "", message: "" });
-  const allPass = ["signature", "used", "time", "lookalike", "network", "token", "amount", "exchange"].map((id) => mk(id as CheckResult["id"], "pass"));
+  const allPass = ["signature", "used", "time", "lookalike", "network", "token", "amount", "recipient", "exchange"].map((id) => mk(id as CheckResult["id"], "pass"));
 
   it("no checks is not Safe", () => expect(aggregateVerdict([])).toBe("check"));
   it("all required passing is Safe", () => expect(aggregateVerdict(allPass)).toBe("safe"));
   it("info does not downgrade", () => expect(aggregateVerdict([...allPass, mk("incident", "info")])).toBe("safe"));
   it("unknown downgrades to Check this", () => expect(aggregateVerdict([...allPass, mk("format", "unknown")])).toBe("check"));
+  it("Safe is impossible without a passing recipient check", () => {
+    const withoutRecipient = allPass.filter((c) => c.id !== "recipient");
+    expect(aggregateVerdict(withoutRecipient)).toBe("check");
+    for (const sev of ["unknown", "info", "warn"] as const) expect(aggregateVerdict([...withoutRecipient, mk("recipient", sev)])).toBe("check");
+    expect(aggregateVerdict([...withoutRecipient, mk("recipient", "block")])).toBe("block");
+  });
   it("a missing required check is not Safe", () => expect(aggregateVerdict(allPass.slice(1))).toBe("check"));
   it("any block wins", () => expect(aggregateVerdict([...allPass, mk("memo", "warn"), mk("minimum", "block")])).toBe("block"));
 

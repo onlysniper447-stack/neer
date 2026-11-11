@@ -20,7 +20,33 @@ exports[`verifier HTTP behavior snapshot > 400: deferred quoteId 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
+  },
+  "status": 400,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > 400: expectedRecipient is a link 1`] = `
+{
+  "body": {
+    "details": [
+      {
+        "message": "Use your receiving address, not a link",
+        "path": "expectedRecipient",
+      },
+    ],
+    "error": "invalid_input",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 400,
 }
@@ -46,7 +72,7 @@ exports[`verifier HTTP behavior snapshot > 400: invalid JSON 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 400,
 }
@@ -72,7 +98,7 @@ exports[`verifier HTTP behavior snapshot > 400: oversized body 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 400,
 }
@@ -98,7 +124,7 @@ exports[`verifier HTTP behavior snapshot > 400: unknown key 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 400,
 }
@@ -119,7 +145,7 @@ exports[`verifier HTTP behavior snapshot > 405 GET 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 405,
 }
@@ -140,7 +166,7 @@ exports[`verifier HTTP behavior snapshot > 405 PUT 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 405,
 }
@@ -157,7 +183,7 @@ exports[`verifier HTTP behavior snapshot > OPTIONS preflight 1`] = `
     "cache-control": "no-store",
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 204,
 }
@@ -185,7 +211,7 @@ exports[`verifier HTTP behavior snapshot > block: network mismatch 1`] = `
       "verified": true,
     },
     "status": "block",
-    "version": "1.0.0",
+    "version": "1.1.0",
   },
   "headers": {
     "access-control-allow-headers": "Content-Type",
@@ -196,7 +222,85 @@ exports[`verifier HTTP behavior snapshot > block: network mismatch 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
+  },
+  "status": 200,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > block: receiving network mismatch 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [
+      {
+        "code": "RECIPIENT_NETWORK_MISMATCH",
+        "fix": "Do not send; get a new quote for the network you expect.",
+        "message": "The quote delivers on NEAR, but you expect to receive on Arbitrum. Don't send. Get a new quote for the network you want.",
+        "severity": "block",
+      },
+    ],
+    "quote": {
+      "amount": "5",
+      "expiresAt": "2026-11-07T16:30:00.000Z",
+      "minimumAmount": "5",
+      "network": "eth",
+      "swapType": "EXACT_INPUT",
+      "token": "nep141:fake-usdc.omft.near",
+      "verified": true,
+    },
+    "status": "block",
+    "version": "1.1.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.1.0",
+  },
+  "status": 200,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > block: recipient mismatch 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [
+      {
+        "code": "RECIPIENT_MISMATCH",
+        "fix": "Do not send; get a new quote to your own address.",
+        "message": "The quote sends the swapped funds to fake…near, not your address othe…near. Don't send. Get a new quote to your own address.",
+        "severity": "block",
+      },
+    ],
+    "quote": {
+      "amount": "5",
+      "expiresAt": "2026-11-07T16:30:00.000Z",
+      "minimumAmount": "5",
+      "network": "eth",
+      "swapType": "EXACT_INPUT",
+      "token": "nep141:fake-usdc.omft.near",
+      "verified": true,
+    },
+    "status": "block",
+    "version": "1.1.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 200,
 }
@@ -215,7 +319,7 @@ exports[`verifier HTTP behavior snapshot > keeps the public exports 1`] = `
 ]
 `;
 
-exports[`verifier HTTP behavior snapshot > keeps the public exports 2`] = `"1.0.0"`;
+exports[`verifier HTTP behavior snapshot > keeps the public exports 2`] = `"1.1.0"`;
 
 exports[`verifier HTTP behavior snapshot > pass 1`] = `
 {
@@ -232,7 +336,7 @@ exports[`verifier HTTP behavior snapshot > pass 1`] = `
       "verified": true,
     },
     "status": "pass",
-    "version": "1.0.0",
+    "version": "1.1.0",
   },
   "headers": {
     "access-control-allow-headers": "Content-Type",
@@ -243,7 +347,7 @@ exports[`verifier HTTP behavior snapshot > pass 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 200,
 }
@@ -264,7 +368,7 @@ exports[`verifier HTTP behavior snapshot > rate limit returns 429 after the veri
     "content-type": "application/json",
     "retry-after": "60",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 429,
 }
@@ -284,7 +388,7 @@ exports[`verifier HTTP behavior snapshot > upstream unavailable stays a 200 bloc
     ],
     "quote": null,
     "status": "block",
-    "version": "1.0.0",
+    "version": "1.1.0",
   },
   "headers": {
     "access-control-allow-headers": "Content-Type",
@@ -295,7 +399,46 @@ exports[`verifier HTTP behavior snapshot > upstream unavailable stays a 200 bloc
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
+  },
+  "status": 200,
+}
+`;
+
+exports[`verifier HTTP behavior snapshot > warn: recipient missing (1.1.0; this was pass in 1.0.0) 1`] = `
+{
+  "body": {
+    "checkedAt": "2026-11-07T15:30:00.000Z",
+    "findings": [
+      {
+        "code": "RECIPIENT_NOT_PROVIDED",
+        "fix": "Pass expectedRecipient, the caller's own receiving address.",
+        "message": "The quote sends the swapped funds to fake…near. Enter your own receiving address so Neer can compare it with the quote.",
+        "severity": "warn",
+      },
+    ],
+    "quote": {
+      "amount": "5",
+      "expiresAt": "2026-11-07T16:30:00.000Z",
+      "minimumAmount": "5",
+      "network": "eth",
+      "swapType": "EXACT_INPUT",
+      "token": "nep141:fake-usdc.omft.near",
+      "verified": true,
+    },
+    "status": "warn",
+    "version": "1.1.0",
+  },
+  "headers": {
+    "access-control-allow-headers": "Content-Type",
+    "access-control-allow-methods": "POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "X-Neer-Verify-Version, Retry-After",
+    "cache-control": "no-store",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+    "content-type": "application/json",
+    "x-content-type-options": "nosniff",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 200,
 }
@@ -323,7 +466,7 @@ exports[`verifier HTTP behavior snapshot > warn: source missing 1`] = `
       "verified": true,
     },
     "status": "warn",
-    "version": "1.0.0",
+    "version": "1.1.0",
   },
   "headers": {
     "access-control-allow-headers": "Content-Type",
@@ -334,7 +477,7 @@ exports[`verifier HTTP behavior snapshot > warn: source missing 1`] = `
     "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
     "content-type": "application/json",
     "x-content-type-options": "nosniff",
-    "x-neer-verify-version": "1.0.0",
+    "x-neer-verify-version": "1.1.0",
   },
   "status": 200,
 }

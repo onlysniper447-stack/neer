@@ -2,9 +2,9 @@
   "requestId": "req_1d0e6cc6df5848418670",
   "outcome": "checked",
   "verdict": "safe",
-  "label": "Safe to send",
-  "headline": "Everything matches the quote.",
-  "message": "Safe to send means your transfer matches a quote signed by NEAR Intents. It is a check, not a guarantee.",
+  "label": "Checks passed",
+  "headline": "Matches a signed NEAR Intents quote and your receiving address.",
+  "message": "Checks passed means Neer confirmed: the quote is signed by NEAR Intents, its deposit address is unused, there is time left, and your network, token, amount, memo (if any) and receiving address match it, sent from your own wallet. Neer does not check delivery on the destination network, your wallet's security, or who controls these addresses.",
   "checks": [
     {
       "id": "refund",
@@ -144,6 +144,20 @@
       "message": "Above the minimum for this network.",
       "actual": {
         "usd": "$5.00"
+      }
+    },
+    {
+      "id": "recipient",
+      "title": "Receiving address",
+      "severity": "pass",
+      "headline": "Receiving address matches",
+      "summary": "13Qk…gjRK",
+      "message": "Your receiving address matches the quote's recipient, 13Qk…gjRK on Solana. Neer does not check delivery on the destination network.",
+      "expected": {
+        "recipient": "13QkxhNMrTPxoCkRdYdJ65tFuwXPhL5gLS2Z5Nr6gjRK"
+      },
+      "actual": {
+        "recipient": "13QkxhNMrTPxoCkRdYdJ65tFuwXPhL5gLS2Z5Nr6gjRK"
       }
     },
     {

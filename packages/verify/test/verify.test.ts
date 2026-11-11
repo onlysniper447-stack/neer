@@ -99,3 +99,24 @@ it("keeps omitted source unknown in the full legacy path, never safe",async()=>{
  const result=await verifyDepositWithLegacy({...input(),source:undefined},deps());
  expect(result.verdict).toBe("check");expect(result.checks.find(c=>c.id==="exchange")?.severity).toBe("unknown");
 });
+
+describe("expectedRecipient (1.1.0)", () => {
+  it("without a receiving address the same matching input is warn, never pass", async () => {
+    const { expectedRecipient: _omit, ...rest } = input();
+    const r = await verifyDeposit(rest, deps());
+    expect(r.status).toBe("warn");
+    expect(r.findings).toEqual([{ code: "RECIPIENT_NOT_PROVIDED", severity: "warn", message: "The quote sends the swapped funds to fake…near. Enter your own receiving address so Neer can compare it with the quote.", fix: "Pass expectedRecipient, the caller's own receiving address." }]);
+    expect(JSON.stringify(r)).not.toContain("fake-recipient.near");
+  });
+  it("a different receiving address or destination network blocks", async () => {
+    expect((await verifyDeposit({ ...input(), expectedRecipient: "other-account.near" }, deps())).findings.map((f) => f.code)).toEqual(["RECIPIENT_MISMATCH"]);
+    expect((await verifyDeposit({ ...input(), expectedDestinationChain: "arb" }, deps())).findings.map((f) => f.code)).toEqual(["RECIPIENT_NETWORK_MISMATCH"]);
+    expect((await verifyDeposit({ ...input(), expectedDestinationChain: "near" }, deps())).status).toBe("pass");
+  });
+  it("trims, length-limits and rejects links or bad network IDs", async () => {
+    expect((await verifyDeposit({ ...input(), expectedRecipient: "  fake-recipient.near  " }, deps())).status).toBe("pass");
+    for (const bad of [{ expectedRecipient: "https://fake.example/x" }, { expectedRecipient: "x".repeat(129) }, { expectedRecipient: "" }, { expectedRecipient: "has space" }, { expectedDestinationChain: "Arbitrum One" }]) {
+      await expect(verifyDeposit({ ...input(), ...bad }, deps())).rejects.toBeInstanceOf(VerifyInputError);
+    }
+  });
+});

@@ -50,6 +50,14 @@ describe("server rendered automatic verification and preserved manual entry",()=
   expect(html).toContain('data-verdict="check"');expect(html).toContain("This result is out of date");expect(html).not.toContain('data-testid="send-exactly"');
  });
  it("copy control starts unchecked and describes both sensitive memo fields",()=>{const html=renderToStaticMarkup(createElement(CopyCheckLink,{input:{depositAddress:base.address,network:"eth",token:base.token,amount:"5",memo:"FAKE_SEND",lookupMemo:"FAKE_LOOKUP"}}));expect(html).toContain("Include memo in link");expect(html).toContain("both sending and lookup memos");expect(html).not.toContain("checked=");expect(html).not.toContain("FAKE_SEND");expect(html).not.toContain("FAKE_LOOKUP");});
+ it("copy control offers the receiving address only when present, unchecked and without echoing it",()=>{
+  const without=renderToStaticMarkup(createElement(CopyCheckLink,{input:{depositAddress:base.address,network:"eth",token:base.token,amount:"5"}}));expect(without).not.toContain("Include receiving address");
+  const html=renderToStaticMarkup(createElement(CopyCheckLink,{input:{depositAddress:base.address,network:"eth",token:base.token,amount:"5",expectedRecipient:"fake-recipient.near"}}));expect(html).toContain("Include receiving address in link");expect(html).not.toContain("checked=");expect(html).not.toContain("fake-recipient.near");
+ });
+ it("a recipient link is passed to the server check and prefilled with its hint",async()=>{
+  await CheckPage({searchParams:Promise.resolve({...base,recipient:"fake-recipient.near"})});expect(mocks.verify.mock.calls[0]![0].expectedRecipient).toBe("fake-recipient.near");
+  const html=renderToStaticMarkup(createElement(DeepLinkCheck,{draft:{...base,recipient:"fake-recipient.near"}}));expect(html).toContain("Your receiving address");expect(html).toContain('value="fake-recipient.near"');expect(html).toContain("The address where you expect to receive funds. Neer compares it to the quote.");
+ });
  it("new paths cannot write query values to storage or analytics",()=>{
   for(const path of ["../lib/deep-links.ts","../components/deep-link-check.tsx","../components/copy-check-link.tsx","../lib/server/verify-service.ts"]){const source=readFileSync(new URL(path,import.meta.url),"utf8");expect(source).not.toMatch(/localStorage|sessionStorage|recordCheck|sendBeacon|console\.|gtag\(|analytics\./);}
   const result=readFileSync(new URL("../components/result-view.tsx",import.meta.url),"utf8");expect(result).toContain("key={copyContext(");

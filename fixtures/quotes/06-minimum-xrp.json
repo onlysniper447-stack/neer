@@ -1,7 +1,7 @@
 {
   "fixtureKind": "FAKE_LOCAL_ONLY_DO_NOT_SEND",
   "schemaVersion": 1,
-  "verifierVersion": "1.0.0",
+  "verifierVersion": "1.1.0",
   "id": "06-minimum-xrp",
   "metadata": {
     "clock": "2026-11-07T15:30:00.000Z",
@@ -78,7 +78,8 @@
       "chain": "eth",
       "asset": "nep141:fake-usdc.omft.near",
       "amount": "5000000",
-      "source": "wallet"
+      "source": "wallet",
+      "expectedRecipient": "fake-recipient.near"
     },
     "now": "2026-11-07T15:30:00.000Z",
     "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
@@ -141,7 +142,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -163,7 +165,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -202,7 +204,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -211,6 +214,12 @@
               "code": "MINIMUM_NETWORK_UNKNOWN",
               "severity": "warn",
               "message": "We couldn't look up the networks for this swap, so we can't check network minimums.",
+              "fix": "Retry metadata lookup."
+            },
+            {
+              "code": "RECIPIENT_NETWORK_UNKNOWN",
+              "severity": "warn",
+              "message": "We couldn't look up which network this quote delivers to, so we can't compare the receiving address. Try again in a minute.",
               "fix": "Retry metadata lookup."
             }
           ],
@@ -224,7 +233,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -254,7 +263,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -276,7 +286,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -328,7 +338,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "block",
@@ -350,7 +361,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -422,7 +433,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "block",
@@ -444,7 +456,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -484,6 +496,11 @@
               "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
             }
           ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/expectedRecipient",
+          "value": "rpZNAnHcvr6TbaY7QJa9yrVfu6coDz9pPH:123"
         }
       ],
       "fault": null,
@@ -501,7 +518,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "rpZNAnHcvr6TbaY7QJa9yrVfu6coDz9pPH:123"
         },
         "expected": {
           "status": "block",
@@ -523,7 +541,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -563,6 +581,11 @@
               "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
             }
           ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/expectedRecipient",
+          "value": "X7Yc1SDQFsyqmsVuBYLdNEUNTMSqrmbTw2sA8xrw16qX2RU"
         }
       ],
       "fault": null,
@@ -580,7 +603,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "X7Yc1SDQFsyqmsVuBYLdNEUNTMSqrmbTw2sA8xrw16qX2RU"
         },
         "expected": {
           "status": "warn",
@@ -602,7 +626,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -642,6 +666,11 @@
               "priceUpdatedAt": "2026-11-07T15:30:00.000Z"
             }
           ]
+        },
+        {
+          "op": "replace",
+          "path": "/transfer/expectedRecipient",
+          "value": "FAKE_INVALID_XRP"
         }
       ],
       "fault": null,
@@ -659,7 +688,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "FAKE_INVALID_XRP"
         },
         "expected": {
           "status": "block",
@@ -681,7 +711,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -720,7 +750,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -772,7 +803,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }

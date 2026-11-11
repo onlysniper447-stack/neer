@@ -2,7 +2,7 @@ import type { Lookup, RulesConfig, Token, ActionableFindingCode } from "@neer/co
 import type { z } from "zod";
 import type { VerifyInputSchema } from "./input.js";
 
-export const VERIFY_VERSION = "1.0.0";
+export const VERIFY_VERSION = "1.1.0";
 export type FindingCode = ActionableFindingCode;
 export interface Finding {
   code: FindingCode;

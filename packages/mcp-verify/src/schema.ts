@@ -13,6 +13,8 @@ export const ToolInputSchema=VerifyInputSchema.extend({
  amount:fields.amount.describe("Human-readable decimal amount, not base units. Token decimals are resolved by the API."),
  memo:fields.memo.describe("Optional declared sending memo; null means no send memo. Omission inherits lookup context."),
  lookupMemo:fields.lookupMemo.describe("Optional separate quote lookup memo. Defaults to memo or null; never sent as a URL by this adapter."),
+ expectedRecipient:fields.expectedRecipient.describe("Optional but needed for a pass: the user's own receiving address where the swapped funds should arrive. Compared with the quote's recipient. Not the deposit address."),
+ expectedDestinationChain:fields.expectedDestinationChain.describe("Optional canonical network ID where the user expects to receive, such as arb. Omit to use the quote's destination network."),
  source:fields.source.describe("wallet, exchange or unknown. Omission stays unknown and warns rather than assuming a wallet."),
  transfer:context.extend({
   chainId:context.shape.chainId.describe("Optional positive safe-integer EVM chain ID on the declared sending screen."),

@@ -65,17 +65,17 @@ function templates():Map<string,string>{
 }
 
 describe("reference contract alignment",()=>{
- it("documents all 69 codes once, exact current templates, actions and introduced version",()=>{
+ it("documents all 76 codes once, exact current templates, actions and introduced version",()=>{
   expect(rows.map(r=>r[1])).toEqual([...FINDING_CODES]);const current=templates();
-  for(const r of rows){expect(decode(r[3]!)).toBe(current.get(r[1]!));expect(r[4]!.length).toBeGreaterThan(3);expect(r[5]!.length).toBeGreaterThan(3);expect(r[6]).toBe(VERIFY_VERSION);}
+  for(const r of rows){expect(decode(r[3]!)).toBe(current.get(r[1]!));expect(r[4]!.length).toBeGreaterThan(3);expect(r[5]!.length).toBeGreaterThan(3);expect(r[6]).toBe(r[1]!.startsWith("RECIPIENT_")?VERIFY_VERSION:"1.0.0");}
  });
  it("keeps code identity aligned with OpenAPI and fixtures, without inventing missing coverage",()=>{
   const yaml=read("openapi.yaml");const section=yaml.split("    FindingCode:\n")[1]!.split("    Finding:\n")[0]!;
   expect([...section.matchAll(/^ {8}- ([A-Z0-9_]+)$/gm)].map(r=>r[1])).toEqual([...FINDING_CODES]);
   expect([...new Set(all.map(x=>x.scenario.targetCode))].sort()).toEqual([...FINDING_CODES].sort());
-  expect(files).toHaveLength(8);expect(all).toHaveLength(72);
+  expect(files).toHaveLength(9);expect(all).toHaveLength(79);
   const publicCodes=new Set(all.filter(x=>x.scenario.publicReplay.targetProduced).map(x=>x.scenario.targetCode));
-  expect(publicCodes.size).toBe(59);
+  expect(publicCodes.size).toBe(66);
   const missing=FINDING_CODES.filter(c=>!publicCodes.has(c));expect(missing).toHaveLength(10);
   for(const c of missing)expect(read("fixtures/quotes/README.md")).toContain("| `"+c+"` |");
   expect(all.filter(x=>x.scenario.fault)).toHaveLength(2);

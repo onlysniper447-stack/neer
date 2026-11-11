@@ -1,6 +1,6 @@
 # Verification limits
 
-The verifier contract is 1.0.0. The new API is local and unreleased; this document does not announce a live endpoint. See [API behavior](api.md), [findings](findings.md) and [versioning](versioning.md).
+The verifier contract is 1.1.0. The new API is local and unreleased; this document does not announce a live endpoint. See [API behavior](api.md), [findings](findings.md) and [versioning](versioning.md).
 
 A pass is not a guarantee. Neer cannot recover funds after a transfer is sent. A result describes the supplied details and available data at `checkedAt`, not a later wallet action.
 
@@ -36,7 +36,7 @@ The existing OneClick client uses an 8-second request timeout, bounded response 
 
 ## Legacy compatibility versus public input
 
-The public input requires network, canonical token asset ID and human amount, with optional source, memo, lookupMemo and `transfer: { chainId?, from?, to? }`. `quoteId` is deferred and rejected. A declared address is not proof of ownership. See [API schema](api.md).
+The public input requires network, canonical token asset ID and human amount, with optional source, memo, lookupMemo, `expectedRecipient`, `expectedDestinationChain` and `transfer: { chainId?, from?, to? }`. The receiving-address check compares the quote's recipient with the address the caller enters; it does not prove the caller controls that address, and it reports confidential or forwarded recipients (customRecipientMsg, a different virtualChainRecipient) as not confirmed. `quoteId` is deferred and rejected. A declared address is not proof of ownership. See [API schema](api.md).
 
 The separate internal compatibility path retains the original richer checks, actions, receipts, freshness and rules. It can compare a partner quote and decode existing unsigned EVM drafts. The public API cannot accept drafts or partner quotes. Some documented codes therefore require legacy context or defense-in-depth injection rather than a valid public request; [fixtures](../fixtures/quotes/README.md) distinguish them. This work does not change `/check` messages or behavior.
 

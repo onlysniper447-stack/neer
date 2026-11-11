@@ -5,7 +5,8 @@
  *    1Click issues a real deposit address. Nobody deposits to it; it expires.
  * 2. Verifies the 1Click signature.
  * 3. Reads /v0/status for that address and runs the full preflight with a
- *    matching declared transfer (expects Safe to send) and with the wrong
+ *    matching declared transfer and receiving address (expects verdict safe,
+ *    label Checks passed) and with the wrong
  *    network (expects Don't send).
  *
  * Prints the deposit address so you can paste it into the running app.
@@ -53,7 +54,7 @@ async function main() {
   const base = { depositAddress: address, lookup, tokens: tokens.tokens, now: new Date() };
   const good = preflight({
     ...base,
-    transfer: DeclaredTransferSchema.parse({ chain: "arb", asset: "0xaf88d065e77c8cc2239327c5edb3a432268e5831", amount: "5000000", from: REFUND, source: "wallet" }),
+    transfer: DeclaredTransferSchema.parse({ chain: "arb", asset: "0xaf88d065e77c8cc2239327c5edb3a432268e5831", amount: "5000000", from: REFUND, source: "wallet", expectedRecipient: q.quote.quoteRequest.recipient }),
   });
   const wrong = preflight({
     ...base,

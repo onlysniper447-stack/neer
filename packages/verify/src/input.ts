@@ -9,6 +9,10 @@ export const VerifyInputSchema = z.object({
   amount: z.string().trim().min(1).max(256).refine((v) => /^(?:\d{1,3}(?:,\d{3})+|\d*)(?:\.\d*)?$/.test(v) && /\d/.test(v), "Enter a human-readable decimal amount"),
   memo: memo.optional(),
   lookupMemo: memo.optional(),
+  /** The caller's own receiving address, compared with the quote's recipient. Not the deposit address (`transfer.to`). */
+  expectedRecipient: z.string().trim().min(1).max(128).regex(/^[A-Za-z0-9:_\-.+/=]+$/, "Use your receiving address, not a link").refine((value) => !value.includes("://"), "Use your receiving address, not a link").optional(),
+  /** Network where the caller expects to receive. Defaults to the quote's destination network. */
+  expectedDestinationChain: z.string().regex(/^[a-z][a-z0-9_-]{0,31}$/, "Use a canonical network ID").optional(),
   source: z.enum(["wallet", "exchange", "unknown"]).default("unknown"),
   transfer: z.object({
     chainId: z.number().int().positive().optional(),

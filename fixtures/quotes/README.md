@@ -2,7 +2,7 @@
 
 **FAKE LOCAL TEST DATA — DO NOT SEND FUNDS.** These are generated examples, not anonymized real users or live provider quotes. They grant no wallet/account access. The new endpoint remains local and unreleased.
 
-Eight JSON quote families contain a signed base quote, token catalog, source/transfer context, rule snapshot and fixed clock, plus 72 scenario overlays covering all **69 public finding codes** in the compatibility/projection harness. Three extra scenarios exercise pasted/send address wording variants and decoded-draft token-contract block severity. All eight base contexts pass at the fixed test clock; they are not valid promises at today's clock.
+Nine JSON quote families contain a signed base quote, token catalog, source/transfer context (including the expected receiving address), rule snapshot and fixed clock, plus 79 scenario overlays covering all **76 public finding codes** in the compatibility/projection harness. Three extra scenarios exercise pasted/send address wording variants and decoded-draft token-contract block severity. All nine base contexts pass at the fixed test clock; they are not valid promises at today's clock.
 
 ## Reproduce
 
@@ -16,7 +16,7 @@ The executable harness is [reference.test.ts](../../packages/verify/test/referen
 
 ## Format and trust
 
-- `fixtureKind` is `FAKE_LOCAL_ONLY_DO_NOT_SEND`; schemaVersion is 1 and verifierVersion is 1.0.0.
+- `fixtureKind` is `FAKE_LOCAL_ONLY_DO_NOT_SEND`; schemaVersion is 1 and verifierVersion is 1.1.0. In 1.1.0 every base transfer and public replay gained `expectedRecipient` (the quote's fake recipient, or the patched recipient in scenarios that rewrite it), so the bases still pass. Two token-catalog scenarios (`ORIGIN_TOKEN_UNKNOWN`, `MINIMUM_NETWORK_UNKNOWN`) now also report `RECIPIENT_NETWORK_UNKNOWN`, because their catalog lacks the destination token.
 - `base` is the complete serialized legacy context, including the signed quote, fake token metadata/decimals, source, memo context, rule freshness and clock. Quote/legacy amounts are base-unit strings; `publicReplay.input.amount` uses human decimals.
 - `patches` is an object-only JSON-pointer add/remove/replace list relative to base. Arrays are replaced whole; removal matters for omitted inputs. Hydrate only `now` and found `lookup.fetchedAt` as Date objects; quote timestamps stay strings. Signatures are already computed after quote changes, except deliberately invalid-signature tests.
 - Clock: **2026-11-07 16:30 WAT (Africa/Lagos)**. Protocol values use ISO UTC for deterministic parsing; no wall-clock/network dependence. The rule checkedAt values are test data, not a newly reviewed production rule source.
@@ -36,12 +36,13 @@ The executable harness is [reference.test.ts](../../packages/verify/test/referen
 | [06-minimum-xrp.json](06-minimum-xrp.json) | 9 | 9 |
 | [07-refund-draft.json](07-refund-draft.json) | 8 | 8 |
 | [08-context-defenses.json](08-context-defenses.json) | 9 | 9 |
+| [09-recipient-match.json](09-recipient-match.json) | 7 | 7 |
 
 ## Coverage boundaries and gaps
 
-**No missing code fixture in the compatibility/projection harness: 69/69.** A quote alone cannot encode selected inputs, catalog state, clock, lookup failure or a failed/missing rule; the complete contexts and explicit overlays are necessary. There is no claim that 69 different signed quotes alone trigger every code.
+**No missing code fixture in the compatibility/projection harness: 76/76.** A quote alone cannot encode selected inputs, catalog state, clock, lookup failure or a failed/missing rule; the complete contexts and explicit overlays are necessary. There is no claim that 76 different signed quotes alone trigger every code.
 
-The public-module replays produce 59/69 target codes: 57 without a fault injection, plus RULE_EXECUTION_FAILED and REQUIRED_CHECK_MISSING through the explicit harness faults. These are module replays with injected fetch dependencies, not live HTTP/browser or real-transfer evidence. Ten codes remain intentionally legacy-only/defensive rather than falsely represented as reachable with valid public input:
+The public-module replays produce 66/76 target codes: 64 without a fault injection, plus RULE_EXECUTION_FAILED and REQUIRED_CHECK_MISSING through the explicit harness faults. These are module replays with injected fetch dependencies, not live HTTP/browser or real-transfer evidence. Ten codes remain intentionally legacy-only/defensive rather than falsely represented as reachable with valid public input:
 
 | Code | Why public-input replay cannot produce this target |
 |---|---|

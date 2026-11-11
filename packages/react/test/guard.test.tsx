@@ -66,7 +66,7 @@ describe("<NeerGuard/>", () => {
     expect(sendDisabled()).toBe(true);
     await flush();
     expect(sendDisabled()).toBe(false);
-    expect(screen.getByRole("status").textContent).toContain("Safe to send");
+    expect(screen.getByRole("status").textContent).toContain("Checks passed");
     expect(f).toHaveBeenCalledWith("https://neer.test/api/v1/preflight", expect.objectContaining({ method: "POST" }));
   });
 
@@ -126,7 +126,7 @@ it.each(["missing checks", "unverified quote", "missing quote", "bad check", "ba
   render(<Harness transfer={eth} fetchImpl={vi.fn(() => json(bad)) as unknown as typeof fetch} />);
   await flush();
   expect(sendDisabled()).toBe(true);
-  expect(screen.getByRole("status").textContent).not.toContain("Safe to send");
+  expect(screen.getByRole("status").textContent).not.toContain("Checks passed");
 });
 
 it("does not give an old server result a new sixty-second lifetime", async () => {
@@ -145,7 +145,7 @@ it("stops allowing a send when the time rule's safety boundary arrives", async (
   expect(sendDisabled()).toBe(false);
   await act(async () => { await vi.advanceTimersByTimeAsync(5_001); });
   expect(sendDisabled()).toBe(true);
-  expect(screen.getByRole("status").textContent).not.toContain("Safe to send");
+  expect(screen.getByRole("status").textContent).not.toContain("Checks passed");
 });
 
 it.each([NaN, Infinity, 0, -1, 60_001])("rejects an unsafe maxAgeMs configuration %s", async (maxAgeMs) => {
@@ -158,5 +158,5 @@ it("never labels a non-2xx Safe payload as safe", async () => {
   render(<Harness transfer={eth} fetchImpl={vi.fn(() => json(result("safe"), 503)) as unknown as typeof fetch} />);
   await flush();
   expect(sendDisabled()).toBe(true);
-  expect(screen.getByRole("status").textContent).not.toContain("Safe to send");
+  expect(screen.getByRole("status").textContent).not.toContain("Checks passed");
 });

@@ -55,11 +55,12 @@ export function PreflightFlow({
   const [memo, setMemo] = useState(pastedMemo ?? "");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [moreChains, setMoreChains] = useState(false);
   const [moreDetails, setMoreDetails] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [phase, setPhase] = useState<Phase>({ kind: "form" });
-  const ids = { token: useId(), amount: useId(), memo: useId(), from: useId(), to: useId() };
+  const ids = { token: useId(), amount: useId(), memo: useId(), from: useId(), to: useId(), recipient: useId() };
 
   const popular = chains.filter((c) => POPULAR.includes(c.id)).sort((a, b) => POPULAR.indexOf(a.id) - POPULAR.indexOf(b.id));
   const rest = chains.filter((c) => !POPULAR.includes(c.id)).sort((a, b) => a.name.localeCompare(b.name));
@@ -104,6 +105,7 @@ export function PreflightFlow({
         ...(needsMemo ? { memo: memo.trim() || null } : {}),
         ...(from.trim() ? { from: from.trim() } : {}),
         ...(to.trim() ? { to: to.trim() } : {}),
+        ...(recipient.trim() ? { expectedRecipient: recipient.trim() } : {}),
       },
     };
     const sendSummary = `${amount.trim()} ${token.symbol} on ${chains.find((c) => c.id === chain)?.name ?? chain}`;
@@ -111,7 +113,7 @@ export function PreflightFlow({
       const res = await fetch("/api/v1/preflight", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
       const json = (await res.json()) as Partial<ApiResult> & { error?: { code: string; message: string; issues?: { path: string; message: string }[] } };
       if (json.verdict && json.checks) {
-        setPhase({ kind: "result", result: json as ApiResult, sendSummary, shareInput: { depositAddress: address, network: chain, token: token.assetId, amount: amount.trim(), source, lookupMemo: pastedMemo, ...(needsMemo ? { memo: memo.trim() || null } : {}), transfer: { ...(from.trim() ? { from: from.trim() } : {}), ...(to.trim() ? { to: to.trim() } : {}) } } });
+        setPhase({ kind: "result", result: json as ApiResult, sendSummary, shareInput: { depositAddress: address, network: chain, token: token.assetId, amount: amount.trim(), source, lookupMemo: pastedMemo, ...(needsMemo ? { memo: memo.trim() || null } : {}), ...(recipient.trim() ? { expectedRecipient: recipient.trim() } : {}), transfer: { ...(from.trim() ? { from: from.trim() } : {}), ...(to.trim() ? { to: to.trim() } : {}) } } });
         recordCheck({ verdict: json.verdict, network: chain });
       } else if (res.status === 429) {
         setPhase({ kind: "error", message: json.error?.message ?? "Too many checks. Try again in 30 seconds." });
@@ -249,6 +251,25 @@ export function PreflightFlow({
             </div>
             {errors.source ? <p className="text-sm font-medium text-stop" role="alert">{errors.source}</p> : null}
           </fieldset>
+
+          <div className="space-y-2">
+            <Label htmlFor={ids.recipient} className="text-base font-semibold">
+              Your receiving address
+            </Label>
+            <Input
+              id={ids.recipient}
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              maxLength={128}
+              className="h-12 font-mono text-base"
+              aria-describedby={`${ids.recipient}-hint`}
+            />
+            <p id={`${ids.recipient}-hint`} className="text-sm text-muted">
+              The address where you expect to receive funds. Neer compares it to the quote.
+            </p>
+          </div>
 
           <Collapsible open={moreDetails} onOpenChange={setMoreDetails}>
             <CollapsibleTrigger className="flex min-h-11 items-center gap-1 font-medium text-brand">

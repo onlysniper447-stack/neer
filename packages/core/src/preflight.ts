@@ -10,14 +10,20 @@ import { stableStringify } from "./stable-json.js";
 import type { CheckResult, PreflightInput, PreflightResult, QuoteSummary, Severity, Verdict } from "./types.js";
 import { formatAmount } from "./units.js";
 
+/**
+ * Human labels only. The machine values `safe` / `check` / `block` stay as they are so
+ * integrators that branch on `verdict` keep working; only the wording shown to people changed.
+ */
 export const VERDICT_LABEL: Record<Verdict, string> = {
-  safe: "Safe to send",
+  safe: "Checks passed",
   check: "Check this",
   block: "Don't send",
 };
 
+export const SAFE_HEADLINE = "Matches a signed NEAR Intents quote and your receiving address.";
+
 export const SAFE_DEFINITION =
-  "Safe to send means your transfer matches a quote signed by NEAR Intents. It is a check, not a guarantee.";
+  "Checks passed means Neer confirmed: the quote is signed by NEAR Intents, its deposit address is unused, there is time left, and your network, token, amount, memo (if any) and receiving address match it, sent from your own wallet. Neer does not check delivery on the destination network, your wallet's security, or who controls these addresses.";
 
 const SEVERITY_RANK: Record<Severity, number> = { block: 0, warn: 1, unknown: 2, info: 3, pass: 4 };
 
@@ -137,7 +143,7 @@ function finish(
     headline = override.headline;
     message = override.message;
   } else if (verdict === "safe") {
-    headline = "Everything matches the quote.";
+    headline = SAFE_HEADLINE;
     message = SAFE_DEFINITION;
   } else {
     const worst = sorted[0]!;

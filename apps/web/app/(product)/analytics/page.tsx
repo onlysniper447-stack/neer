@@ -52,7 +52,7 @@ export default async function AnalyticsPage() {
                 <Stat label="Networks" value={String(o.networks)} note="Distinct networks in /v0/tokens" testId="stat-networks" />
                 <Stat label="Tokens" value={String(o.tokens)} note="Assets listed by 1Click, not guaranteed quote availability" testId="stat-tokens" />
                 <Stat label="Address formats Neer validates" value={`${o.validatedNetworks} of ${o.networks}`} note="Format checks, including checksums where available" />
-                <Stat label="Checks in the rules engine" value={String(RULE_CATALOG.length)} note={`Each runs when it applies; ${REQUIRED_CHECKS.length} must pass for Safe`} />
+                <Stat label="Checks in the rules engine" value={String(RULE_CATALOG.length)} note={`Each runs when it applies; ${REQUIRED_CHECKS.length} must pass for Checks passed`} />
               </div>
               <p className="mt-4 text-sm text-muted">
                 {state.fetchedAt ? (
@@ -177,7 +177,7 @@ export default async function AnalyticsPage() {
                     <p className="font-semibold">{r.title}</p>
                     <span className="font-mono text-xs text-muted">{r.id}</span>
                     <span className={cn("ml-auto rounded-full border px-2 py-0.5 text-xs font-medium", sev.cls)}>{sev.word}</span>
-                    {required ? <span className="rounded-full border border-brand/40 bg-bg px-2 py-0.5 text-xs font-medium text-brand">Needed for Safe</span> : null}
+                    {required ? <span className="rounded-full border border-brand/40 bg-bg px-2 py-0.5 text-xs font-medium text-brand">Needed to pass</span> : null}
                   </div>
                   <p className="mt-1.5 text-[15px] text-muted">{r.what}</p>
                 </li>

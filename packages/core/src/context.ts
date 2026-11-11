@@ -29,6 +29,10 @@ export interface Ctx {
   from?: string;
   /** Address the transfer will actually go to, when we know it (declared or decoded from the tx). */
   to?: string;
+  /** The user's own receiving address, if they entered one. */
+  expectedRecipient?: string;
+  /** Where the user expects to receive, if they said. */
+  expectedDestinationChain?: string;
   source: DeclaredTransfer["source"];
   decoded?: DecodedTx;
   now: Date;
@@ -123,6 +127,8 @@ export function buildContext(args: {
     memo: memo === undefined || memo === "" ? null : memo,
     from: transfer.from,
     to,
+    expectedRecipient: transfer.expectedRecipient?.trim() || undefined,
+    expectedDestinationChain: transfer.expectedDestinationChain?.trim() || undefined,
     source: transfer.source,
     decoded,
     now: args.now,

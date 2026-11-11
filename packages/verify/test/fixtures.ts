@@ -15,6 +15,7 @@ export const OTHER = getAddress("0xdadadadadadadadadadadadadadadadadadadada");
 export const CONTRACT = getAddress("0xcacacacacacacacacacacacacacacacacacacaca");
 export const TOKEN = "nep141:fake-usdc.omft.near";
 export const DEST = "nep141:fake-near.omft.near";
+export const RECIPIENT = "fake-recipient.near";
 export function tokens(): Token[] { return [
   { assetId: TOKEN, blockchain: "eth", symbol: "FAKE", decimals: 6, contractAddress: CONTRACT, priceUpdatedAt: NOW.toISOString() },
   { assetId: DEST, blockchain: "near", symbol: "FAKE_NEAR", decimals: 24, contractAddress: null, priceUpdatedAt: NOW.toISOString() },
@@ -24,16 +25,17 @@ export function sign(q: QuoteResponse): QuoteResponse {
 }
 export function quote(): QuoteResponse {
   return sign({ timestamp: NOW.toISOString(), signature: "test-only", correlationId: "FAKE_QUOTE_ID",
-    quoteRequest: { dry: false, swapType: "EXACT_INPUT", slippageTolerance: 100, originAsset: TOKEN, depositType: "ORIGIN_CHAIN", destinationAsset: DEST, amount: "5000000", refundTo: REFUND, refundType: "ORIGIN_CHAIN", recipient: "fake-recipient.near", recipientType: "DESTINATION_CHAIN", deadline: new Date(NOW.getTime()+3600000).toISOString() },
+    quoteRequest: { dry: false, swapType: "EXACT_INPUT", slippageTolerance: 100, originAsset: TOKEN, depositType: "ORIGIN_CHAIN", destinationAsset: DEST, amount: "5000000", refundTo: REFUND, refundType: "ORIGIN_CHAIN", recipient: RECIPIENT, recipientType: "DESTINATION_CHAIN", deadline: new Date(NOW.getTime()+3600000).toISOString() },
     quote: { amountIn: "5000000", amountInFormatted: "5", amountInUsd: "5", minAmountIn: "5000000", amountOut: "1000000", amountOutFormatted: "1", amountOutUsd: "5", minAmountOut: "1000000", depositAddress: DEPOSIT, deadline: new Date(NOW.getTime()+7200000).toISOString(), timeWhenInactive: new Date(NOW.getTime()+7200000).toISOString(), refundFee: "1000" },
   });
 }
 export function legacy(): PreflightInput {
   const q = quote();
   return { depositAddress: DEPOSIT, depositMemo: null, lookup: { kind: "found", status: { quoteResponse: q, status: "PENDING_DEPOSIT", updatedAt: NOW.toISOString() }, fetchedAt: NOW },
-    tokens: tokens(), transfer: DeclaredTransferSchema.parse({ chain: "eth", asset: TOKEN, amount: "5000000", source: "wallet" }), now: NOW, quotePublicKey: PUBLIC_KEY,
+    tokens: tokens(), transfer: DeclaredTransferSchema.parse({ chain: "eth", asset: TOKEN, amount: "5000000", source: "wallet", expectedRecipient: RECIPIENT }), now: NOW, quotePublicKey: PUBLIC_KEY,
     rules: { ...DEFAULT_RULES, minimums: { ...DEFAULT_RULES.minimums, checkedAt: NOW.toISOString() } } };
 }
-export function input(): VerifyInput { return { depositAddress: DEPOSIT, network: "eth", token: TOKEN, amount: "5", source: "wallet" }; }
+/** Since 1.1.0 a pass needs the caller's receiving address; the fixture quote pays this fake NEAR account. */
+export function input(): VerifyInput { return { depositAddress: DEPOSIT, network: "eth", token: TOKEN, amount: "5", source: "wallet", expectedRecipient: RECIPIENT }; }
 export function bundle(): QuoteBundle { const l=legacy(); return { lookup: l.lookup, tokens: l.tokens }; }
 export function deps(): VerifyDependencies { return { fetchQuote: async () => bundle(), now: () => NOW, quotePublicKey: PUBLIC_KEY, rules: legacy().rules }; }

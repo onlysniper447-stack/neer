@@ -4,7 +4,7 @@ The existing `/v1/*` rewrite also exposes `/v1/verify` as an alias of the same e
 
 `POST /api/v1/verify` calls the shared `@neer/verify` module. No API key, wallet connection, signature request or transaction submission is involved. Runtime: Node >=22.12.0.
 
-A pass means the deposit details match the quote and the quote has not expired. It does not guarantee delivery, does not verify the counterparty, and cannot recover funds sent to the wrong address.
+A pass means the deposit details match the quote and the quote has not expired. It does not guarantee delivery, does not verify the counterparty, and cannot recover funds sent to the wrong address. Since 1.1.0 a pass also requires `expectedRecipient` to match the quote's recipient; Neer compares addresses, it does not verify who controls them.
 
 See [limits and trust boundaries](limits.md), [all finding messages](findings.md), [version policy](versioning.md) and [synthetic fixture coverage](../fixtures/quotes/README.md).
 
@@ -22,6 +22,8 @@ Send `Content-Type: application/json`. The streamed body is limited to 64 KiB. T
 | `amount` | Human-readable decimal string, not base units. Token decimals are resolved from metadata; precision is not guessed. Trimmed length 1–256; existing grouped commas are accepted. |
 | `memo?` | Declared send memo. Omission inherits lookup context; null means no send memo. Printable non-space ASCII, at most 128 characters. |
 | `lookupMemo?` | Separate quote lookup memo. Defaults to `memo ?? null`; same memo bounds. |
+| `expectedRecipient?` | Since 1.1.0. The caller's own receiving address, compared with the signed quote's recipient using the destination network's address rules (EVM case-insensitive; NEAR, Solana, XRP exact; Bitcoin bech32 case-insensitive). Not the deposit address (that is `transfer.to`). Trimmed length 1–128, not a URL. **Without it the result is at best warn (`RECIPIENT_NOT_PROVIDED`), never pass.** |
+| `expectedDestinationChain?` | Since 1.1.0. Canonical network ID where the caller expects to receive. A different quoted destination, or a quote that pays a NEAR Intents account, blocks with `RECIPIENT_NETWORK_MISMATCH`. Omit it to use the quote's destination network. |
 | `source?` | `wallet`, `exchange` or `unknown`. Omission remains unknown and produces a warning, never an assumed pass. |
 | `transfer?` | Strict optional `{ chainId?, from?, to? }` context: positive safe-integer EVM chain ID and declared sender/destination strings of length 1–128. Not proof of ownership or an actual wallet operation. |
 
@@ -75,7 +77,7 @@ The quote summary is allowlisted to `{ verified, network, token, amount, minimum
 | 500 | `{ error: "internal_error" }` for an unexpected application failure; no raw exception details. |
 | 204 | OPTIONS CORS preflight only, with an empty body. |
 
-Every application-controlled response has `X-Neer-Verify-Version: 1.0.0`, `Cache-Control: no-store`, the existing API security headers and wildcard CORS. HTTP success does not imply status pass. Recheck near the time of sending; the module cannot prove the later wallet action matches declared input, independently confirm delivery/finality or recover funds.
+Every application-controlled response has `X-Neer-Verify-Version: 1.1.0`, `Cache-Control: no-store`, the existing API security headers and wildcard CORS. HTTP success does not imply status pass. Recheck near the time of sending; the module cannot prove the later wallet action matches declared input, independently confirm delivery/finality or recover funds.
 
 ## Scoped Node transport
 

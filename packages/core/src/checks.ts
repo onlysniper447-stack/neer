@@ -377,6 +377,51 @@ const refund: Rule = (c) => {
   return r("REFUND_ADDRESS_INFORMATION", "info", "Refund address", shortAddress(to), `The quote lists ${shortAddress(to)} for refunds. Make sure you control it. Neer cannot guarantee refund delivery.`, { expected });
 };
 
+// ---------------------------------------------------------------- recipient
+
+const EVM_HEX = /^0x[0-9a-fA-F]{40}$/;
+
+const recipient: Rule = (c) => {
+  const req = c.qr.quoteRequest;
+  const quoted = req.recipient;
+  const expected = c.expectedRecipient;
+  const wantChain = c.expectedDestinationChain;
+  if (req.recipientType === "CONFIDENTIAL_INTENTS") {
+    return r("RECIPIENT_CONFIDENTIAL", "unknown", "Receiving address not checked", "Confidential recipient", "This quote pays a confidential NEAR Intents recipient, which Neer can't compare with your address. Check the receiving address in your swap app.");
+  }
+  const intents = req.recipientType === "INTENTS";
+  // Where the quote delivers: a NEAR Intents account (NEAR account rules), or an address on the destination network.
+  const chain = intents ? "near" : c.destChain;
+  if (wantChain && (intents || (c.destChain && wantChain !== c.destChain))) {
+    const where = intents ? "to a NEAR Intents account" : `on ${chainName(c.destChain!)}`;
+    return r("RECIPIENT_NETWORK_MISMATCH", "block", "Wrong receiving network", intents ? "NEAR Intents account" : chainName(c.destChain!), `The quote delivers ${where}, but you expect to receive on ${chainName(wantChain)}. Don't send. Get a new quote for the network you want.`, { expected: { chain: wantChain }, actual: { chain: intents ? "intents" : c.destChain! }, action: { kind: "new-quote", label: "Get a new quote" } });
+  }
+  if (!chain) {
+    return r("RECIPIENT_NETWORK_UNKNOWN", "unknown", "Receiving network unknown", "Couldn't look up", "We couldn't look up which network this quote delivers to, so we can't compare the receiving address. Try again in a minute.");
+  }
+  if (!expected) {
+    return r("RECIPIENT_NOT_PROVIDED", "unknown", "Receiving address not confirmed", "Not entered", `The quote sends the swapped funds to ${shortAddress(quoted)}. Enter your own receiving address so Neer can compare it with the quote.`, { actual: { recipient: quoted } });
+  }
+  const virtual = req.virtualChainRecipient ?? c.qr.quote.virtualChainRecipient ?? null;
+  const customMsg = req.customRecipientMsg ?? c.qr.quote.customRecipientMsg ?? null;
+  // A virtual-chain recipient has no registry network: EVM-style hex compares case-insensitively, anything else exactly.
+  const sameVirtual = virtual !== null && (EVM_HEX.test(virtual) && EVM_HEX.test(expected) ? virtual.toLowerCase() === expected.toLowerCase() : virtual === expected);
+  const sameQuoted = sameAddress(chain, expected, quoted);
+  const target = virtual ?? quoted;
+  if (!sameQuoted && !sameVirtual) {
+    const facts = { expected: { recipient: expected }, actual: { recipient: target }, action: { kind: "new-quote" as const, label: "Get a new quote" } };
+    if (looksAlike(chain, expected, quoted) || (virtual !== null && looksAlike(chain, expected, virtual))) {
+      return r("RECIPIENT_LOOKALIKE", "block", "Lookalike receiving address", "Looks similar, isn't", `The quote's recipient starts and ends like your address ${shortAddress(expected)}, but the middle is different. Don't send. Get a new quote to an address copied from your own wallet.`, facts);
+    }
+    return r("RECIPIENT_MISMATCH", "block", "Different receiving address", "Not your address", `The quote sends the swapped funds to ${shortAddress(target)}, not your address ${shortAddress(expected)}. Don't send. Get a new quote to your own address.`, facts);
+  }
+  if (customMsg !== null || (virtual !== null && !sameVirtual)) {
+    return r("RECIPIENT_FORWARDED", "unknown", "Final receiver not confirmed", "Passed on", `The quote pays ${shortAddress(quoted)}, which passes the funds on to another address or contract, so Neer can't confirm where they end up. Check the final receiving address in your swap app.`, { expected: { recipient: expected }, actual: { recipient: quoted } });
+  }
+  const place = virtual !== null ? "on its virtual chain" : intents ? "inside NEAR Intents" : `on ${chainName(chain)}`;
+  return r("RECIPIENT_MATCH", "pass", "Receiving address matches", shortAddress(target), `Your receiving address matches the quote's recipient, ${shortAddress(target)} ${place}. Neer does not check delivery on the destination network.`, { expected: { recipient: expected }, actual: { recipient: target } });
+};
+
 // ---------------------------------------------------------------- approval and dust
 
 const approval: Rule = (c) => {
@@ -455,6 +500,7 @@ export const RULES: { id: CheckResult["id"]; title: string; run: Rule }[] = [
   { id: "minimum", title: "Network minimum", run: minimum },
   { id: "xrp", title: "XRP tag", run: xrp },
   { id: "refund", title: "Refund to", run: refund },
+  { id: "recipient", title: "Receiving address", run: recipient },
   { id: "approval", title: "Transfer type", run: approval },
   { id: "confidential", title: "Confidential swap", run: confidential },
   { id: "exchange", title: "Sending from", run: exchange },
@@ -463,4 +509,4 @@ export const RULES: { id: CheckResult["id"]; title: string; run: Rule }[] = [
 ];
 
 /** Checks that must be present for a Safe verdict. Missing ones become `unknown`. */
-export const REQUIRED_CHECKS: CheckResult["id"][] = ["signature", "used", "time", "lookalike", "network", "token", "amount", "exchange"];
+export const REQUIRED_CHECKS: CheckResult["id"][] = ["signature", "used", "time", "lookalike", "network", "token", "amount", "recipient", "exchange"];

@@ -32,6 +32,10 @@ export interface NeerTransfer {
   from?: string;
   to?: string;
   source?: "wallet" | "exchange" | "unknown";
+  /** The user's own receiving address. Neer compares it with the quote's recipient; without it the verdict is never "safe". */
+  expectedRecipient?: string;
+  /** 1Click blockchain id where the user expects to receive. Defaults to the quote's destination. */
+  expectedDestinationChain?: string;
   /** Unsigned draft tx, so Neer can decode what will really be sent. */
   tx?: { to: string; data?: string; value?: string; chainId?: number };
 }
@@ -198,7 +202,7 @@ export function NeerGuard({ children, ...opts }: NeerGuardProps) {
 }
 
 const TONE: Record<Verdict | "pending", { fg: string; bg: string; word: string }> = {
-  safe: { fg: "#065f46", bg: "#ecfdf5", word: "Safe to send" },
+  safe: { fg: "#065f46", bg: "#ecfdf5", word: "Checks passed" },
   check: { fg: "#92400e", bg: "#fffbeb", word: "Check this" },
   block: { fg: "#991b1b", bg: "#fef2f2", word: "Don't send" },
   pending: { fg: "#334155", bg: "#f8fafc", word: "Checking…" },

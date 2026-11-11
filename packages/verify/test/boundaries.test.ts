@@ -78,7 +78,7 @@ it("snapshots every existing exact finding template including positive/info",()=
  const fallback: string[]=[];
  function other(n:ts.Node){if(ts.isPropertyAssignment(n)&&n.name.getText(pre)==="message"&&ts.isStringLiteral(n.initializer))fallback.push(n.initializer.getText(pre));ts.forEachChild(n,other);}
  other(pre);
- expect(Object.keys(messages)).toHaveLength(89);
+ expect(Object.keys(messages)).toHaveLength(97);
  expect({rules:messages,otherLiteralMessages:fallback}).toMatchSnapshot();
 });
 
@@ -96,5 +96,5 @@ it("does not leak reason identities into the legacy result or its action objects
  expect(r.checks.find((c)=>c.id==="network")?.action).toEqual({kind:"switch-network",chain:"eth",label:"Switch to Ethereum"});
  for(const c of r.checks)expect(Object.keys(c)).not.toContain("code");
  expect(JSON.parse(JSON.stringify(r))).toEqual(r);
- expect(RULES).toHaveLength(17);
+ expect(RULES).toHaveLength(18);
 });

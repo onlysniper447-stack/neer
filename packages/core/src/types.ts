@@ -18,6 +18,7 @@ export const CHECK_IDS = [
   "minimum",
   "xrp",
   "refund",
+  "recipient",
   "approval",
   "confidential",
   "exchange",
@@ -74,6 +75,13 @@ export const DeclaredTransferSchema = z.object({
   amount: baseUnits.optional(),
   /** Memo the user will attach. `undefined` means "same as the pasted memo". */
   memo: z.string().max(128).nullable().optional(),
+  /**
+   * The user's own receiving address, where they expect the swapped funds to arrive.
+   * Compared with the quote's recipient. Not the same as `to`, which is the deposit side.
+   */
+  expectedRecipient: z.string().min(1).max(128).optional(),
+  /** 1Click blockchain id where the user expects to receive. Defaults to the quote's destination. */
+  expectedDestinationChain: z.string().min(1).max(32).optional(),
   source: z.enum(["wallet", "exchange", "unknown"]).default("unknown"),
   tx: DraftTxSchema.optional(),
 });

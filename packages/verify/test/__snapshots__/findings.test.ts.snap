@@ -94,6 +94,20 @@ exports[`every public FindingCode has an exercised fixture > QUOTE_UNAVAILABLE >
 
 exports[`every public FindingCode has an exercised fixture > QUOTE_UNVERIFIED > QUOTE_UNVERIFIED 1`] = `"We couldn't confirm this quote came from NEAR Intents. Don't send."`;
 
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_CONFIDENTIAL > RECIPIENT_CONFIDENTIAL 1`] = `"This quote pays a confidential NEAR Intents recipient, which Neer can't compare with your address. Check the receiving address in your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_FORWARDED > RECIPIENT_FORWARDED 1`] = `"The quote pays fake…near, which passes the funds on to another address or contract, so Neer can't confirm where they end up. Check the final receiving address in your swap app."`;
+
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_LOOKALIKE > RECIPIENT_LOOKALIKE 1`] = `"The quote's recipient starts and ends like your address fake…near, but the middle is different. Don't send. Get a new quote to an address copied from your own wallet."`;
+
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_MISMATCH > RECIPIENT_MISMATCH 1`] = `"The quote sends the swapped funds to fake…near, not your address othe…near. Don't send. Get a new quote to your own address."`;
+
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_NETWORK_MISMATCH > RECIPIENT_NETWORK_MISMATCH 1`] = `"The quote delivers on NEAR, but you expect to receive on Ethereum. Don't send. Get a new quote for the network you want."`;
+
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_NETWORK_UNKNOWN > RECIPIENT_NETWORK_UNKNOWN 1`] = `"We couldn't look up which network this quote delivers to, so we can't compare the receiving address. Try again in a minute."`;
+
+exports[`every public FindingCode has an exercised fixture > RECIPIENT_NOT_PROVIDED > RECIPIENT_NOT_PROVIDED 1`] = `"The quote sends the swapped funds to fake…near. Enter your own receiving address so Neer can compare it with the quote."`;
+
 exports[`every public FindingCode has an exercised fixture > REFUND_ADDRESS_INVALID > REFUND_ADDRESS_INVALID 1`] = `"This refund address won't work on Ethereum. If the swap fails, your refund can't reach you."`;
 
 exports[`every public FindingCode has an exercised fixture > REFUND_DIFFERS_FROM_SENDER > REFUND_DIFFERS_FROM_SENDER 1`] = `"The quoted refund address differs from your declared sender. Make sure you control 0xBAbA…BaBa; Neer cannot verify ownership."`;

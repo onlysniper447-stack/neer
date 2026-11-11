@@ -1,6 +1,6 @@
 {
   "name": "@neer/core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Neer rules engine: deterministic preflight checks for NEAR Intents 1Click deposits",
   "license": "MIT",
   "type": "module",

@@ -8,7 +8,7 @@ import { apiExample } from "@/lib/api-example";
 import { requestOrigin } from "@/lib/origin";
 
 const VERDICTS = [
-  { Icon: CircleCheck, label: "Safe to send", cls: "text-safe", bg: "bg-safe-bg", text: "Your send matches the signed quote: network, token, amount, memo and time left." },
+  { Icon: CircleCheck, label: "Checks passed", cls: "text-safe", bg: "bg-safe-bg", text: "Your send matches the signed quote: network, token, amount, memo, time left and your receiving address." },
   { Icon: CircleAlert, label: "Check this", cls: "text-check", bg: "bg-check-bg", text: "Something needs a look first, or Neer couldn't confirm it. It tells you what." },
   { Icon: CircleX, label: "Don't send", cls: "text-stop", bg: "bg-stop-bg", text: "Sending now could lose the money or leave it stuck. You get the reason and the fix." },
 ] as const;
@@ -16,7 +16,7 @@ const VERDICTS = [
 const STEPS = [
   ["Paste the address", "Neer looks up the quote NEAR Intents issued for it and verifies the quote's signature."],
   ["Say how you'll send", "Pick the network, token and amount you're about to use. Nothing is pre-selected, on purpose."],
-  ["Get one clear answer", "Safe to send, Check this, or Don't send, with the reason and what to do about it."],
+  ["Get one clear answer", "Checks passed, Check this, or Don't send, with the reason and what to do about it."],
 ] as const;
 
 export default async function DepositStart() {
@@ -65,7 +65,7 @@ export default async function DepositStart() {
             ))}
           </ul>
           <p className="mt-6 border-t border-line pt-4 text-sm text-muted">
-            Fails closed: if NEAR Intents doesn&apos;t answer or anything can&apos;t be confirmed, the answer is never Safe to send.
+            Fails closed: if NEAR Intents doesn&apos;t answer or anything can&apos;t be confirmed, the answer is never Checks passed.
           </p>
         </aside>
       </section>
@@ -91,7 +91,7 @@ export default async function DepositStart() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <h2 id="checks-title" className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              What has to pass for Safe to send
+              What has to pass for Checks passed
             </h2>
             <p className="mt-2 text-muted">
               Neer has {RULE_CATALOG.length} checks and runs every one that applies to your swap. These {core.length} must all pass; any problem turns the answer
@@ -145,10 +145,10 @@ export default async function DepositStart() {
           <p className="text-muted">
             The same checks as a JSON API. <code className="rounded bg-surface px-1 py-0.5 font-mono text-sm text-ink">POST /api/v1/preflight</code> returns a verdict
             and every check; <code className="rounded bg-surface px-1 py-0.5 font-mono text-sm text-ink">GET /api/v1/track</code> returns the swap status in plain
-            English. Errors never return Safe.
+            English. Errors never return Checks passed.
           </p>
           <p className="text-muted">
-            The <code className="font-mono text-sm text-ink">&lt;NeerGuard/&gt;</code> React widget keeps your Send button disabled until a fresh Safe to send.
+            The <code className="font-mono text-sm text-ink">&lt;NeerGuard/&gt;</code> React widget keeps your Send button disabled until a fresh Checks passed.
           </p>
           <Link href="/developers" className="inline-flex min-h-11 items-center gap-1 font-medium text-brand underline-offset-4 hover:underline">
             Read the API docs <ArrowRight className="size-4" aria-hidden="true" />

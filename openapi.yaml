@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Neer verification API
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Local, unpublished API contract. Checks declared deposit details before sending. No wallet access,
     signing, submission, delivery guarantee or fund recovery.
@@ -216,6 +216,20 @@ components:
             operation.
           maxLength: 128
           pattern: ^[\x21-\x7e]*$
+        expectedRecipient:
+          type: string
+          description: >-
+            Since 1.1.0. The caller's own receiving address, compared with the signed quote's recipient using the
+            destination network's address rules (EVM case-insensitive, NEAR and Solana exact). Not the deposit
+            address (that is transfer.to). Surrounding whitespace is trimmed; 1–128 characters; not a URL. Without
+            it the result is at best warn (RECIPIENT_NOT_PROVIDED), never pass.
+          pattern: ^\s*(?!\S*://)[A-Za-z0-9:_\-.+/=]{1,128}\s*$
+        expectedDestinationChain:
+          type: string
+          description: >-
+            Since 1.1.0. Canonical network ID where the caller expects to receive. A different quoted destination
+            blocks (RECIPIENT_NETWORK_MISMATCH). Omit it to use the quote's destination network.
+          pattern: ^[a-z][a-z0-9_-]{0,31}$
         source:
           type: string
           description: Declared sending source. Omission stays unknown and produces a warning, never an assumed pass.
@@ -258,7 +272,9 @@ components:
       properties:
         status:
           type: string
-          description: Any block finding wins; otherwise any warn wins; otherwise pass. A warning is not a pass.
+          description: >-
+            Any block finding wins; otherwise any warn wins; otherwise pass. A warning is not a pass. Since 1.1.0 a
+            pass also requires expectedRecipient to match the quote's recipient. Values are unchanged from 1.0.0.
           enum:
             - pass
             - warn
@@ -280,7 +296,7 @@ components:
         version:
           type: string
           description: Public verifier semantic version.
-          const: 1.0.0
+          const: 1.1.0
     Finding:
       type: object
       additionalProperties: false
@@ -366,6 +382,13 @@ components:
         - REFUND_TO_DEPOSIT_ADDRESS
         - REFUND_FORMAT_UNSUPPORTED
         - REFUND_DIFFERS_FROM_SENDER
+        - RECIPIENT_CONFIDENTIAL
+        - RECIPIENT_NETWORK_MISMATCH
+        - RECIPIENT_NETWORK_UNKNOWN
+        - RECIPIENT_NOT_PROVIDED
+        - RECIPIENT_LOOKALIKE
+        - RECIPIENT_MISMATCH
+        - RECIPIENT_FORWARDED
         - DRAFT_NETWORK_UNSUPPORTED
         - DRAFT_APPROVAL
         - DRAFT_NOT_PLAIN_TRANSFER
@@ -563,7 +586,7 @@ components:
       description: Verifier version on every application-controlled response.
       schema:
         type: string
-        const: 1.0.0
+        const: 1.1.0
     Access-Control-Allow-Origin:
       description: This public endpoint allows any origin; credentials are never enabled.
       schema:

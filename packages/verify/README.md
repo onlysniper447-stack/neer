@@ -12,6 +12,8 @@ Pure async verification for **Node >=22.12.0**, following the workspace package 
 - `amount`: **human-readable decimal string**, parsed with the selected token's catalog decimals using BigInt. Proper comma thousands groups follow the existing parser. No float conversion. Unknown metadata stays unknown; precision is not guessed.
 - `memo?`: declared transfer memo. Omission inherits the lookup memo, matching legacy behavior; explicit null means no memo.
 - `lookupMemo?`: separate quote-lookup memo; if omitted, defaults to `memo ?? null`.
+- `expectedRecipient?` (1.1.0): the caller's own receiving address, compared with the quote's recipient by the destination network's address rules. Without it the result is at best warn (`RECIPIENT_NOT_PROVIDED`), never pass.
+- `expectedDestinationChain?` (1.1.0): canonical network ID where the caller expects to receive; a different quoted destination blocks.
 - `source?`: wallet/exchange/unknown. Omitted source remains unknown and yields warn, never pass.
 - `transfer?`: supplemental `{ chainId?, from?, to? }` context. Sender/recipient are declarations, not proof of ownership or an actual wallet operation.
 
@@ -19,7 +21,7 @@ Unknown fields, including deferred `quoteId`, are rejected by `VerifyInputSchema
 
 ## Public output
 
-Exactly `{ status, findings, quote, checkedAt, version }`. `VERIFY_VERSION` is the single constant `1.0.0`; package and rules versions retain their separate meanings.
+Exactly `{ status, findings, quote, checkedAt, version }`. `VERIFY_VERSION` is the single constant `1.1.0`; package and rules versions retain their separate meanings.
 
 Findings contain only `{ code, severity, message, fix }`. Stable branch identities are attached inside the existing engine, not recovered from human text. Pass/info rows stay in the legacy result; unknown adverse checks project to warn, never disappear into pass. Quote unavailability explicitly projects to block. Missing required checks and unidentified adverse checks cannot become pass. `FINDING_CODES` enumerates the 69 actionable Phase 0 branch identities, including defensive cases; not every legacy-only branch is reachable through the strict public input.
 

@@ -1,7 +1,7 @@
 {
   "fixtureKind": "FAKE_LOCAL_ONLY_DO_NOT_SEND",
   "schemaVersion": 1,
-  "verifierVersion": "1.0.0",
+  "verifierVersion": "1.1.0",
   "id": "08-context-defenses",
   "metadata": {
     "clock": "2026-11-07T15:30:00.000Z",
@@ -78,7 +78,8 @@
       "chain": "eth",
       "asset": "nep141:fake-usdc.omft.near",
       "amount": "5000000",
-      "source": "wallet"
+      "source": "wallet",
+      "expectedRecipient": "fake-recipient.near"
     },
     "now": "2026-11-07T15:30:00.000Z",
     "quotePublicKey": "ed25519:8u7iKq6GLTvvHMLipKtiud7NSFSPAqsuD1z5tGm9gH2h",
@@ -136,7 +137,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -158,7 +160,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -188,7 +190,8 @@
           "amount": "5",
           "source": "exchange",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -210,7 +213,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -240,7 +243,8 @@
           "amount": "5",
           "source": "unknown",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -262,7 +266,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -292,7 +296,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -314,7 +319,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -361,7 +366,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -383,7 +389,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -407,7 +413,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -429,7 +436,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -453,7 +460,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "warn",
@@ -475,7 +483,7 @@
             "swapType": "EXACT_INPUT"
           },
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -513,7 +521,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "block",
@@ -527,7 +536,7 @@
           ],
           "quote": null,
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }
@@ -570,7 +579,8 @@
           "amount": "5",
           "source": "wallet",
           "lookupMemo": null,
-          "transfer": {}
+          "transfer": {},
+          "expectedRecipient": "fake-recipient.near"
         },
         "expected": {
           "status": "block",
@@ -584,7 +594,7 @@
           ],
           "quote": null,
           "checkedAt": "2026-11-07T15:30:00.000Z",
-          "version": "1.0.0"
+          "version": "1.1.0"
         },
         "targetProduced": true
       }

@@ -21,13 +21,13 @@ const TOC = [
 const HOW = [
   ["You paste the deposit address", "Your swap app got it from NEAR Intents' 1Click API when it asked for a quote. Neer looks up that quote with the public status endpoint."],
   ["Neer verifies the quote", "Neer checks the SDK-defined signature fields against the NEAR Intents public key. It uses the pinned status response, not partner-supplied metadata."],
-  ["You say how you'll send", "Network, token, amount, memo, and whether it's your wallet or an exchange. Nothing is pre-selected, so a default can't be wrong for you."],
+  ["You say how you'll send", "Network, token, amount, memo, your receiving address, and whether it's your wallet or an exchange. Nothing is pre-selected, so a default can't be wrong for you."],
   ["Neer runs every check that applies", "Neer reads current deposit status and compares your declared details. Token metadata is cached; published network minimums have a review deadline."],
-  ["You get one answer", "Any problem means Don't send. Anything Neer can't confirm means Check this. Safe to send needs every required check to pass."],
+  ["You get one answer", "Any problem means Don't send. Anything Neer can't confirm means Check this. Checks passed needs every required check to pass, including your receiving address."],
 ] as const;
 
 const VERDICTS = [
-  { Icon: CircleCheck, label: "Safe to send", cls: "text-safe", box: "border-safe/40 bg-safe-bg", text: SAFE_DEFINITION },
+  { Icon: CircleCheck, label: "Checks passed", cls: "text-safe", box: "border-safe/40 bg-safe-bg", text: SAFE_DEFINITION },
   {
     Icon: CircleAlert,
     label: "Check this",
@@ -68,11 +68,12 @@ const TIPS = [
 ];
 
 const FAQ = [
-  ["Is Safe to send a guarantee?", "No. It means your transfer matches a quote signed by NEAR Intents, read just now. It's a check, not a guarantee."],
+  ["Is Checks passed a guarantee?", "No. It means your transfer and receiving address match a quote signed by NEAR Intents, read just now. Neer doesn't check delivery on the destination network or your wallet's security."],
+  ["Why do I enter my receiving address?", "So Neer can compare it with the quote's recipient. A quote that pays someone else can match everything else. Without your address the answer is Check this, never Checks passed."],
   ["Does Neer hold or move my money?", "No. Neer only reads public quote data. It never connects a wallet, signs or sends anything, and has no custody of funds."],
   [
     "What happens if NEAR Intents doesn't answer?",
-    "Neer fails closed. You get Can't check right now (a Check this answer), never Safe to send. Wait a minute and try again before you send.",
+    "Neer fails closed. You get Can't check right now (a Check this answer), never Checks passed. Wait a minute and try again before you send.",
   ],
   ["Why do I have to pick the network myself?", "Because the address can't tell. Ethereum and Base addresses look identical, which is how near/intents#382 happened. A default could be wrong for you."],
   ["Which networks does Neer cover?", "Every network in the NEAR Intents token list. The Analytics page lists them and shows which ones Neer validates address formats and checksums for."],
@@ -80,7 +81,7 @@ const FAQ = [
     "What does Neer store?",
     "Tracker lookups use an address-keyed memory cache. Browser statistics stay in localStorage. IP-based rate-limit keys go to Upstash when configured. Read the privacy page for details.",
   ],
-  ["Can my app use this?", "Yes. The same checks are a JSON API, and the <NeerGuard/> React widget keeps a Send button disabled until a fresh Safe to send."],
+  ["Can my app use this?", "Yes. The same checks are a JSON API, and the <NeerGuard/> React widget keeps a Send button disabled until a fresh Checks passed."],
   ["Is Neer part of NEAR?", "Independent project, not affiliated with NEAR Foundation. Neer uses the public NEAR Intents 1Click API."],
 ] as const;
 
@@ -134,7 +135,7 @@ export default function ResourcesPage() {
           <Section
             id="checks"
             title="Checks explained"
-            lede={`Each check gives pass, a note, Check this or Don't send. The ${REQUIRED_CHECKS.length} marked "Needed for Safe" must pass for Safe to send.`}
+            lede={`Each check gives pass, a note, Check this or Don't send. The ${REQUIRED_CHECKS.length} marked "Needed to pass" must pass for Checks passed.`}
           >
             <ul className="divide-y divide-line rounded-2xl border border-line">
               {RULE_CATALOG.map((r) => (
@@ -142,7 +143,7 @@ export default function ResourcesPage() {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-lg font-semibold">{r.title}</h3>
                     {REQUIRED_CHECKS.includes(r.id) ? (
-                      <span className="rounded-full border border-brand/40 px-2 py-0.5 text-xs font-medium text-brand">Needed for Safe</span>
+                      <span className="rounded-full border border-brand/40 px-2 py-0.5 text-xs font-medium text-brand">Needed to pass</span>
                     ) : null}
                   </div>
                   <p className="mt-1 text-ink">{r.what}</p>

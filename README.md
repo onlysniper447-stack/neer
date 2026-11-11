@@ -3,16 +3,25 @@
 Check a NEAR Intents (1Click) deposit **before** you send.
 
 Paste the deposit address from your swap app, say how you'll send (network,
-token, amount, wallet or exchange) and Neer compares that with the quote 1Click
-signed for that address. You get one of three answers, **Safe to send**,
-**Check this** or **Don't send**, with the reason and a fix. After you
+token, amount, wallet or exchange) and where you expect to receive the funds,
+and Neer compares that with the quote 1Click signed for that address. You get
+one of three answers, **Checks passed**, **Check this** or **Don't send**, with
+the reason and a fix. After you
 send, the tracker displays NEAR Intents reports of progress, completion, refund or failure. It does not independently confirm delivery or refunds.
 
 Neer only reads public 1Click data. It never asks for a seed phrase, never
 connects a wallet, never signs and never sends anything.
 
-> "Safe to send" means your transfer matches a quote signed by NEAR Intents.
-> It is a check, not a guarantee.
+> "Checks passed" means Neer confirmed the quote is signed by NEAR Intents, its
+> deposit address is unused, there is time left, and your network, token,
+> amount, memo (if any) and receiving address match it, sent from your own
+> wallet. Neer does not check delivery on the destination network, your
+> wallet's security, or who controls these addresses.
+>
+> Without your receiving address the answer is **Check this**, never Checks
+> passed. The API's machine-readable values stay `safe` / `check` / `block`
+> (preflight `verdict`) and `pass` / `warn` / `block` (verifier `status`);
+> only the human labels changed in verifier 1.1.0.
 
 ## Run it
 
@@ -115,7 +124,7 @@ Independent project, not affiliated with NEAR Foundation or RHEA Finance.
 ```
 packages/core       @neer/core      Pure TS rules engine. No I/O. zod schemas for every
                                     1Click shape, address validation per chain, quote
-                                    signature verification, 17 checks, verdict aggregation,
+                                    signature verification, 18 checks, verdict aggregation,
                                     status copy and tracker timeline.
 packages/oneclick   @neer/oneclick  Read-only 1Click client (status, tokens; quote only for
                                     the smoke script). Every response is validated; failures
@@ -136,11 +145,12 @@ fixtures            @neer/fixtures  Recorded live 1Click responses + scenario bu
    immediately.
 2. Otherwise you say how you'll send. Nothing is pre-selected.
 3. The browser POSTs to `/api/v1/preflight`. The server reads 1Click again
-   (never cached) and runs all 17 checks.
+   (never cached) and runs all 18 checks.
 4. The verdict is **fail-closed**: any `block` gives Don't send; any `warn` or
-   `unknown` gives Check this; Safe needs every required check
-   (signature, used, time, lookalike, network, token, amount, exchange) to pass.
-   1Click errors, timeouts or a missing token list can never produce Safe.
+   `unknown` gives Check this; Checks passed needs every required check
+   (signature, used, time, lookalike, network, token, amount, recipient,
+   exchange) to pass.
+   1Click errors, timeouts or a missing token list can never produce Checks passed.
 
 ### Quote signatures
 
@@ -192,7 +202,7 @@ Rules config (minimums, budgets) is versioned in `packages/core/src/rules-config
 ```
 
 `amount` is in base units. `asset` is `native`, a token contract or a 1Click
-`assetId`. Missing declared details remain unknown, never Safe. Set `source: "wallet"` for a wallet send. Amount and draft `value` use decimal integer strings, not hexadecimal; integer strings are limited to 256 digits.
+`assetId`. Missing declared details remain unknown, never Checks passed. Set `source: "wallet"` for a wallet send. Amount and draft `value` use decimal integer strings, not hexadecimal; integer strings are limited to 256 digits.
 
 Responses: `200` with `{ verdict, label, headline, message, checks[], quote,
 signedQuote, rulesVersion, checksHash, serverTime, requestId }`; `404` (quote not
@@ -258,7 +268,7 @@ phrase or private key.
   (Upstash when configured, otherwise in-memory).
 - The tracker shares one status read per exact address and memo per 5 s, with
   a 5,000-entry per-instance cap. Case-sensitive network addresses stay distinct.
-  Preflight always requests fresh status. Web Safe displays expire after 60 seconds
+  Preflight always requests fresh status. Web Checks passed displays expire after 60 seconds
   or the timing safety boundary, whichever comes first.
 - ESLint forbids wallet signing / sending RPC method names anywhere in the code.
 

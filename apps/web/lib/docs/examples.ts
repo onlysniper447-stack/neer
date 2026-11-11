@@ -10,7 +10,9 @@ import trackBadRequest from "./examples/track-400.json";
  * Quote examples captured from this API running against the live 1Click API on
  * 2026-10-27 (a fresh 5 USDC Arbitrum -> Solana quote; nothing was sent). A
  * unit test keeps their shape in sync with the service. Error examples reflect
- * current input validation.
+ * current input validation. pf-safe.json was edited by hand for verifier 1.1.0
+ * (label, headline, message and the receiving-address check row); its checksHash
+ * is the captured one, not recomputed.
  */
 export const EXAMPLES = { safe, block, badRequest, notFound, unsupported, track, trackBadRequest };
 
@@ -18,7 +20,7 @@ export const EXAMPLE_ADDRESS = safe.quote.depositAddress;
 
 export const SAFE_REQUEST = {
   deposit: { address: EXAMPLE_ADDRESS, memo: null },
-  transfer: { chain: "arb", asset: "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near", amount: "5000000", source: "wallet" },
+  transfer: { chain: "arb", asset: "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near", amount: "5000000", source: "wallet", expectedRecipient: safe.quote.recipient },
 };
 
 export const BLOCK_REQUEST = {

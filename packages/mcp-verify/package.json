@@ -1,6 +1,6 @@
 {
   "name": "@neer/mcp-verify",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Read-only stdio adapter for the Neer deposit verification API",
   "license": "MIT",
   "type": "module",

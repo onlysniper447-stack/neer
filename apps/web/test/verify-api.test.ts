@@ -201,7 +201,7 @@ it("OpenAPI describes exactly all public codes and the approved contract",()=>{
   const schema=spec.components.schemas.VerifyInput!;expect(schema.additionalProperties).toBe(false);
   expect(schema.required).toEqual(["depositAddress","network","token","amount"]);
   const properties=schema.properties as Record<string,Record<string,unknown>>;
-  expect(Object.keys(properties)).toEqual(["depositAddress","network","token","amount","memo","lookupMemo","source","transfer"]);
+  expect(Object.keys(properties)).toEqual(["depositAddress","network","token","amount","memo","lookupMemo","expectedRecipient","expectedDestinationChain","source","transfer"]);
   expect(properties.transfer?.additionalProperties).toBe(false);expect(properties.source?.default).toBe("unknown");
   expect(spec.paths["/api/v1/verify"]?.post.responses).toHaveProperty("429");expect(Object.keys(spec.paths["/api/v1/verify"]!.options.responses)).toEqual(["204"]);
   const docs=readFileSync(new URL("docs/api.md",root),"utf8");

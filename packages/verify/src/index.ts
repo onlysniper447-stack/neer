@@ -54,6 +54,8 @@ export async function verifyDepositWithLegacy(input: VerifyInput, deps: VerifyDe
     amount,
     source: data.source,
     ...(data.memo === undefined ? {} : { memo: data.memo }),
+    ...(data.expectedRecipient === undefined ? {} : { expectedRecipient: data.expectedRecipient }),
+    ...(data.expectedDestinationChain === undefined ? {} : { expectedDestinationChain: data.expectedDestinationChain }),
   });
   if (!transfer.success) throw new VerifyInputError(transfer.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })));
   const result = await verifyLegacyPreflight({

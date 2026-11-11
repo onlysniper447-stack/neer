@@ -63,7 +63,7 @@ describe("web Safe expiry", () => {
   it("does not leave a previous Safe live after age or its timing boundary", () => {
     const now = new Date();
     const qr = arbUsdc(now);
-    const result = preflight({ depositAddress: qr.quote.depositAddress!, transfer: DeclaredTransferSchema.parse({ chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000", source: "wallet" }), lookup: { kind: "found", status: makeStatus(qr, "PENDING_DEPOSIT", now), fetchedAt: now }, tokens: TOKENS.map((t) => ({ ...t, priceUpdatedAt: now.toISOString() })), quotePublicKey: TEST_PUBLIC_KEY, now });
+    const result = preflight({ depositAddress: qr.quote.depositAddress!, transfer: DeclaredTransferSchema.parse({ chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000", source: "wallet", expectedRecipient: qr.quoteRequest.recipient }), lookup: { kind: "found", status: makeStatus(qr, "PENDING_DEPOSIT", now), fetchedAt: now }, tokens: TOKENS.map((t) => ({ ...t, priceUpdatedAt: now.toISOString() })), quotePublicKey: TEST_PUBLIC_KEY, now });
     expect(isFreshSafe(result, now.getTime())).toBe(true);
     expect(isFreshSafe(result, now.getTime() + 60_000)).toBe(false);
     result.checks.find((c) => c.id === "time")!.expected!.safeUntil = new Date(now.getTime() + 10_000).toISOString();

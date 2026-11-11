@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Lookup } from "@neer/core";
-import { ASSETS, E2E_ADDRESSES, TEST_PUBLIC_KEY, TOKENS, arbUsdc, issue382, makeStatus } from "@neer/fixtures/scenarios";
+import { ASSETS, E2E_ADDRESSES, SOL_RECIPIENT, TEST_PUBLIC_KEY, TOKENS, arbUsdc, issue382, makeStatus } from "@neer/fixtures/scenarios";
 
 const lookups = new Map<string, () => Lookup>();
 let tokens = TOKENS;
@@ -42,11 +42,20 @@ describe("preflightService", () => {
     expect("error" in r.body && r.body.error?.code).toBe("NEER_UNSUPPORTED_CHAIN");
   });
 
-  it("200 safe for a matching send", async () => {
-    const r = await preflightService(body(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000" }), "req_3");
+  it("200 safe for a matching send with the receiving address", async () => {
+    const r = await preflightService(body(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000", expectedRecipient: SOL_RECIPIENT }), "req_3");
     expect(r.status).toBe(200);
     expect("verdict" in r.body && r.body.verdict).toBe("safe");
+    expect("label" in r.body && r.body.label).toBe("Checks passed");
     expect(r.body.requestId).toBe("req_3");
+  });
+
+  // Deliberate 1.1.0 change: the same send without a receiving address is no longer safe.
+  it("200 check for the same send without a receiving address", async () => {
+    const r = await preflightService(body(E2E_ADDRESSES.safe, { chain: "arb", asset: ASSETS.arbUsdc, amount: "5000000" }), "req_3b");
+    expect(r.status).toBe(200);
+    expect("verdict" in r.body && r.body.verdict).toBe("check");
+    expect("headline" in r.body && r.body.headline).toBe("Receiving address not confirmed");
   });
 
   it("200 block for the #382 replay", async () => {

@@ -4,7 +4,7 @@ Local, unreleased integration guide. The verifier exists in the QA preview, **no
 
 ## Insertion point
 
-Call verification **after the quote/deposit address is returned and before any deposit submission**. Use the actual quote address, selected sending network, canonical token assetId, human-readable decimal amount, and declared source. Do not infer wallet as the source. Keep lookupMemo separate from the sending memo where they differ. See [API](../api.md), [deep links](../deep-links.md), [findings](../findings.md) and [limits](../limits.md).
+Call verification **after the quote/deposit address is returned and before any deposit submission**. Use the actual quote address, selected sending network, canonical token assetId, human-readable decimal amount, declared source, and the user's own receiving address as `expectedRecipient` (verifier 1.1.0; without it the result is never pass). Do not infer wallet as the source, and never fill `expectedRecipient` from the quote itself: it must come from the user. Keep lookupMemo separate from the sending memo where they differ. See [API](../api.md), [deep links](../deep-links.md), [findings](../findings.md) and [limits](../limits.md).
 
 **Do not send funds unless status is pass or the user has acknowledged each warn finding.**
 
@@ -120,6 +120,6 @@ For the **local build**, run `pnpm --filter @neer/mcp-verify build` from this re
 
 Use Node >=22.12 and a deliberately started local API server (or an explicitly reviewed QA preview origin). The default `https://neer-one.vercel.app` does **not** yet serve this verifier in production. The package exposes only `verify_near_deposit`; it cannot connect wallets, sign or submit transactions. See the [package README](../../packages/mcp-verify/README.md) for its exact JSON-first/verbatim-status output, bounded response validation and transport-error payload. Tool errors must stop the proposed transfer, not become a pass.
 
-Only **after separate human release approval and actual npm publication**, a future client configuration could replace the local command with `npx` and args `["--yes", "@neer/mcp-verify@1.0.0"]`. Do not run that illustrative command now or assume name/scope ownership from the earlier E404 lookup. Do not send secrets in MCP inputs or configuration.
+Only **after separate human release approval and actual npm publication**, a future client configuration could replace the local command with `npx` and args `["--yes", "@neer/mcp-verify@1.1.0"]`. Do not run that illustrative command now or assume name/scope ownership from the earlier E404 lookup. Do not send secrets in MCP inputs or configuration.
 
 Application logging restrictions do not control hosting/provider logs. IP rate-limit keys may reach Upstash when configured; memory fallback is process-local, not a distributed quota. URLs, history, cache and lookup memo risks remain as documented in [limits](../limits.md). Nothing here guarantees a transfer, independently verifies final delivery or recovers sent funds.

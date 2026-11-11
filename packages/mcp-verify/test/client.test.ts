@@ -10,7 +10,7 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),"../../..");
 import { input, pass } from "./fixtures.js";
 const warning={code:"SOURCE_UNKNOWN",severity:"warn",message:"Tell us if you're sending from your own wallet or from an exchange.",fix:"Say wallet or exchange."};
 const blocking={code:"QUOTE_EXPIRED",severity:"block",message:"This quote has expired. Don't send to this address. Get a new quote from your app.",fix:"Get a new quote."};
-const response=(data:unknown)=>new Response(JSON.stringify(data),{headers:{"content-type":"application/json","x-neer-verify-version":"1.0.0"}});
+const response=(data:unknown)=>new Response(JSON.stringify(data),{headers:{"content-type":"application/json","x-neer-verify-version":"1.1.0"}});
 const unavailable={isError:true,content:[{type:"text",text:JSON.stringify({code:"quote_unavailable",message:UNAVAILABLE_MESSAGE})}]};
 
 describe("API adapter",()=>{
@@ -31,7 +31,7 @@ describe("API adapter",()=>{
  });
  it.each([400,401,404,429,500,302])("fails closed on HTTP %s without echoing bodies",async(status)=>{expect(await callVerify(input,{fetch:async()=>new Response("FAKE_PRIVATE_BODY",{status})})).toEqual(unavailable);});
  const invalid:Record<string,unknown>={
-  "null result":null,"unknown version":{...pass,version:"2.0.0"},"unknown top-level field":{...pass,address:"FAKE_PRIVATE"},
+  "null result":null,"unknown version":{...pass,version:"2.0.0"},"previous version 1.0.0":{...pass,version:"1.0.0"},"unknown top-level field":{...pass,address:"FAKE_PRIVATE"},
   "pass with block finding":{...pass,findings:[blocking]},"pass with warn finding":{...pass,findings:[warning]},"warn without finding":{...pass,status:"warn"},"block without finding":{...pass,status:"block"},
   "pass without verified quote":{...pass,quote:null},"unverified quote":{...pass,quote:{...pass.quote,verified:false}},"expired at check":{...pass,quote:{...pass.quote,expiresAt:pass.checkedAt}},
   "quote leaks address":{...pass,quote:{...pass.quote,depositAddress:"FAKE_PRIVATE"}},"unknown finding":{...pass,status:"warn",findings:[{...warning,code:"UNKNOWN_FUTURE_CODE"}]},
@@ -64,12 +64,17 @@ describe("API adapter",()=>{
  it.each(["quoteId","quote","rules","key","tx","unexpected"])("rejects unsupported %s before fetch",async(field)=>{
   const fetcher=vi.fn();expect((await callVerify({...input,[field]:"FAKE"},{fetch:fetcher})).isError).toBe(true);expect(fetcher).not.toHaveBeenCalled();
  });
+ it("forwards expectedRecipient and expectedDestinationChain verbatim and rejects a link recipient before fetch (1.1.0)",async()=>{
+  const withRecipient={...input,expectedRecipient:"fake-recipient.near",expectedDestinationChain:"near"};const fetcher=vi.fn(async()=>response(pass));
+  await callVerify(withRecipient,{fetch:fetcher});expect(JSON.parse((fetcher.mock.calls[0]! as unknown as [string,RequestInit])[1].body as string)).toMatchObject({expectedRecipient:"fake-recipient.near",expectedDestinationChain:"near"});
+  const blocked=vi.fn();expect((await callVerify({...input,expectedRecipient:"https://fake.example/x"},{fetch:blocked})).isError).toBe(true);expect(blocked).not.toHaveBeenCalled();
+ });
  it("rejects unknown nested transfer fields before fetch",async()=>{const fetcher=vi.fn();expect((await callVerify({...input,transfer:{tx:"FAKE"}},{fetch:fetcher})).isError).toBe(true);expect(fetcher).not.toHaveBeenCalled();});
  it("matches canonical input parsing on every recorded public fixture and invalid boundary",()=>{
   const fixtureDir=resolve(root,"fixtures/quotes");let count=0;
   for(const f of readdirSync(fixtureDir).filter(f=>f.endsWith(".json"))){const file=JSON.parse(readFileSync(resolve(fixtureDir,f),"utf8")) as {scenarios:{publicReplay:{input:unknown}}[]};for(const s of file.scenarios){expect(ToolInputSchema.safeParse(s.publicReplay.input)).toEqual(VerifyInputSchema.safeParse(s.publicReplay.input));count++;}}
   for(const data of [{...input,amount:"1e3"},{...input,token:"FAKE"},{...input,transfer:{chainId:Number.MAX_SAFE_INTEGER+1}},{...input,lookupMemo:"FAKE SPACE"}])expect(ToolInputSchema.safeParse(data)).toEqual(VerifyInputSchema.safeParse(data));
-  expect(count).toBe(72);
+  expect(count).toBe(79);
  });
  it.each(["https://user:secret@example.test","https://example.test/path","https://example.test/?secret=FAKE","https://example.test/#FAKE","http://example.test","file:///tmp/FAKE"])("rejects unsafe configured origin %s",(url)=>{expect(()=>endpoint(url)).toThrow();});
  it("allows explicit HTTPS/loopback origins only and pins the path",()=>{expect(endpoint()).toBe(DEFAULT_API_URL+"/api/v1/verify");expect(endpoint("http://127.0.0.1:3510")).toBe("http://127.0.0.1:3510/api/v1/verify");expect(endpoint("https://example.test/")).toBe("https://example.test/api/v1/verify");});

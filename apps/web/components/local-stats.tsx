@@ -35,7 +35,7 @@ export function LocalStatsPanel() {
     return <div className="h-40 animate-pulse rounded-2xl bg-surface" aria-hidden="true" />;
   }
   const rows: [string, number, string][] = [
-    ["Safe to send", stats.safe, "bg-safe"],
+    ["Checks passed", stats.safe, "bg-safe"],
     ["Check this", stats.check, "bg-check"],
     ["Don't send", stats.block, "bg-stop"],
   ];

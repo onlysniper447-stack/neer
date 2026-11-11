@@ -9,7 +9,7 @@ function alt(l: PreflightInput, changes: Partial<Token>) {
   l.tokens.push(token); l.transfer.asset=token.assetId;
 }
 function origin(l: PreflightInput, chain: string) { l.tokens[0]!.blockchain=chain;l.transfer.chain=chain; }
-function xrpTarget(l: PreflightInput, q: QuoteResponse, target: string) { l.tokens[1]!.blockchain="xrp";q.quoteRequest.recipient=target; }
+function xrpTarget(l: PreflightInput, q: QuoteResponse, target: string) { l.tokens[1]!.blockchain="xrp";q.quoteRequest.recipient=target;l.transfer.expectedRecipient=target; }
 function fakeTron(byte: number) {const a=new Uint8Array(21).fill(byte);a[0]=0x41;return createBase58check(sha256).encode(a);}
 function fakeXrp(extended=false) {const a=new Uint8Array(extended?31:21).fill(0x11);a[0]=extended?0x05:0;if(extended)a[1]=0x44;return base58xrp.encode(Uint8Array.from([...a,...sha256(sha256(a)).slice(0,4)]));}
 export const cases: Record<string, Change> = {
@@ -69,6 +69,13 @@ export const cases: Record<string, Change> = {
  REFUND_TO_DEPOSIT_ADDRESS:(_l,q)=>{q.quoteRequest.refundTo=DEPOSIT;},
  REFUND_FORMAT_UNSUPPORTED:(l)=>{origin(l,"fakechain");},
  REFUND_DIFFERS_FROM_SENDER:(l)=>{l.transfer.from=OTHER;},
+ RECIPIENT_CONFIDENTIAL:(_l,q)=>{q.quoteRequest.recipientType="CONFIDENTIAL_INTENTS";},
+ RECIPIENT_NETWORK_MISMATCH:(l)=>{l.transfer.expectedDestinationChain="eth";},
+ RECIPIENT_NETWORK_UNKNOWN:(l)=>{l.tokens=l.tokens.slice(0,1);},
+ RECIPIENT_NOT_PROVIDED:(l)=>{delete l.transfer.expectedRecipient;},
+ RECIPIENT_LOOKALIKE:(l)=>{l.transfer.expectedRecipient="fake-recipiemt.near";},
+ RECIPIENT_MISMATCH:(l)=>{l.transfer.expectedRecipient="other-account.near";},
+ RECIPIENT_FORWARDED:(_l,q)=>{q.quoteRequest.customRecipientMsg="fake-recipient-msg";},
  DRAFT_NETWORK_UNSUPPORTED:(l)=>{origin(l,"near");l.transfer.tx={to:DEPOSIT,value:"5000000"};},
  DRAFT_APPROVAL:(l)=>{l.transfer.tx={to:DEPOSIT,data:"0x095ea7b3"};},
  DRAFT_NOT_PLAIN_TRANSFER:(l)=>{l.transfer.tx={to:DEPOSIT,data:"0x12345678"};},

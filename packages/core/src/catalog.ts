@@ -118,6 +118,14 @@ export const RULE_CATALOG: readonly RuleInfo[] = [
     maxSeverity: "block",
   },
   {
+    id: "recipient",
+    title: "Receiving address",
+    what: "The quote's recipient is the receiving address you entered, compared by the destination network's address rules, and the quote delivers on the network you expect if you named one.",
+    blocksWhen: "The quote's recipient or destination network differs from yours, including lookalike addresses that only share the first and last characters.",
+    warnsWhen: "You didn't enter a receiving address, or the quote's recipient is confidential or passes funds on, so it can't be compared.",
+    maxSeverity: "block",
+  },
+  {
     id: "approval",
     title: "Transfer type",
     what: "A draft transaction (API and widget only) is a plain transfer, not an approval or another contract call.",
